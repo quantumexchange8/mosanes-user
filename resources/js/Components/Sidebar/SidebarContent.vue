@@ -5,7 +5,7 @@ import SidebarCollapsible from '@/Components/Sidebar/SidebarCollapsible.vue'
 import SidebarCollapsibleItem from '@/Components/Sidebar/SidebarCollapsibleItem.vue'
 import {ref} from "vue";
 import {usePage} from "@inertiajs/vue3";
-import { IconLayoutDashboard, IconComponents, IconUserCircle, IconUsersGroup, IconReceiptDollar, IconId } from '@tabler/icons-vue';
+import { IconLayoutDashboard, IconUsersGroup } from '@tabler/icons-vue';
 
 </script>
 
@@ -23,6 +23,16 @@ import { IconLayoutDashboard, IconComponents, IconUserCircle, IconUsersGroup, Ic
         >
             <template #icon>
                 <IconLayoutDashboard :size="20" stroke-width="1.25" />
+            </template>
+        </SidebarLink>
+
+        <SidebarLink
+            title="Structure" 
+            :href="route('structure')"
+            :active="route().current('structure')"
+        >
+            <template #icon>
+                <IconUsersGroup :size="20" stroke-width="1.25" />
             </template>
         </SidebarLink>
 
