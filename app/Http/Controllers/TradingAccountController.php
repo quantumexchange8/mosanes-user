@@ -33,7 +33,7 @@ class TradingAccountController extends Controller
 
         // create ct id to link ctrader account
         $ctUser = (new CTraderService)->CreateCTID($user->email);
-        $user->ct_user_id = $ctUser['userId'];
+        $user->ct_user_id = $ctUser['user-id'];
         $user->save();
         
         // Retrieve the account type by account_group
