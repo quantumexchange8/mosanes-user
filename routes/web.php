@@ -24,6 +24,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('structure')->group(function() {
         Route::get('/', [StructureController::class, 'show'])->name('structure');
         Route::get('/getDownlineData', [StructureController::class, 'getDownlineData'])->name('structure.getDownlineData');
+        Route::get('/getDownlineListingData', [StructureController::class, 'getDownlineListingData'])->name('structure.getDownlineListingData');
+        Route::get('/getFilterData', [StructureController::class, 'getFilterData'])->name('structure.getFilterData');
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -64,16 +64,6 @@ export function transactionFormat() {
         }
     }
 
-    function getChannelName(name) {
-        if (name === 'bank') {
-            return 'Bank Transfer';
-        } else if (name === 'crypto') {
-            return 'Cryptocurrency';
-        }else if (name === 'fpx') {
-            return 'FPX';
-        }
-    }
-
     function formatDate(date) {
         const formattedDate = new Date(date).toLocaleDateString('en-CA', {
             year: 'numeric',
@@ -97,20 +87,6 @@ export function transactionFormat() {
         return new Date(date).toLocaleTimeString('en-CA', options);
     }
 
-    function getStatusClass(status) {
-        if (status === 'Successful') {
-            return 'success';
-        } else if (status === 'Submitted') {
-            return 'warning';
-        } else if (status === 'Processing') {
-            return 'primary';
-        } else if (status === 'Rejected') {
-            return 'danger';
-        } else {
-            return ''; // Default case or handle other statuses
-        }
-    }
-
     function formatAmount(amount, decimalPlaces = 2) {
         const formattedAmount = parseFloat(amount).toFixed(decimalPlaces);
         const integerPart = formattedAmount.split('.')[0];
@@ -126,11 +102,22 @@ export function transactionFormat() {
 
     return {
         formatDateTime,
-        getChannelName,
         formatDate,
-        getStatusClass,
         formatAmount,
         formatType,
         formatTime
+    };
+}
+
+export function generalFormat() {
+    const formatRgbaColor = (hex, opacity) => {
+        const r = parseInt(hex.slice(0, 2), 16);
+        const g = parseInt(hex.slice(2, 4), 16);
+        const b = parseInt(hex.slice(4, 6), 16);
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    };
+
+    return {
+        formatRgbaColor
     };
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\DropdownOptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -16,7 +17,6 @@ class StructureController extends Controller
 
     public function getDownlineData(Request $request)
     {
-        // dd(Auth::user());
         $upline_id = $request->upline_id;
         $parent_id = $request->parent_id ?: Auth::id();
 
@@ -85,5 +85,35 @@ class StructureController extends Controller
         return User::where('role', $role)
             ->where('hierarchyList', 'like', '%-' . $user_id . '-%')
             ->count();
+    }
+
+    public function getDownlineListingData()
+    {
+        $children_ids = User::find(Auth::id())->getChildrenIds();
+        $query = User::whereIn('id', $children_ids)
+            ->get()->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'upline_id' => $user->upline_id,
+                    'upline_name' => $user->upline->name,
+                    'role' => $user->role,
+                    'id_number' => $user->id_number,
+                    'joined_date' => $user->created_at,
+                    'level' => $this->calculateLevel($user->hierarchyList),
+                ];
+            });
+
+        return response()->json([
+            'users' => $query
+        ]);
+    }
+
+    public function getFilterData()
+    {
+        return response()->json([
+            'uplines' => (new DropdownOptionService())->getUplines(),
+        ]);
     }
 }

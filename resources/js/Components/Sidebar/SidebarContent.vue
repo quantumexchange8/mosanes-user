@@ -15,9 +15,9 @@ import { IconLayoutDashboard, IconUsersGroup, IconId } from '@tabler/icons-vue';
         aria-label="main"
         class="relative flex flex-col flex-1 max-h-full gap-1 px-5 py-3 items-center"
     >
-        <!-- Dashboard --><!--"$t('public.dashboard')"-->
+        <!-- Dashboard -->
         <SidebarLink
-            title="Dashboard" 
+            title="$t('public.dashboard')" 
             :href="route('dashboard')"
             :active="route().current('dashboard')"
         >
@@ -27,7 +27,7 @@ import { IconLayoutDashboard, IconUsersGroup, IconId } from '@tabler/icons-vue';
         </SidebarLink>
 
         <SidebarLink
-            title="Structure" 
+            title="$t('public.structure')" 
             :href="route('structure')"
             :active="route().current('structure')"
         >
@@ -35,6 +35,7 @@ import { IconLayoutDashboard, IconUsersGroup, IconId } from '@tabler/icons-vue';
                 <IconUsersGroup :size="20" stroke-width="1.25" />
             </template>
         </SidebarLink>
+
 
         <!-- Account -->
         <SidebarLink
