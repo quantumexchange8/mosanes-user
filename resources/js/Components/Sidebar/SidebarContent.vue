@@ -5,7 +5,7 @@ import SidebarCollapsible from '@/Components/Sidebar/SidebarCollapsible.vue'
 import SidebarCollapsibleItem from '@/Components/Sidebar/SidebarCollapsibleItem.vue'
 import {ref} from "vue";
 import {usePage} from "@inertiajs/vue3";
-import { IconLayoutDashboard, IconComponents, IconUserCircle, IconUsersGroup, IconReceiptDollar, IconId } from '@tabler/icons-vue';
+import { IconLayoutDashboard, IconId } from '@tabler/icons-vue';
 
 </script>
 
@@ -26,27 +26,16 @@ import { IconLayoutDashboard, IconComponents, IconUserCircle, IconUsersGroup, Ic
             </template>
         </SidebarLink>
 
-        <!-- Components -->
-        <!-- <SidebarCollapsible
-            title="Components"
-            :active="route().current('components.*')"
+        <!-- Account -->
+        <SidebarLink
+            title="$t('public.account')"
+            :href="route('account')"
+            :active="route().current('account')"
         >
             <template #icon>
-                <IconComponents :size="20" stroke-width="1.25" />
+                <IconId :size="20" stroke-width="1.25" />
             </template>
-
-            <SidebarCollapsibleItem
-                title="Buttons"
-                :href="route('components.buttons')"
-                :active="route().current('components.buttons')"
-            />
-
-            <SidebarCollapsibleItem
-                title="Member Network"
-                :href="route('member.network')"
-                :active="route().current('member.network')"
-            />
-        </SidebarCollapsible> -->
+        </SidebarLink>
 
 
         <!-- Profile -->
