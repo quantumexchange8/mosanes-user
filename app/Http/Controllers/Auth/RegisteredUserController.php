@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Services\CTraderService;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -49,8 +50,15 @@ class RegisteredUserController extends Controller
             $ctUser = (new CTraderService)->CreateCTID($user->email);
             $user->ct_user_id = $ctUser['userId'];
             $user->save();
+
+            // Log the details for debugging
+            Log::debug('cTrader User Created:', [
+                'ctUser' => $ctUser,
+                'user' => $user,
+            ]);
+
         }
-        
+                
         event(new Registered($user));
 
         Auth::login($user);
