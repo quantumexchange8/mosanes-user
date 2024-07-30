@@ -8,6 +8,7 @@ use App\Models\AccountType;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Services\CTraderService;
+use Illuminate\Support\Facades\App;
 
 class TradingAccountController extends Controller
 {
@@ -39,9 +40,10 @@ class TradingAccountController extends Controller
         // Retrieve the account type by account_group
         $accountType = AccountType::where('account_group', $request->accountType)->first();
         
-        $mainPassword = Str::random(8);
-        $investorPassword = Str::random(8);
-        (new CTraderService)->createUser($user,  $mainPassword, $investorPassword, $accountType->account_group, $request->leverage, $accountType->id, null, null, '');
-}
-
+        if (App::environment('production')) {
+            $mainPassword = Str::random(8);
+            $investorPassword = Str::random(8);
+            (new CTraderService)->createUser($user,  $mainPassword, $investorPassword, $accountType->account_group, $request->leverage, $accountType->id, null, null, '');
+        }
+    }
 }
