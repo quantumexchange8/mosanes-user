@@ -160,3 +160,13 @@ export const CalendarIcon = defineComponent({
         )
     },
 })
+
+export const SwitchHorizontal01Icon = defineComponent({
+    setup() {
+        return () => (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13.3346 11.3333H2.66797M2.66797 11.3333L5.33464 8.66667M2.66797 11.3333L5.33463 14M2.66797 4.66667H13.3346M13.3346 4.66667L10.668 2M13.3346 4.66667L10.668 7.33333" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        )
+    },
+})

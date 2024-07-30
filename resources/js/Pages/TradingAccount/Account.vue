@@ -116,8 +116,7 @@ const openLiveAccount = () => {
         <div class="flex flex-col pt-3 gap-20 md:pt-5 md:gap-[100px]">
             <div class="flex flex-col items-center px-3 gap-5 self-stretch md:px-5">
                 <!-- banner -->
-                <div class="h-[260px] self-stretch rounded-2xl bg-white shadow-toast md:h-60 bg-[url('/img/background-account-banner.svg')] bg-no-repeat bg-right-bottom">
-                    <!-- graphic -->
+                <div class="h-[260px] self-stretch rounded-2xl bg-white shadow-toast md:h-60 bg-[url('/img/background-account-banner.svg')] bg-no-repeat bg-right-bottom bg-contain">
                     <!-- Content -->
                     <div class="w-[304px] flex flex-col items-center gap-5 md:w-[450px] md:gap-8 md:items-start lg:w-[454px] xl:w-[643px]">
                         <div class="flex flex-col justify-center items-start gap-2 self-stretch">
@@ -143,13 +142,6 @@ const openLiveAccount = () => {
                 <component :is="tabs[activeIndex]?.component" />
             </div>
             
-            <div class="flex flex-col items-center p-5 gap-3 self-stretch bg-gray-100">
-                <div class="flex flex-col items-start gap-1 self-stretch">
-                    <span class="text-gray-700 text-xs font-semibold"></span>
-                    <span class="self-stretch text-gray-500 text text-xxs md:text-xs"></span>
-                </div>
-                <span class="self-stretch text-gray-500 text-xxs md:text-xs"></span>
-            </div>
         </div>
     </AuthenticatedLayout>
 
@@ -208,11 +200,11 @@ const openLiveAccount = () => {
                 </div>
             </div>
             <div class="self-stretch">
-                <span class="text-gray-500 text-xs">By proceeding, I acknowledge that I have read and agree to the </span>
-                <span class="text-primary-500 text-xs font-medium">Trading Account Agreement.</span>
+                <span class="text-gray-500 text-xs">By proceeding, I acknowledge that I have read and agree to the <span class="text-primary-500 text-xs font-medium">Trading Account Agreement</span>.</span>
+                
             </div>
         </div>
-        <div class="flex justify-end items-center pt-5 gap-4 self-stretch">
+        <div class="flex justify-end items-center pt-5 gap-4 self-stretch md:pt-7">
             <Button variant="primary-flat" type="button" @click.prevent="openLiveAccount">Open Live Account</Button>
         </div>
     </Dialog>
