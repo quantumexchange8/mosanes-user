@@ -55,8 +55,6 @@ class RegisteredUserController extends Controller
             ]);
             $user->ct_user_id = $ctUser['userId'];
             $user->save();
-
-
         }
                 
         event(new Registered($user));
