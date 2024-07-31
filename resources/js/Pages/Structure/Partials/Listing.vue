@@ -17,14 +17,15 @@ import {
     IconAdjustments,
 } from '@tabler/icons-vue';
 import Badge from '@/Components/Badge.vue';
-// import MemberTableActions from "@/Pages/Member/Listing/Partials/MemberTableActions.vue";
 // import { trans, wTrans } from "laravel-vue-i18n";
 import {transactionFormat} from "@/Composables/index.js";
+import StatusBadge from "@/Components/StatusBadge.vue";
 
 const loading = ref(false);
 const dt = ref();
 const users = ref();
 const { formatDate } = transactionFormat();
+const paginator_caption = "wTrans('public.paginator_caption')";
 
 onMounted(() => {
     getResults();
@@ -47,7 +48,8 @@ const getFilterData = async () => {
     try {
         const uplineResponse = await axios.get('/structure/getFilterData');
         uplines.value = uplineResponse.data.uplines;
-        groups.value = uplineResponse.data.groups;
+        maxLevel.value = uplineResponse.data.maxLevel;
+        createLevelOptions();
     } catch (error) {
         console.error('Error filter data:', error);
     } finally {
@@ -70,10 +72,15 @@ const filters = ref({
     status: { value: null, matchMode: FilterMatchMode.EQUALS },
 });
 
+const rowClicked = (id_number) => {
+    window.open(route('structure.viewDownline', id_number), '_self')
+}
+
 // overlay panel
 const op = ref();
 const uplines = ref()
-const groups = ref()
+const maxLevel = ref(0)
+const levels = ref([])
 const upline_id = ref(null)
 const level = ref(null)
 const filterCount = ref(0);
@@ -82,13 +89,22 @@ const toggle = (event) => {
     op.value.toggle(event);
 }
 
-watch([upline_id, level], ([newUplineId, newGroupId]) => {
+const createLevelOptions = () => {
+    for (let index = 1; index <= maxLevel.value; index++) {
+        levels.value.push({
+            value: index,
+            name: `Lvl ${index}`
+        })
+    }
+}
+
+watch([upline_id, level], ([newUplineId, newLevel]) => {
     if (upline_id.value !== null) {
         filters.value['upline_id'].value = newUplineId.value
     }
 
     if (level.value !== null) {
-        filters.value['level'].value = newGroupId.value
+        filters.value['level'].value = newLevel.value
     }
 })
 
@@ -121,7 +137,6 @@ watchEffect(() => {
     }
 });
 
-const paginator_caption = "wTrans('public.paginator_caption')";
 </script>
 
 <template>
@@ -139,6 +154,9 @@ const paginator_caption = "wTrans('public.paginator_caption')";
             :globalFilterFields="['name']"
             ref="dt"
             :loading="loading"
+            table-style="min-width:fit-content"
+            selectionMode="single"
+            @row-click="rowClicked($event.data.id_number)"
         >
             <template #header>
                 <div class="flex flex-col md:flex-row gap-3 items-center self-stretch">
@@ -197,7 +215,7 @@ const paginator_caption = "wTrans('public.paginator_caption')";
                     {{ formatDate(slotProps.data.joined_date) }}
                 </template>
             </Column>
-            <Column field="level" sortable headerClass="hidden md:table-cell" class="level-column">
+            <Column field="level" sortable headerClass="hidden md:table-cell" class="w-1/5 md:w-auto">
                 <template #header>
                     <span>{{ "$t('public.level')" }}</span>
                 </template>
@@ -206,45 +224,32 @@ const paginator_caption = "wTrans('public.paginator_caption')";
                     {{ slotProps.data.level }}
                 </template>
             </Column>
-            <Column field="name" sortable header="$t('public.name')" headerClass="hidden md:table-cell" class="name-column">
+            <Column field="name" sortable header="$t('public.name')" headerClass="hidden md:table-cell" class="w-auto">
                 <template #body="slotProps">
                     <div class="flex items-center gap-3">
                         <div class="w-7 h-7 rounded-full overflow-hidden">
                             <DefaultProfilePhoto />
                         </div>
                         <div class="flex flex-col items-start">
-                            <div class="w-20 truncate font-medium">
+                            <div class="w-20 truncate font-medium xl:w-36">
                                 {{ slotProps.data.name }}
                             </div>
-                            <div class="w-10 truncate text-gray-500 text-xs">
+                            <div class="w-20 truncate text-gray-500 text-xs xl:w-36">
                                 {{ slotProps.data.email }}
                             </div>
                         </div>
                     </div>
                 </template>
             </Column>
-            <Column field="role" headerClass="hidden md:table-cell" class="role-column">
+            <Column field="role" headerClass="hidden md:table-cell">
                 <template #header>
                     <span>{{ "$t('public.role')" }}</span>
                 </template>
                 <template #body="slotProps">
                     <div class="flex py-3 items-center flex-1">
-                        <div
-                            v-if="slotProps.data.role === 'member'"
-                            class="flex py-1 px-2 justify-center items-center rounded bg-primary-50"
-                        >
-                            <div class="text-primary-500 text-center text-xs font-semibold">
-                                {{ "$t('public.member')" }}
-                            </div>
-                        </div>
-                        <div
-                            v-if="slotProps.data.role === 'agent'"
-                            class="flex py-1 px-2 justify-center items-center rounded bg-warning-50"
-                        >
-                            <div class="text-warning-500 text-center text-xs font-semibold">
-                                {{ "$t('public.agent')" }}
-                            </div>
-                        </div>
+                        <StatusBadge :value="slotProps.data.role">
+                            {{ "$t(`public.${user.role}`)" }}
+                        </StatusBadge>
                     </div>
                 </template>
             </Column>
@@ -254,7 +259,7 @@ const paginator_caption = "wTrans('public.paginator_caption')";
                         <div class="w-7 h-7 rounded-full overflow-hidden">
                             <DefaultProfilePhoto />
                         </div>
-                        <div class="font-medium">
+                        <div class="w-20 truncate font-medium xl:w-36">
                             {{ slotProps.data.upline_name }}
                         </div>
                     </div>
@@ -285,22 +290,22 @@ const paginator_caption = "wTrans('public.paginator_caption')";
             <!-- Filter Level-->
             <div class="flex flex-col gap-2 items-center self-stretch">
                 <div class="flex self-stretch text-xs text-gray-950 font-semibold">
-                    {{ "$t('public.filter_group_header')" }}
+                    {{ "$t('public.filter_level_header')" }}
                 </div>
                 <Dropdown
                     v-model="level"
-                    :options="groups"
+                    :options="levels"
                     filter
                     :filterFields="['name']"
                     optionLabel="name"
-                    placeholder="$t('public.select_group_placeholder')"
+                    placeholder="$t('public.select_level_placeholder')"
                     class="w-full"
                     scroll-height="236px"
                 >
                     <template #value="slotProps">
                         <div v-if="slotProps.value" class="flex items-center gap-3">
                             <div class="flex items-center gap-2">
-                                <div class="w-4 h-4 rounded-full overflow-hidden grow-0 shrink-0" :style="{ backgroundColor: `#${slotProps.value.color}` }"></div>
+                                <div class="w-4 h-4 rounded-full overflow-hidden grow-0 shrink-0"></div>
                                 <div>{{ slotProps.value.name }}</div>
                             </div>
                         </div>
@@ -308,7 +313,7 @@ const paginator_caption = "wTrans('public.paginator_caption')";
                     </template>
                     <template #option="slotProps">
                         <div class="flex items-center gap-2">
-                            <div class="w-4 h-4 rounded-full overflow-hidden grow-0 shrink-0" :style="{ backgroundColor: `#${slotProps.option.color}` }"></div>
+                            <div class="w-4 h-4 rounded-full overflow-hidden grow-0 shrink-0"></div>
                             <div>{{ slotProps.option.name }}</div>
                         </div>
                     </template>
@@ -375,17 +380,3 @@ const paginator_caption = "wTrans('public.paginator_caption')";
         </div>
     </OverlayPanel>
 </template>
-
-<style>
-.level-column {
-    width: 5%;
-}
-
-.name-column {
-    width: 10%;
-}
-
-.role-column {
-    width: 50%;
-}
-</style>

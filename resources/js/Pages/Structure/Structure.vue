@@ -21,8 +21,6 @@ const tabs = ref([
 </script>
 
 <template>
-    <Head title="Structure" />
-
     <AuthenticatedLayout title="$t('public.structure')">
         <TabView class="flex flex-col gap-5 self-stretch">
             <TabPanel v-for="(tab, index) in tabs" :key="index" :header="tab.title">

@@ -114,6 +114,40 @@ class StructureController extends Controller
     {
         return response()->json([
             'uplines' => (new DropdownOptionService())->getUplines(),
+            'maxLevel' => $this->calculateLevel($this->getMaxHierarchy()),
+        ]);
+    }
+
+    private function getMaxHierarchy()
+    {
+        $children_ids = User::find(Auth::id())->getChildrenIds();
+        $hierarchies = User::whereIn('id', $children_ids)->get()->pluck('hierarchyList');
+        $hierarchy_list = '';
+        $max_length = 0;
+
+        foreach ($hierarchies as $hierarchy) {
+            $parts = explode('-', trim($hierarchy, '-'));
+            $length = count($parts);
+
+            if($length > $max_length) {
+                $hierarchy_list = $hierarchy;
+                $max_length = count($parts);
+            }
+        }
+
+        return $hierarchy_list;
+    }
+
+    public function viewDownline($id_number)
+    {
+        $user = User::where('id_number', $id_number)->first();
+        $upline = $user->upline;
+        $user['upline_name'] = $upline->name;
+        // $user['profile_photo']
+
+        return Inertia::render('Structure/ViewDownline', [
+            'user' => $user,
+            'tradingAccounts' => null,
         ]);
     }
 }
