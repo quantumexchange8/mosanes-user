@@ -67,7 +67,7 @@ class CTraderService
                 'depositCurrency' => 'USD',
                 'name' => $user->name,
                 'description' => $remarks,
-                'accessRights' => CTraderAccessRights::NO_TRADING,
+                'accessRights' => CTraderAccessRights::FULL_ACCESS,
                 'balance' => 0,
                 'leverageInCents' => $leverage * 100,
                 'contactDetails' => [
