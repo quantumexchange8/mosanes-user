@@ -67,7 +67,7 @@ class CTraderService
                 'depositCurrency' => 'USD',
                 'name' => $user->name,
                 'description' => $remarks,
-                'accessRights' => CTraderAccessRights::NO_TRADING,
+                'accessRights' => CTraderAccessRights::FULL_ACCESS,
                 'balance' => 0,
                 'leverageInCents' => $leverage * 100,
                 'contactDetails' => [
@@ -137,7 +137,7 @@ class CTraderService
             $data = $this->getUser($row->meta_login);
             if ($data) {
                 (new UpdateTradingUser)->execute($row->meta_login, $data);
-                (new UpdateTradingAccount)->execute($row->meta_login, $data);
+                (new UpdateTradingAccount)->execute($row->meta_login, $data, $row->account_type_id);
             }
         }
     }

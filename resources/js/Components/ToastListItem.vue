@@ -1,6 +1,6 @@
 <script setup>
 import {onMounted} from "vue";
-import { IconCircleCheckFilled, IconX } from '@tabler/icons-vue';
+import { IconCircleCheckFilled, IconAlertTriangleFilled, IconX } from '@tabler/icons-vue';
 
 const props = defineProps({
     title: String,
@@ -17,6 +17,14 @@ onMounted(() => {
 });
 
 const emit = defineEmits(['remove']);
+
+// Determine icon based on the type
+const iconComponent = {
+    success: IconCircleCheckFilled,
+    warning: IconAlertTriangleFilled,
+    error: IconCircleCheckFilled, // Change as needed
+    info: IconCircleCheckFilled // Change as needed
+}[props.type];
 
 const borderColor = {
     success: 'border-success-500',
@@ -44,7 +52,7 @@ const textColor = {
         role="alert"
     >
         <div :class="textColor">
-            <IconCircleCheckFilled size="20" />
+            <component :is="iconComponent" size="20" />
         </div>
         <div
             class="flex flex-col items-start w-full text-sm"

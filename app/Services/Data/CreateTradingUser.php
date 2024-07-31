@@ -24,7 +24,7 @@ class CreateTradingUser
         $tradingUser->balance = $data['balance'] / 100;
         $tradingUser->credit = $data['nonWithdrawableBonus'] / 100;
         $tradingUser->remarks = $remarks;
-        $tradingUser->account_type = $accountType;
+        $tradingUser->account_type_id = $accountType;
         DB::transaction(function () use ($tradingUser) {
             $tradingUser->save();
         });

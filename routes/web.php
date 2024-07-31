@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('account')->group(function () {
         Route::get('/', [TradingAccountController::class, 'index'])->name('account');
         Route::get('/accountOptions', [TradingAccountController::class, 'accountOptions'])->name('account.accountOptions');
+        Route::get('/getLeverages', [TradingAccountController::class, 'getLeverages'])->name('account.getLeverages');
         Route::post('/create_live_account', [TradingAccountController::class, 'create_live_account'])->name('account.create_live_account');
     });
 
