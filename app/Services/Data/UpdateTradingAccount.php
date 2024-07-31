@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class UpdateTradingAccount
 {
-    public function execute($meta_login, $data): TradingAccount
+    public function execute($meta_login, $data, $accountType): TradingAccount
     {
-        return $this->updateTradingAccount($meta_login, $data);
+        return $this->updateTradingAccount($meta_login, $data, $accountType);
     }
 
-    public function updateTradingAccount($meta_login, $data): TradingAccount
+    public function updateTradingAccount($meta_login, $data, $accountType): TradingAccount
     {
         $tradingAccount = TradingAccount::query()->where('meta_login', $meta_login)->first();
 //        $accountType = AccountType::where('name', $tradingUser->meta_group)->first();
@@ -22,7 +22,7 @@ class UpdateTradingAccount
         $tradingAccount->credit = $data['nonWithdrawableBonus'] / 100;
         $tradingAccount->margin_leverage = $data['leverageInCents'] / 100;
         $tradingAccount->equity = $data['equity'] / 100;
-        $tradingAccount->account_type = 1;
+        $tradingAccount->account_type_id = $accountType;
         DB::transaction(function () use ($tradingAccount) {
             $tradingAccount->save();
         });
