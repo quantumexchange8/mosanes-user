@@ -3,16 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\CTraderService;
 use App\Services\DropdownOptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class StructureController extends Controller
 {
-    public function show()
+    public function show(Request $request)
     {
-        return Inertia::render('Structure/Structure');
+        $tab_index = 0;
+        if($request->tab == 'listing') {
+            $tab_index = 1;
+        }
+        return Inertia::render('Structure/Structure', ['tab' => $tab_index]);
     }
 
     public function getDownlineData(Request $request)
@@ -140,14 +146,40 @@ class StructureController extends Controller
 
     public function viewDownline($id_number)
     {
-        $user = User::where('id_number', $id_number)->first();
-        $upline = $user->upline;
-        $user['upline_name'] = $upline->name;
+        $user = User::where('id_number', $id_number)->select('id', 'name', 'role')->first();
+        // $upline = $user->upline;
+        // $user['upline_name'] = $upline->name;
         // $user['profile_photo']
 
         return Inertia::render('Structure/ViewDownline', [
             'user' => $user,
-            'tradingAccounts' => null,
+        ]);
+    }
+
+    public function getUserData(Request $request)
+    {
+        $user = User::where('id', $request->id)->where('hierarchyList', 'like', '%-' . Auth::id() . '-%')->first();
+        $trading_accounts = $user->tradingAccounts;
+        try {
+            (new CTraderService)->getUserInfo(collect($trading_accounts));
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage());
+        }
+
+        $trading_accounts = $user->tradingAccounts->map(function($trading_account) {
+            return [
+                'id' => $trading_account->id,
+                'meta_login' => $trading_account->meta_login,
+                'account_type' => $trading_account->accountType->name,
+                'balance' => $trading_account->balance,
+                'credit' => $trading_account->credit,
+                'equity' => $trading_account->equity,
+            ];
+        });
+
+        return response()->json([
+            'userDetail' => $user,
+            'tradingAccounts' => $trading_accounts,
         ]);
     }
 }

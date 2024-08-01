@@ -90,7 +90,7 @@ const clearSearch = () => {
                 <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-400">
                     <IconSearch size="20" stroke-width="1.25" />
                 </div>
-                <InputText v-model="search" placeholder="$t('public.network_search_placeholder')" class="font-normal pl-12 w-full md:w-60" />
+                <InputText v-model="search" :placeholder="$t('public.network_search_placeholder')" class="font-normal pl-12 w-full md:w-60" />
                 <div
                     v-if="search"
                     class="absolute top-2/4 -mt-2 right-4 text-gray-300 hover:text-gray-400 select-none cursor-pointer"
@@ -105,7 +105,7 @@ const clearSearch = () => {
                 class="w-full md:w-auto flex gap-3"
             >
                 <IconMinus size="20" color="#fff" stroke-width="1.25" />
-                $t('public.collapse_all')
+                {{ $t('public.collapse_all') }}
             </Button>
         </div>
 
@@ -113,7 +113,7 @@ const clearSearch = () => {
             <!-- Upline Section -->
             <div v-if="checked && upline && upline.id != user.upline_id" class="flex flex-col items-center gap-5 w-full">
                 <div class="rounded flex items-center self-stretch py-2 px-3 bg-gray-100">
-                    <span class="text-xs font-semibold text-gray-700 uppercase">{{ "$t('public.level' )" }} {{ upline.level ?? 0 }}</span>
+                    <span class="text-xs font-semibold text-gray-700 uppercase">{{ $t('public.level') }} {{ upline.level ?? 0 }}</span>
                 </div>
 
                 <!-- loading state -->
@@ -207,7 +207,7 @@ const clearSearch = () => {
             <!-- Parent Section -->
             <div  v-if="(parent.level === 0 && checked) || (parent.level !== 0 && parent)" class="flex flex-col items-center gap-5 w-full">
                 <div class="rounded flex items-center self-stretch py-2 px-3 bg-gray-100">
-                    <span class="text-xs font-semibold text-gray-700 uppercase">{{ "$t('public.level' )" }} {{ parent.level ?? 0 }}</span>
+                    <span class="text-xs font-semibold text-gray-700 uppercase">{{ $t('public.level' ) }} {{ parent.level ?? 0 }}</span>
                 </div>
 
                 <!-- loading state -->
@@ -310,7 +310,7 @@ const clearSearch = () => {
             <!-- Children Section -->
             <div v-if="children.length" class="flex flex-col items-center gap-5 w-full">
                 <div class="rounded flex items-center self-stretch py-2 px-3 bg-gray-100">
-                    <span class="text-xs font-semibold text-gray-700 uppercase">{{ "$t('public.level')" }} {{ children[0].level ?? 0 }}</span>
+                    <span class="text-xs font-semibold text-gray-700 uppercase">{{ $t('public.level') }} {{ children[0].level ?? 0 }}</span>
                 </div>
 
                 <!-- loading state -->

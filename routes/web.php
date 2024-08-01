@@ -35,6 +35,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/getDownlineListingData', [StructureController::class, 'getDownlineListingData'])->name('structure.getDownlineListingData');
         Route::get('/getFilterData', [StructureController::class, 'getFilterData'])->name('structure.getFilterData');
         Route::get('/downline/{id_number}', [StructureController::class, 'viewDownline'])->name('structure.viewDownline');
+        Route::get('/getUserData', [StructureController::class, 'getUserData'])->name('structure.getUserData');
     });
 
     /**

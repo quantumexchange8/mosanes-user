@@ -15,9 +15,10 @@ import {
     IconSearch,
     IconCircleXFilled,
     IconAdjustments,
+    IconCloudDownload,
 } from '@tabler/icons-vue';
 import Badge from '@/Components/Badge.vue';
-// import { trans, wTrans } from "laravel-vue-i18n";
+import { trans, wTrans } from "laravel-vue-i18n";
 import {transactionFormat} from "@/Composables/index.js";
 import StatusBadge from "@/Components/StatusBadge.vue";
 
@@ -25,7 +26,7 @@ const loading = ref(false);
 const dt = ref();
 const users = ref();
 const { formatDate } = transactionFormat();
-const paginator_caption = "wTrans('public.paginator_caption')";
+const paginator_caption = wTrans('public.paginator_caption');
 
 onMounted(() => {
     getResults();
@@ -84,6 +85,7 @@ const levels = ref([])
 const upline_id = ref(null)
 const level = ref(null)
 const filterCount = ref(0);
+const lvl = trans('public.level_shortname');
 
 const toggle = (event) => {
     op.value.toggle(event);
@@ -93,7 +95,7 @@ const createLevelOptions = () => {
     for (let index = 1; index <= maxLevel.value; index++) {
         levels.value.push({
             value: index,
-            name: `Lvl ${index}`
+            name: `${lvl} ${index}`
         })
     }
 }
@@ -164,7 +166,7 @@ watchEffect(() => {
                         <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-400">
                             <IconSearch size="20" stroke-width="1.25" />
                         </div>
-                        <InputText v-model="filters['global'].value" placeholder="$t('public.keyword_search')" class="font-normal pl-12 w-full md:w-60" />
+                        <InputText v-model="filters['global'].value" :placeholder="$t('public.keyword_search')" class="font-normal pl-12 w-full md:w-60" />
                         <div
                             v-if="filters['global'].value !== null"
                             class="absolute top-2/4 -mt-2 right-4 text-gray-300 hover:text-gray-400 select-none cursor-pointer"
@@ -182,7 +184,7 @@ watchEffect(() => {
                         >
                             <IconAdjustments size="20" color="#0C111D" stroke-width="1.25" />
                             <div class="text-sm text-gray-950 font-medium">
-                                {{ "$t('public.filter')" }}
+                                {{ $t('public.filter') }}
                             </div>
                             <Badge class="w-5 h-5 text-xs text-white" variant="numberbadge">
                                 {{ filterCount }}
@@ -194,22 +196,23 @@ watchEffect(() => {
                                 @click="exportCSV($event)"
                                 class="w-full md:w-auto"
                             >
-                                {{ "$t('public.export')" }}
+                                {{ $t('public.export') }}
+                                <IconCloudDownload size="20" />
                             </Button>
                         </div>
                     </div>
                 </div>
             </template>
-            <template #empty> {{ "$t('public.no_user_header')" }} </template>
+            <template #empty> {{ $t('public.no_user_header') }} </template>
             <template #loading>
                 <div class="flex flex-col gap-2 items-center justify-center">
                     <Loader />
-                    <span class="text-sm text-gray-700">{{ "$t('public.loading_users_caption')" }}</span>
+                    <span class="text-sm text-gray-700">{{ $t('public.loading_users_caption') }}</span>
                 </div>
             </template>
             <Column field="joined_date" sortable style="width: 15%" class="hidden md:table-cell">
                 <template #header>
-                    <span>{{ "$t('public.joined_date')" }}</span>
+                    <span>{{ $t('public.joined_date') }}</span>
                 </template>
                 <template #body="slotProps">
                     {{ formatDate(slotProps.data.joined_date) }}
@@ -217,14 +220,14 @@ watchEffect(() => {
             </Column>
             <Column field="level" sortable headerClass="hidden md:table-cell" class="w-1/5 md:w-auto">
                 <template #header>
-                    <span>{{ "$t('public.level')" }}</span>
+                    <span>{{ $t('public.level') }}</span>
                 </template>
                 <template #body="slotProps">
                     <span class="md:hidden">Lvl </span>
                     {{ slotProps.data.level }}
                 </template>
             </Column>
-            <Column field="name" sortable header="$t('public.name')" headerClass="hidden md:table-cell" class="w-auto">
+            <Column field="name" sortable :header="$t('public.name')" headerClass="hidden md:table-cell" class="w-auto">
                 <template #body="slotProps">
                     <div class="flex items-center gap-3">
                         <div class="w-7 h-7 rounded-full overflow-hidden">
@@ -243,17 +246,17 @@ watchEffect(() => {
             </Column>
             <Column field="role" headerClass="hidden md:table-cell">
                 <template #header>
-                    <span>{{ "$t('public.role')" }}</span>
+                    <span>{{ $t('public.role') }}</span>
                 </template>
                 <template #body="slotProps">
                     <div class="flex py-3 items-center flex-1">
                         <StatusBadge :value="slotProps.data.role">
-                            {{ "$t(`public.${user.role}`)" }}
+                            {{ $t(`public.${slotProps.data.role}`) }}
                         </StatusBadge>
                     </div>
                 </template>
             </Column>
-            <Column field="upline" sortable header="$t('public.upline')" style="width: 35%" class="hidden md:table-cell">
+            <Column field="upline" sortable :header="$t('public.upline')" style="width: 35%" class="hidden md:table-cell">
                 <template #body="slotProps">
                     <div class="flex items-center gap-3">
                         <div class="w-7 h-7 rounded-full overflow-hidden">
@@ -273,16 +276,16 @@ watchEffect(() => {
             <!-- Filter Role-->
             <div class="flex flex-col gap-2 items-center self-stretch">
                 <div class="flex self-stretch text-xs text-gray-950 font-semibold">
-                    {{ "$t('public.filter_role_header')" }}
+                    {{ $t('public.filter_role_header') }}
                 </div>
                 <div class="flex flex-col gap-1 self-stretch">
                     <div class="flex items-center gap-2 text-sm text-gray-950">
                         <RadioButton v-model="filters['role'].value" inputId="role_member" value="member" />
-                        <label for="role_member">{{ "$t('public.member')" }}</label>
+                        <label for="role_member">{{ $t('public.member') }}</label>
                     </div>
                     <div class="flex items-center gap-2 text-sm text-gray-950">
                         <RadioButton v-model="filters['role'].value" inputId="role_agent" value="agent" />
-                        <label for="role_agent">{{ "$t('public.agent')" }}</label>
+                        <label for="role_agent">{{ $t('public.agent') }}</label>
                     </div>
                 </div>
             </div>
@@ -290,7 +293,7 @@ watchEffect(() => {
             <!-- Filter Level-->
             <div class="flex flex-col gap-2 items-center self-stretch">
                 <div class="flex self-stretch text-xs text-gray-950 font-semibold">
-                    {{ "$t('public.filter_level_header')" }}
+                    {{ $t('public.filter_level_header') }}
                 </div>
                 <Dropdown
                     v-model="level"
@@ -298,7 +301,7 @@ watchEffect(() => {
                     filter
                     :filterFields="['name']"
                     optionLabel="name"
-                    placeholder="$t('public.select_level_placeholder')"
+                    :placeholder="$t('public.select_level_placeholder')"
                     class="w-full"
                     scroll-height="236px"
                 >
@@ -323,7 +326,7 @@ watchEffect(() => {
             <!-- Filter Upline-->
             <div class="flex flex-col gap-2 items-center self-stretch">
                 <div class="flex self-stretch text-xs text-gray-950 font-semibold">
-                    {{ "$t('public.filter_upline_header')" }}
+                    {{ $t('public.filter_upline_header') }}
                 </div>
                 <Dropdown
                     v-model="upline_id"
@@ -331,7 +334,7 @@ watchEffect(() => {
                     filter
                     :filterFields="['name']"
                     optionLabel="name"
-                    placeholder="$t('select_upline_placeholder')"
+                    :placeholder="$t('public.select_upline_placeholder')"
                     class="w-full"
                     scroll-height="236px"
                 >
@@ -374,7 +377,7 @@ watchEffect(() => {
                     class="flex justify-center w-full"
                     @click="clearFilter()"
                 >
-                    {{ "$t('public.clear_all')" }}
+                    {{ $t('public.clear_all') }}
                 </Button>
             </div>
         </div>
