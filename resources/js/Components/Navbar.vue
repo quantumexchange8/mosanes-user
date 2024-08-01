@@ -9,7 +9,7 @@ import ProfilePhoto from "@/Components/ProfilePhoto.vue";
 import {Link, usePage} from "@inertiajs/vue3";
 import OverlayPanel from "primevue/overlaypanel";
 import {ref} from "vue";
-// import {loadLanguageAsync} from "laravel-vue-i18n";
+import {loadLanguageAsync} from "laravel-vue-i18n";
 
 defineProps({
     title: String
