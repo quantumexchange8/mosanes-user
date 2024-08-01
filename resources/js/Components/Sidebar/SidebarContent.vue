@@ -17,7 +17,7 @@ import { IconLayoutDashboard, IconUsersGroup, IconId } from '@tabler/icons-vue';
     >
         <!-- Dashboard -->
         <SidebarLink
-            title="$t('public.dashboard')" 
+            :title="$t('public.dashboard')"
             :href="route('dashboard')"
             :active="route().current('dashboard')"
         >
@@ -27,7 +27,7 @@ import { IconLayoutDashboard, IconUsersGroup, IconId } from '@tabler/icons-vue';
         </SidebarLink>
 
         <SidebarLink
-            title="$t('public.structure')" 
+            :title="$t('public.structure')"
             :href="route('structure')"
             :active="route().current('structure')"
         >
@@ -39,7 +39,7 @@ import { IconLayoutDashboard, IconUsersGroup, IconId } from '@tabler/icons-vue';
 
         <!-- Account -->
         <SidebarLink
-            title="$t('public.account')"
+            :title="$t('public.account')"
             :href="route('account')"
             :active="route().current('account')"
         >
