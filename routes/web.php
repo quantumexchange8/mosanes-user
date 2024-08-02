@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AssetMasterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StructureController;
 use App\Http\Controllers\TradingAccountController;
@@ -48,6 +49,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/accountOptions', [TradingAccountController::class, 'accountOptions'])->name('account.accountOptions');
         Route::get('/getLeverages', [TradingAccountController::class, 'getLeverages'])->name('account.getLeverages');
         Route::post('/create_live_account', [TradingAccountController::class, 'create_live_account'])->name('account.create_live_account');
+    });
+
+    /**
+     * ==============================
+     *          Asset Master
+     * ==============================
+     */
+    Route::prefix('asset_master')->group(function () {
+        Route::get('/', [AssetMasterController::class, 'index'])->name('asset_master');
+        Route::get('/getMasters', [AssetMasterController::class, 'getMasters'])->name('asset_master.getMasters');
+        Route::get('/getFilterMasters/{filter}', [AssetMasterController::class, 'getFilterMasters'])->name('asset_master.getFilterMasters');
     });
 
     /**
