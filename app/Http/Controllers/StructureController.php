@@ -159,6 +159,19 @@ class StructureController extends Controller
     public function getUserData(Request $request)
     {
         $user = User::where('id', $request->id)->where('hierarchyList', 'like', '%-' . Auth::id() . '-%')->first();
+
+        $user_data = [
+            'id' => $user->id,
+            'profile_photo' => $user->getFirstMediaUrl('profile_photo'),
+            'name' => $user->name,
+            'id_number' => $user->id_number,
+            'email' => $user->email,
+            'phone_number' => $user->phone_number,
+            'role' => $user->role,
+            'upline_profile_photo' => $user->upline->getFirstMediaUrl('profile_photo'),
+            'upline_name' => $user->upline->name,
+        ];
+
         $trading_accounts = $user->tradingAccounts;
         try {
             (new CTraderService)->getUserInfo(collect($trading_accounts));
@@ -178,7 +191,7 @@ class StructureController extends Controller
         });
 
         return response()->json([
-            'userDetail' => $user,
+            'userDetail' => $user_data,
             'tradingAccounts' => $trading_accounts,
         ]);
     }

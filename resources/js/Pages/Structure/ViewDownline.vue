@@ -306,8 +306,8 @@ const filteredDataOverviews = computed(() => {
                                 </StatusBadge>
                             </div>
 
-                            <div class="flex justify-around content-center gap-2 self-stretch">
-                                <div class="flex flex-col md:flex-row md:gap-2 justify-center items-center">
+                            <div class="flex justify-between content-center gap-2 self-stretch">
+                                <div class="flex flex-col md:flex-row md:gap-2 justify-start items-center w-full">
                                     <div class="text-gray-500 text-xs">
                                         {{ $t('public.balance_shortname') }}
                                     </div>
@@ -315,7 +315,7 @@ const filteredDataOverviews = computed(() => {
                                         $ {{ formatAmount(tradingAccount.balance) }}
                                     </div>
                                 </div>
-                                <div class="flex flex-col md:flex-row md:gap-2 justify-center items-center">
+                                <div class="flex flex-col md:flex-row md:gap-2 justify-start items-center w-full">
                                     <div class="text-gray-500 text-xs">
                                         {{ $t('public.equity_shortname') }}
                                     </div>
@@ -325,7 +325,7 @@ const filteredDataOverviews = computed(() => {
                                 </div>
                                 <div 
                                     v-if="tradingAccount.account_type !== 'Premium Account'"
-                                    class="flex flex-col md:flex-row md:gap-2 justify-center items-center"
+                                    class="flex flex-col md:flex-row md:gap-2 justify-start items-center w-full"
                                 >
                                     <div class="text-gray-500 text-xs">
                                         {{ $t('public.credit_shortname') }}
