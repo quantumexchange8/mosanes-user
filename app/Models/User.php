@@ -97,6 +97,12 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(PaymentAccount::class, 'user_id', 'id');
     }
 
+    public function wallet(): HasOne
+    {
+        return $this->hasOne(Wallet::class, 'user_id', 'id');
+    }
+
+
     public function tradingAccounts(): HasMany
     {
         return $this->hasMany(TradingAccount::class, 'user_id', 'id');
