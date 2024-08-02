@@ -5,7 +5,7 @@ import SidebarCollapsible from '@/Components/Sidebar/SidebarCollapsible.vue'
 import SidebarCollapsibleItem from '@/Components/Sidebar/SidebarCollapsibleItem.vue'
 import {ref} from "vue";
 import {usePage} from "@inertiajs/vue3";
-import { IconLayoutDashboard, IconUsersGroup, IconId } from '@tabler/icons-vue';
+import { IconLayoutDashboard, IconUsersGroup, IconId, IconCoinMonero } from '@tabler/icons-vue';
 
 </script>
 
@@ -26,17 +26,6 @@ import { IconLayoutDashboard, IconUsersGroup, IconId } from '@tabler/icons-vue';
             </template>
         </SidebarLink>
 
-        <SidebarLink
-            :title="$t('public.structure')"
-            :href="route('structure')"
-            :active="route().current('structure')"
-        >
-            <template #icon>
-                <IconUsersGroup :size="20" stroke-width="1.25" />
-            </template>
-        </SidebarLink>
-
-
         <!-- Account -->
         <SidebarLink
             :title="$t('public.account')"
@@ -45,6 +34,28 @@ import { IconLayoutDashboard, IconUsersGroup, IconId } from '@tabler/icons-vue';
         >
             <template #icon>
                 <IconId :size="20" stroke-width="1.25" />
+            </template>
+        </SidebarLink>
+
+        <!-- Asset Master -->
+        <SidebarLink
+            :title="$t('public.asset_master')"
+            :href="route('asset_master')"
+            :active="route().current('asset_master')"
+        >
+            <template #icon>
+                <IconCoinMonero :size="20" stroke-width="1.25" />
+            </template>
+        </SidebarLink>
+
+        <!-- Structure -->
+        <SidebarLink
+            :title="$t('public.structure')"
+            :href="route('structure')"
+            :active="route().current('structure')"
+        >
+            <template #icon>
+                <IconUsersGroup :size="20" stroke-width="1.25" />
             </template>
         </SidebarLink>
 

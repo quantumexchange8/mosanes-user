@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AssetMasterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StructureController;
 use App\Http\Controllers\TradingAccountController;
@@ -59,6 +60,17 @@ Route::middleware('auth')->group(function () {
         Route::post('/internal_transfer', [TradingAccountController::class, 'internal_transfer'])->name('account.internal_transfer');
         Route::post('/revoke_account', [TradingAccountController::class, 'revoke_account'])->name('account.revoke_account');
         Route::delete('/delete_account', [TradingAccountController::class, 'delete_account'])->name('account.delete_account');
+    });
+
+    /**
+     * ==============================
+     *          Asset Master
+     * ==============================
+     */
+    Route::prefix('asset_master')->group(function () {
+        Route::get('/', [AssetMasterController::class, 'index'])->name('asset_master');
+        Route::get('/getMasters', [AssetMasterController::class, 'getMasters'])->name('asset_master.getMasters');
+        Route::get('/getFilterMasters/{filter}', [AssetMasterController::class, 'getFilterMasters'])->name('asset_master.getFilterMasters');
     });
 
     /**
