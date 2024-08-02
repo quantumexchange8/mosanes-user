@@ -3,12 +3,12 @@
 return [
     'staging' => [
         'paymentUrl' => 'https://ttpayment-gateway.currenttech.pro',
-        'appId' => 'mosanes',
+        'appId' => 'ttpay',
         'merchantId' => '14'
     ],
     'live' => [
         'paymentUrl' => 'https://securepay.ttpays.io',
-        'appId' => 'mosanes',
+        'appId' => 'ttpay',
         'merchantId' => '2'
     ],
 ];

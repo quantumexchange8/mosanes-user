@@ -617,7 +617,7 @@ class TradingAccountController extends Controller
 //        }
         $selectedPayout = $payoutSetting['staging'];
 
-        $dataToHash = md5($transaction->transaction_number . $selectedPayout['appId'] . $selectedPayout['merchantId']);
+        $dataToHash = md5($transaction->transaction_number . 'mosanes' . $selectedPayout['merchantId']);
         $status = $result['status'] == 'success' ? 'successful' : 'failed';
 
         if ($result['token'] === $dataToHash) {
