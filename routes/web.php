@@ -44,9 +44,17 @@ Route::middleware('auth')->group(function () {
      */
     Route::prefix('account')->group(function () {
         Route::get('/', [TradingAccountController::class, 'index'])->name('account');
-        Route::get('/accountOptions', [TradingAccountController::class, 'accountOptions'])->name('account.accountOptions');
-        Route::get('/getLeverages', [TradingAccountController::class, 'getLeverages'])->name('account.getLeverages');
+        Route::get('/getOptions', [TradingAccountController::class, 'getOptions'])->name('account.getOptions');
+        Route::get('/getAccountReport', [TradingAccountController::class, 'getAccountReport'])->name('account.getAccountReport');
+        Route::get('/getLiveAccount', [TradingAccountController::class, 'getLiveAccount'])->name('account.getLiveAccount');
         Route::post('/create_live_account', [TradingAccountController::class, 'create_live_account'])->name('account.create_live_account');
+        Route::post('/create_demo_account', [TradingAccountController::class, 'create_demo_account'])->name('account.create_demo_account');
+        Route::post('/deposit_to_account', [TradingAccountController::class, 'deposit_to_account'])->name('account.deposit_to_account');
+        Route::post('/withdrawal_from_account', [TradingAccountController::class, 'withdrawal_from_account'])->name('account.withdrawal_from_account');
+        Route::post('/change_leverage', [TradingAccountController::class, 'change_leverage'])->name('account.change_leverage');
+        Route::post('/internal_transfer', [TradingAccountController::class, 'internal_transfer'])->name('account.internal_transfer');
+        Route::post('/revoke_account', [TradingAccountController::class, 'revoke_account'])->name('account.revoke_account');
+        Route::delete('/delete_account', [TradingAccountController::class, 'delete_account'])->name('account.delete_account');
     });
 
     /**

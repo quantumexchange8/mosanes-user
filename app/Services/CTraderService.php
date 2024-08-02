@@ -50,7 +50,7 @@ class CTraderService
                 'environmentName' => $this->environmentName,
                 'returnAccountDetails' => false,
             ]);
-            Log::debug('linkAccountTOCTID response', ['response' => $response->json()]);
+            // Log::debug('linkAccountTOCTID response', ['response' => $response->json()]);
             return $response->json();
         } catch (\Exception $e) {
             Log::error('Error in linkAccountTOCTID', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
@@ -76,11 +76,11 @@ class CTraderService
                 'accountType' => CTraderAccountType::HEDGED,
             ])->json();
 
-            Log::debug('createUser accountResponse', ['accountResponse' => $accountResponse]);
+            // Log::debug('createUser accountResponse', ['accountResponse' => $accountResponse]);
 
             if (isset($accountResponse['login'])) {
                 $response = $this->linkAccountTOCTID($accountResponse['login'], $mainPassword, $user->ct_user_id);
-                Log::debug('linkAccountTOCTID result', ['response' => $response]);
+                // Log::debug('linkAccountTOCTID result', ['response' => $response]);
 
                 (new CreateTradingUser)->execute($user, $accountResponse, $accountType, $remarks);
                 (new CreateTradingAccount)->execute($user, $accountResponse, $accountType);
@@ -103,33 +103,33 @@ class CTraderService
         return $response;
     }
 
-    //changeTradeerBalance
-    // public function createTrade($meta_login, $amount, $comment, $type): Trade
-    // {
-    //     $response = Http::acceptJson()->post($this->baseURL . "/v2/webserv/traders/{$meta_login}/changebalance?token={$this->token}", [
-    //         'login' => $meta_login,
-    //         'amount' => $amount * 100, //
-    //         'preciseAmount' => $amount, //
-    //         'type' => $type,
-    //         'comment' => $comment, //
-    //         /* 'externalNote' => '', //
-    //         'source' => '', //
-    //         'externalId' => '', // */
-    //     ]);
-    //     $response = $response->json();
-    //     Log::debug($response);
-    //     $trade = new Trade();
-    //     $trade->setAmount($amount);
-    //     $trade->setComment($comment);
-    //     $trade->setType($type);
-    //     $trade->setTicket($response['balanceHistoryId']);
+    //changeTraderBalance
+    public function createTrade($meta_login, $amount, $accountType, $comment, $type): Trade
+    {
+        $response = Http::acceptJson()->post($this->baseURL . "/v2/webserv/traders/{$meta_login}/changebalance?token={$this->token}", [
+            'login' => $meta_login,
+            'amount' => $amount * 100, //
+            'preciseAmount' => $amount, //
+            'type' => $type,
+            'comment' => $comment, //
+            /* 'externalNote' => '', //
+            'source' => '', //
+            'externalId' => '', // */
+        ]);
+        $response = $response->json();
+        Log::debug($response);
+        $trade = new Trade();
+        $trade->setAmount($amount);
+        $trade->setComment($comment);
+        $trade->setType($type);
+        $trade->setTicket($response['balanceHistoryId']);
 
 
-    //     $data = $this->getUser($meta_login);
-    //     (new UpdateTradingUser)->execute($meta_login, $data);
-    //     (new UpdateTradingAccount)->execute($meta_login, $data);
-    //     return $trade;
-    // }
+        $data = $this->getUser($meta_login);
+        (new UpdateTradingUser)->execute($meta_login, $data);
+        (new UpdateTradingAccount)->execute($meta_login, $data, $accountType);
+        return $trade;
+    }
 
     public function getUserInfo($trading_users): void
     {

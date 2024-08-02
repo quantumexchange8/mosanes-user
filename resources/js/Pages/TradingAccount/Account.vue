@@ -11,25 +11,34 @@ import { usePage, useForm } from "@inertiajs/vue3";
 import Dialog from 'primevue/dialog';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
+import InputText from 'primevue/inputtext';
+import IconField from 'primevue/iconfield';
 import Dropdown from "primevue/dropdown";
 import { IconCircleCheckFilled } from '@tabler/icons-vue';
+import { trans, wTrans } from "laravel-vue-i18n";
 
 // Initialize the form with user data
 const user = usePage().props.auth.user;
 
-const form = useForm({
+const liveAccountForm = useForm({
     user_id: user.id,
     accountType: '',
     leverage: '',
 });
 
+const demoAccountForm = useForm({
+    user_id: user.id,
+    amount: '',
+    leverage: '',
+});
+
 const tabs = ref([
-    { title: 'Individual', component: h(IndividualAccounts), type: 'deposit' },
-    { title: 'Managed', component: h(ManagedAccounts), type: 'withdrawal' },
-    { title: 'Demo', component: h(DemoAccounts), type: 'transfer' },
+    { title: wTrans('public.individual'), component: h(IndividualAccounts), type: 'individual' },
+    { title: wTrans('public.managed'), component: h(ManagedAccounts), type: 'manage' },
+    { title: wTrans('public.demo'), component: h(DemoAccounts), type: 'demo' },
 ]);
 
-const selectedType = ref('deposit');
+const selectedType = ref('individual');
 const activeIndex = ref(tabs.value.findIndex(tab => tab.type === selectedType.value));
 
 // Watch for changes in selectedType and update the activeIndex accordingly
@@ -45,89 +54,115 @@ function updateType(event) {
     selectedType.value = selectedTab.type;
 }
 
-const visible = ref(false);
+const showLiveAccountDialog = ref(false);
+const showDemoAccountDialog = ref(false);
+const showTradingAccountAgreementDialog = ref(false);
 
 // Functions to open and close the dialog
-const openDialog = () => {
-    visible.value = true;
+const openDialog = (dialogRef, formRef = null) => {
+    if (formRef) formRef.reset();
+    if (dialogRef === 'live') {
+        selectedAccountType.value = '';
+        showLiveAccountDialog.value = true;
+    } else if (dialogRef === 'demo') {
+        showDemoAccountDialog.value = true;
+    } else if (dialogRef === 'tradingAccountAgreement') {
+        showTradingAccountAgreementDialog.value = true;
+    }
 };
 
-const closeDialog = () => {
-    visible.value = false;
-    selectedAccountType.value = '';
-    form.reset();
+const closeDialog = (dialogName, formRef = null) => {
+    if (formRef) formRef.reset();
+    if (dialogName === 'live') {
+        showLiveAccountDialog.value = false;
+    } else if (dialogName === 'demo') {
+        showDemoAccountDialog.value = false;
+    } else if (dialogName === 'tradingAccountAgreement') {
+        showTradingAccountAgreementDialog.value = false;
+    }
 };
 
-const leverages = [
-    { label: '1:50', value: '50' },
-    { label: '1:100', value: '100' },
-    { label: '1:200', value: '200' },
-    { label: '1:500', value: '500' }
-];
 
+const leverages = ref();
+const transferOptions = ref();
+const walletOptions = ref();
+const accountOptions = ref([]);
 const selectedAccountType = ref('');
 
-// // Define the account options
-// const accountOptions = [
-//     { type: 'standard', label: 'Standard Account', description: 'Versatile account with flexible spreads, suitable for traders of all levels and trading strategies.' },
-//     { type: 'premium', label: 'Premium Account', description: 'This account enabling high-quality asset master to manage your funds in the market.' }
-// ];
-
-const accountOptions = ref([]);
-
-onMounted(async () => {
+const getOptions = async () => {
     try {
-        const response = await fetch(route('account.accountOptions'));
-        const data = await response.json();
-        accountOptions.value = data;
+        const response = await axios.get('/account/getOptions');
+        leverages.value = response.data.leverages;
+        transferOptions.value = response.data.transferOptions;
+        walletOptions.value = response.data.walletOptions;
+        accountOptions.value = response.data.accountOptions;
     } catch (error) {
-        console.error('Error fetching account options:', error);
+        console.error('Error changing locale:', error);
     }
-});
+};
+
+getOptions();
 
 // Handle selection of an account
 function selectAccount(type) {
     selectedAccountType.value = type;
-    form.accountType = type;
+    liveAccountForm.accountType = type;
     
     // Find selected account and update leverage
     const selectedAccount = accountOptions.value.find(account => account.account_group === type);
     if (selectedAccount && selectedAccount.leverage) {
-        form.leverage = selectedAccount.leverage;
+        liveAccountForm.leverage = selectedAccount.leverage;
     } else {
-        form.leverage = ''; // Clear leverage if no value
+        liveAccountForm.leverage = ''; // Clear leverage if no value
     }
 }
 
 const openLiveAccount = () => {
-    form.post(route('account.create_live_account'), {
+    liveAccountForm.leverage = 
+    liveAccountForm.post(route('account.create_live_account'), {
         onSuccess: () => {
-            closeDialog();
+            closeDialog('live', liveAccountForm);
         },
-        onError: () => {
-            console.error('Failed to update data.');
+        onError: (error) => {
+            console.error('Failed to open live account.', error);
         },
     });
 };
+
+const openDemoAccount = () => {
+    demoAccountForm.post(route('account.create_demo_account'), {
+        onSuccess: () => {
+            closeDialog('demo', demoAccountForm);
+        },
+        onError: (error) => {
+            console.error('Failed to open live account.', error);
+        },
+    });
+};
+
+
 </script>
 
 <template>
-    <AuthenticatedLayout title="$t('public.transaction')">
+    <AuthenticatedLayout :title="$t('public.transaction')">
         <div class="flex flex-col pt-3 gap-20 md:pt-5 md:gap-[100px]">
             <div class="flex flex-col items-center px-3 gap-5 self-stretch md:px-5">
                 <!-- banner -->
-                <div class="h-[260px] self-stretch rounded-2xl bg-white shadow-toast md:h-60 bg-[url('/img/background-account-banner.svg')] bg-no-repeat bg-right-bottom bg-contain">
+                <div class="h-[260px] pl-5 pt-5 pr-3 pb-[26px] self-stretch rounded-2xl bg-white shadow-toast md:h-60 bg-[url('/img/background-account-banner.svg')] bg-no-repeat bg-right-bottom bg-contain 
+                    md:pl-8 md:pt-[30px] md:pb-[30px] md:pr-[246px]
+                    xl:pt-11 xl:pb-11 xl:pr-[343px]"
+                    >
                     <!-- Content -->
-                    <div class="w-[304px] flex flex-col items-center gap-5 md:w-[450px] md:gap-8 md:items-start lg:w-[454px] xl:w-[643px]">
+                    <div class="flex flex-col items-center gap-5 md:w-[450px] md:gap-8 md:items-start lg:w-[454px] xl:w-[643px]">
                         <div class="flex flex-col justify-center items-start gap-2 self-stretch">
-                            <span class="self-stretch text-gray-950 font-bold md:text-lg">Start Trading Today: Open Your Account Now</span>
-                            <span class="self-stretch text-gray-700 text-xs md:text-sm">Explore seamless investing opportunities today. Begin in minutes with our simple, secure account setup.</span>
+                            <span class="self-stretch text-gray-950 font-bold md:text-lg">{{ $t('public.account_banner_header') }}</span>
+                            <span class="self-stretch text-gray-700 text-xs md:text-sm">{{ $t('public.account_banner_message') }}</span>
                         </div>
                         <div class="flex flex-col justify-center items-start gap-3 self-stretch md:flex-row md:justify-end md:items-center md:gap-5">
-                            <Button size="sm" variant="primary-flat" class="w-[142px] md:hidden" @click="openDialog">Live Account</Button>
-                            <Button size="base" variant="primary-flat" class="hidden md:block w-full" @click="openDialog">Live Account</Button>
-                            <Button size="sm" variant="primary-outlined" class="w-[142px] md:hidden">Demo Account</Button>
-                            <Button size="base" variant="primary-outlined" class="hidden md:block w-full">Demo Account</Button>
+                            <Button size="sm" variant="primary-flat" class="w-[142px] md:hidden" @click="openDialog('live', liveAccountForm)">{{ $t('public.live_account') }}</Button>
+                            <Button size="base" variant="primary-flat" class="hidden md:block w-full" @click="openDialog('live', liveAccountForm)">{{ $t('public.live_account') }}</Button>
+                            <Button size="sm" variant="primary-outlined" class="w-[142px] md:hidden" @click="openDialog('demo', demoAccountForm)">{{ $t('public.demo_account') }}</Button>
+                            <Button size="base" variant="primary-outlined" class="hidden md:block w-full" @click="openDialog('demo', demoAccountForm)">{{ $t('public.demo_account') }}</Button>
                         </div>
                     </div>
                 </div>
@@ -139,26 +174,27 @@ const openLiveAccount = () => {
                     </TabView>
                 </div>
 
-                <component :is="tabs[activeIndex]?.component" />
+                <component :is="tabs[activeIndex]?.component" :leverages="leverages"  :transferOptions="transferOptions"  :walletOptions="walletOptions"/>
             </div>
             
         </div>
     </AuthenticatedLayout>
 
-    <Dialog v-model:visible="visible" modal header="Open Live Account" class="dialog-xs sm:dialog-sm">
+    <Dialog v-model:visible="showLiveAccountDialog" modal :header="$t('public.open_live_account')" class="dialog-xs sm:dialog-sm">
         <div class="flex flex-col items-center gap-8 self-stretch sm:gap-10">
             <div class="flex flex-col items-center gap-5 self-stretch">
                 <div class="flex flex-col items-start gap-2 self-stretch">
-                    <InputLabel for="accountType" value="Select Account" />
+                    <InputLabel for="accountType" :value="$t('public.account_type_placeholder')" />
                     <div class="flex flex-col items-start gap-3 self-stretch">
                         <div 
-                            v-for="account in accountOptions" 
+                            v-for="(account, index) in accountOptions" 
                             :key="account.account_group" 
                             @click="selectAccount(account.account_group)"
                             class="group flex flex-col items-start py-3 px-4 gap-1 self-stretch rounded-lg border shadow-input transition-colors duration-300"
                             :class="{
                                 'bg-primary-50 border-primary-500': selectedAccountType === account.account_group,
-                                'bg-white border-gray-300 hover:bg-primary-50 hover:border-primary-500': selectedAccountType !== account.account_group
+                                'bg-white border-gray-300 hover:bg-primary-50 hover:border-primary-500': selectedAccountType !== account.account_group,
+                                'border-error-500': liveAccountForm.errors.leverage,
                             }"
                         >
                             <div class="flex items-center gap-3 self-stretch">
@@ -186,26 +222,90 @@ const openLiveAccount = () => {
                     </div>
                 </div>
                 <div class="flex flex-col items-start gap-1 self-stretch">
-                    <InputLabel for="leverage" value="Leverage" />
+                    <InputLabel for="leverage" :value="$t('public.leverages')" />
                     <Dropdown
-                        v-model="form.leverage"
+                        v-model="liveAccountForm.leverage"
                         :options="leverages"
-                        optionLabel="label"
-                        placeholder="Select"
+                        optionLabel="name"
+                        optionValue="value"
                         class="w-full"
                         scroll-height="236px"
-                        :invalid="form.errors.leverage"
-                        :disabled="!!accountOptions.find(account => account.account_group === selectedAccountType)?.leverage"
-                    />
+                        :invalid="!!liveAccountForm.errors.leverage"
+                        :disabled="!accountOptions.find(account => account.account_group === selectedAccountType) || accountOptions.find(account => account.account_group === selectedAccountType)?.leverage !== 0"
+                        >
+                    <template #value="slotProps">
+                        <span :class="{
+                            'text-gray-400': !accountOptions.find(account => account.account_group === selectedAccountType) || accountOptions.find(account => account.account_group === selectedAccountType)?.leverage !== 0
+                        }">
+                            {{ leverages.find(option => option.value === slotProps.value)?.name || slotProps.value || $t('public.leverages_placeholder') }}
+                        </span>
+                    </template>
+                    </Dropdown>
                 </div>
             </div>
             <div class="self-stretch">
-                <span class="text-gray-500 text-xs">By proceeding, I acknowledge that I have read and agree to the <span class="text-primary-500 text-xs font-medium">Trading Account Agreement</span>.</span>
-                
+                <span class="text-gray-500 text-xs">{{ $t('public.agreement_text') }} <span class="text-primary-500 text-xs font-medium" @click="openDialog('tradingAccountAgreement')">{{ $t('public.trading_account_agreement') }}</span>.</span>
             </div>
         </div>
         <div class="flex justify-end items-center pt-5 gap-4 self-stretch md:pt-7">
-            <Button variant="primary-flat" type="button" @click.prevent="openLiveAccount">Open Live Account</Button>
+            <Button variant="primary-flat" type="button" :class="{ 'opacity-25': liveAccountForm.processing }" :disabled="liveAccountForm.processing" @click.prevent="openLiveAccount">{{ $t('public.open_live_account') }}</Button>
+        </div>
+    </Dialog>
+
+    <Dialog v-model:visible="showDemoAccountDialog" modal :header="$t('public.open_demo_account')" class="dialog-xs sm:dialog-sm">
+        <div class="flex flex-col items-center gap-8 self-stretch sm:gap-10">
+            <div class="flex flex-col items-center gap-5 self-stretch">
+                <div class="flex flex-col items-start gap-2 self-stretch">
+                    <InputLabel for="amount" :value="$t('public.amount')" />
+                    <IconField iconPosition="left" class="w-full">
+                        <div class="text-gray-950 text-sm">$</div>
+                        <InputText 
+                            id="amount"
+                            type="number"
+                            class="block w-full"
+                            v-model="demoAccountForm.amount"
+                            :placeholder="$t('public.amount_placeholder')"
+                            :invalid="!!demoAccountForm.errors.amount"
+                        />
+                    </IconField>
+                    <InputError :message="demoAccountForm.errors.amount" />
+                </div>
+                <div class="flex flex-col items-start gap-1 self-stretch">
+                    <InputLabel for="leverage" :value="$t('public.leverage')" />
+                    <Dropdown
+                        v-model="demoAccountForm.leverage"
+                        :options="leverages"
+                        optionLabel="name"
+                        optionValue="value"
+                        class="w-full"
+                        scroll-height="236px"
+                        :invalid="!!demoAccountForm.errors.leverage"
+                    >
+                    <template #value="slotProps">
+                        <span :class="{
+                            'text-gray-400': !!accountOptions.find(account => account.account_group === selectedAccountType)?.leverage
+                        }">
+                            {{ leverages.find(option => option.value === slotProps.value)?.name || slotProps.value || $t('public.leverages_placeholder') }}
+                        </span>
+                    </template>
+                    </Dropdown>
+                </div>
+            </div>
+            <div class="self-stretch">
+                <span class="text-gray-500 text-xs">{{ $t('public.agreement_text') }} <span class="text-primary-500 text-xs font-medium" @click="openDialog('tradingAccountAgreement')">{{ $t('public.trading_account_agreement') }}</span>.</span>
+            </div>
+        </div>
+        <div class="flex justify-end items-center pt-5 gap-4 self-stretch md:pt-7">
+            <Button variant="primary-flat" type="button" :class="{ 'opacity-25': demoAccountForm.processing }" :disabled="demoAccountForm.processing" @click.prevent="openDemoAccount">{{ $t('public.open_demo_account') }}</Button>
+        </div>
+    </Dialog>
+
+    <Dialog v-model:visible="showTradingAccountAgreementDialog" modal :header="$t('public.trading_account_agreement')" class="dialog-xs md:dialog-lg">
+        <div class="flex flex-col items-center pb-4 gap-8 self-stretch md:pb-7 md:gap-10">
+            <span class="self-stretch text-gray-950 text-sm"></span>
+            <div class="flex flex-col items-center gap-5 self-stretch">
+
+            </div>
         </div>
     </Dialog>
 

@@ -4,6 +4,8 @@ import Sidebar from '@/Components/Sidebar/Sidebar.vue'
 import Navbar from '@/Components/Navbar.vue'
 import { sidebarState } from '@/Composables'
 import ToastList from "@/Components/ToastList.vue";
+import ConfirmationDialog from "@/Components/ConfirmationDialog.vue";
+import NotificationDialog from '@/Components/NotificationDialog.vue';
 
 defineProps({
     title: String
@@ -36,6 +38,8 @@ defineProps({
             <main class="flex flex-1 justify-center items-start px-3 pt-3 pb-12 md:px-5 md:pt-5">
                 <div class="w-full max-w-[1440px]">
                     <ToastList />
+                    <ConfirmationDialog />
+                    <NotificationDialog />
                     <slot />
                 </div>
             </main>
