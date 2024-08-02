@@ -237,6 +237,7 @@ class TradingAccountController extends Controller
         $params = [
             'userName' => $user->name,
             'userEmail' => $user->email,
+            'amount' => $intAmount,
             'orderNumber' => $transaction->transaction_number,
             'userId' => $user->id,
             'merchantId' => $selectedPayout['merchantId'],
