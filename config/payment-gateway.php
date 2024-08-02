@@ -9,6 +9,6 @@ return [
     'live' => [
         'paymentUrl' => 'https://securepay.ttpays.io',
         'appId' => 'ttpay',
-        'merchantId' => '2'
+        'merchantId' => '0'
     ],
 ];

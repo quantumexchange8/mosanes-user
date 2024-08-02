@@ -216,6 +216,9 @@ class TradingAccountController extends Controller
             'transaction_type' => 'deposit',
             'to_meta_login' => $request->meta_login,
             'transaction_number' => RunningNumberService::getID('transaction'),
+            'amount' => $amount,
+            'transaction_charges' => 0,
+            'transaction_amount' => $amount,
             'status' => 'processing',
         ]);
 
@@ -223,14 +226,13 @@ class TradingAccountController extends Controller
 
         $payoutSetting = config('payment-gateway');
         $domain = $_SERVER['HTTP_HOST'];
-
-//        if ($domain === 'local4.currenttech.pro') {
-//            $selectedPayout = $payoutSetting['live'];
-//        } else {
-//            $selectedPayout = $payoutSetting['staging'];
-//        }
-        $selectedPayout = $payoutSetting['staging'];
         $intAmount = intval($amount * 1000000);
+
+        if ($domain === 'mosanes-live.pro') {
+            $selectedPayout = $payoutSetting['live'];
+        } else {
+            $selectedPayout = $payoutSetting['staging'];
+        }
 
         $vCode = md5($intAmount . $selectedPayout['appId'] . $transaction->transaction_number . $selectedPayout['merchantId']);
 
