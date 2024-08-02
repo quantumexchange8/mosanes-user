@@ -19,7 +19,10 @@ Route::get('/', function () {
     return redirect(route('login'));
 });
 
+Route::post('deposit_callback', [TradingAccountController::class, 'depositCallback'])->name('depositCallback');
+
 Route::middleware('auth')->group(function () {
+    Route::get('deposit_return', [TradingAccountController::class, 'depositReturn']);
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');

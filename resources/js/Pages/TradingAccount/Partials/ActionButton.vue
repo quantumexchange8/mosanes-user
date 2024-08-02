@@ -19,7 +19,7 @@ const props = defineProps({
 
 const showDepositDialog = ref(false);
 const showTransferDialog = ref(false);
-const transferOptions = ref(props.transferOptions.filter(option => option.name !== props.account.meta_login));
+const transferOptions = ref(props.transferOptions);
 const selectedAccount = ref(0);
 
 const openDialog = (dialogRef) => {
@@ -41,7 +41,7 @@ const closeDialog = (dialogName) => {
 }
 
 const depositForm = useForm({
-    account_id: props.account.id,
+    meta_login: props.account.meta_login,
 });
 
 const transferForm = useForm({
@@ -65,22 +65,22 @@ const submitForm = (formType) => {
 </script>
 
 <template>
-    <Button 
-        type="button" 
-        variant="gray-outlined" 
-        size="sm" 
-        class="w-full" 
+    <Button
+        type="button"
+        variant="gray-outlined"
+        size="sm"
+        class="w-full"
         @click="openDialog('deposit')"
     >
         {{ $t('public.deposit') }}
     </Button>
-    <Button 
-        type="button" 
-        variant="gray-outlined" 
-        size="sm" 
-        pill 
-        iconOnly 
-        @click="openDialog('transfer')" 
+    <Button
+        type="button"
+        variant="gray-outlined"
+        size="sm"
+        pill
+        iconOnly
+        @click="openDialog('transfer')"
     >
         <SwitchHorizontal01Icon class="w-4 text-gray-950" />
     </Button>
@@ -135,7 +135,7 @@ const submitForm = (formType) => {
                     <InputLabel for="amount" :value="$t('public.amount')" />
                     <IconField iconPosition="left" class="w-full">
                         <div class="text-gray-950 text-sm">$</div>
-                        <InputText 
+                        <InputText
                             id="amount"
                             type="number"
                             class="block w-full"
