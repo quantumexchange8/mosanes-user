@@ -208,6 +208,7 @@ class TradingAccountController extends Controller
         ]);
 
         $user = Auth::user();
+        $amount = $request->amount;
 
         $transaction = Transaction::create([
             'user_id' => $user->id,
@@ -229,8 +230,9 @@ class TradingAccountController extends Controller
 //            $selectedPayout = $payoutSetting['staging'];
 //        }
         $selectedPayout = $payoutSetting['staging'];
+        $intAmount = intval($amount * 1000000);
 
-        $vCode = md5($selectedPayout['appId'] . $transaction->transaction_number . $selectedPayout['merchantId']);
+        $vCode = md5($intAmount . $selectedPayout['appId'] . $transaction->transaction_number . $selectedPayout['merchantId']);
 
         $params = [
             'userName' => $user->name,
