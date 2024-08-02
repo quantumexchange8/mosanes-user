@@ -1,37 +1,63 @@
 <script setup>
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import Button from "@/Components/Button.vue";
-import { ref, h, watch, computed, onMounted } from "vue";
+import { ref, onMounted } from "vue";
+import Action from "@/Pages/TradingAccount/Partials/Action.vue";
+import Empty from '@/Components/Empty.vue';
+
+const accounts = ref([]);
+const accountType = ref('demo');
+
+const props = defineProps({
+    leverages: Array,
+    transferOptions: Array,
+    walletOptions: Array,
+});
+
+// Fetch live accounts from the backend
+const fetchLiveAccounts = async () => {
+  try {
+    const response = await axios.get(`/account/getLiveAccount?accountType=${accountType.value}`);
+    accounts.value = response.data;
+  } catch (error) {
+    console.error('Error fetching live accounts:', error);
+  }
+};
+
+// Fetch live accounts when the component is mounted
+onMounted(fetchLiveAccounts);
 
 </script>
 
 <template>
-    <div class="flex flex-col items-center px-3 gap-5 self-stretch md:px-5">
-        <!-- banner -->
-        <div class="h-[260px] self-stretch rounded-2xl bg-white shadow-toast md:h-60">
-            <!-- graphic -->
-            <!-- Content -->
-            <div class="w-[304px] flex flex-col items-center gap-5 md:w-[450px] md:gap-8 md:items-start lg:w-[454px] xl:w-[643px]">
-                <div class="flex flex-col justify-center items-start gap-2 self-stretch">
-                    <span class="self-stretch text-gray-950 font-bold md:text-lg">Start Trading Today: Open Your Account Now</span>
-                    <span class="self-stretch text-gray-700 text-xs md:text-sm">Explore seamless investing opportunities today. Begin in minutes with our simple, secure account setup.</span>
-                </div>
-                <div class="flex flex-col justify-center items-start gap-3 self-stretch md:flex-row md:justify-end md:items-center md:gap-5">
-                    <Button size="sm" variant="primary-flat" class="w-[142px] md:hidden">Live Account</Button>
-                    <Button size="base" variant="primary-flat" class="hidden md:block w-full">Live Account</Button>
-                    <Button size="sm" variant="primary-outlined" class="w-[142px] md:hidden">Demo Account</Button>
-                    <Button size="base" variant="primary-outlined" class="hidden md:block w-full">Demo Account</Button>
-                </div>
-            </div>
-        </div>
+  <Empty 
+    v-if="!accounts.length" 
+    :title="$t('public.empty_demo_acccount_title')"
+    :message="$t('public.empty_demo_acccount_message')" 
+  />
 
-    </div>
-    
-    <div class="flex flex-col items-center p-5 gap-3 self-stretch bg-gray-100">
-        <div class="flex flex-col items-start gap-1 self-stretch">
-            <span class="text-gray-700 text-xs font-semibold"></span>
-            <span class="self-stretch text-gray-500 text text-xxs md:text-xs"></span>
+  <div class="w-full grid grid-cols-1 gap-5 md:grid-cols-2">
+    <div v-for="account in accounts" :key="account.id" class="min-w-[300px] flex flex-col justify-center items-center py-4 pl-6 pr-3 gap-5 flex-grow md:pr-6 rounded-2xl border-l-8 border-info-400 bg-white shadow-toast">
+      <div class="flex justify-between items-center gap-5 self-stretch">
+        <span class="text-gray-950 font-semibold md:text-lg">#{{ account.meta_login }}</span>
+        <Action :account="account" type="demo" />
+      </div>
+      <div class="grid grid-cols-2 gap-2 self-stretch">
+        <div class="min-w-[140px] md:min-w-[100px] flex items-center gap-1 flex-grow">
+          <span class="w-16 text-gray-500 text-xs">{{ $t('public.balance') }}:</span>
+          <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ account.balance }}</span>
         </div>
-        <span class="self-stretch text-gray-500 text-xxs md:text-xs"></span>
+        <div class="min-w-[140px] md:min-w-[100px] flex items-center gap-1 flex-grow">
+          <span class="w-16 text-gray-500 text-xs">{{ $t('public.equity') }}:</span>
+          <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ account.equity }}</span>
+        </div>
+        <div class="min-w-[140px] md:min-w-[100px] flex items-center gap-1 flex-grow">
+          <span class="w-16 text-gray-500 text-xs">{{ $t('public.credit') }}:</span>
+          <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ account.credit }}</span>
+        </div>
+        <div class="min-w-[140px] md:min-w-[100px] flex items-center gap-1 flex-grow">
+          <span class="w-16 text-gray-500 text-xs">{{ $t('public.leverage') }}:</span>
+          <span class="text-gray-950 text-xs font-medium">1:{{ account.leverage }}</span>
+        </div>
+      </div>
     </div>
+  </div>
 </template>

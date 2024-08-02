@@ -2,12 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\PaymentAccount;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Country;
 use App\Models\Transaction;
 use App\Models\GroupHasUser;
 use App\Models\SettingLeverage;
+use App\Models\TradingAccount;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
@@ -76,6 +78,33 @@ class DropdownOptionService
                     });
         return $leverages;
     }
+
+    public function getInternalTransferOptions(): Collection
+    {
+        $transferOptions = TradingAccount::where('user_id', Auth::id())
+                    ->get()
+                    ->map(function ($transferOption) {
+                        return [
+                            'name' => $transferOption->meta_login,
+                            'value' => $transferOption->balance,
+                        ];
+                    });
+        return $transferOptions;
+    }
+
+    public function getWalletOptions(): Collection
+    {
+        $walletOptions = PaymentAccount::where('user_id', Auth::id())
+                    ->get()
+                    ->map(function ($walletOption) {
+                        return [
+                            'name' => $walletOption->payment_account_name,
+                            'value' => $walletOption->account_no,
+                        ];
+                    });
+        return $walletOptions;
+    }
+
 
     public function getAgents(): Collection
     {
