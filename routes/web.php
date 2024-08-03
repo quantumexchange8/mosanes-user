@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AssetMasterController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RebateController;
 use App\Http\Controllers\StructureController;
 use App\Http\Controllers\TradingAccountController;
 use Illuminate\Support\Facades\App;
@@ -72,6 +73,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/getMasters', [AssetMasterController::class, 'getMasters'])->name('asset_master.getMasters');
         Route::get('/getFilterMasters/{filter}', [AssetMasterController::class, 'getFilterMasters'])->name('asset_master.getFilterMasters');
         Route::get('/getAvailableAccounts', [AssetMasterController::class, 'getAvailableAccounts'])->name('asset_master.getAvailableAccounts');
+    });
+
+    /**
+     * ==============================
+     *        Rebate Allocate
+     * ==============================
+     */
+    Route::prefix('rebate_allocate')->group(function () {
+        Route::get('/', [RebateController::class, 'index'])->name('rebate_allocate');
+        Route::get('/getRebateAllocateData', [RebateController::class, 'getRebateAllocateData'])->name('rebate_allocate.getRebateAllocateData');
     });
 
     /**

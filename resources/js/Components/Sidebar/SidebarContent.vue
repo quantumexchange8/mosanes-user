@@ -5,7 +5,13 @@ import SidebarCollapsible from '@/Components/Sidebar/SidebarCollapsible.vue'
 import SidebarCollapsibleItem from '@/Components/Sidebar/SidebarCollapsibleItem.vue'
 import {ref} from "vue";
 import {usePage} from "@inertiajs/vue3";
-import { IconLayoutDashboard, IconUsersGroup, IconId, IconCoinMonero } from '@tabler/icons-vue';
+import {
+    IconLayoutDashboard,
+    IconUsersGroup,
+    IconId,
+    IconCoinMonero,
+    IconBusinessplan
+} from '@tabler/icons-vue';
 
 </script>
 
@@ -56,6 +62,17 @@ import { IconLayoutDashboard, IconUsersGroup, IconId, IconCoinMonero } from '@ta
         >
             <template #icon>
                 <IconUsersGroup :size="20" stroke-width="1.25" />
+            </template>
+        </SidebarLink>
+
+        <!-- Rebate allocate -->
+        <SidebarLink
+            :title="$t('public.rebate_allocate')"
+            :href="route('rebate_allocate')"
+            :active="route().current('rebate_allocate')"
+        >
+            <template #icon>
+                <IconBusinessplan :size="20" stroke-width="1.25" />
             </template>
         </SidebarLink>
 

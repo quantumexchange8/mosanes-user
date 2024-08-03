@@ -77,7 +77,7 @@ const dataOverviews = computed(() => [
                         <div class="flex flex-col items-center gap-1 w-full">
                             <span class="text-gray-500 text-xs md:text-sm">{{ item.label }}</span>
                             <div class="text-gray-950 text-lg md:text-xl font-semibold">
-                                {{ formatAmount(item.total) }}
+                                $ {{ formatAmount(item.total) }}
                             </div>
                         </div>
                     </div>

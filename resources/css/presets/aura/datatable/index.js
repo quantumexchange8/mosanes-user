@@ -137,7 +137,6 @@ export default {
                 {
                     'overflow-hidden space-nowrap border-y bg-clip-padding': context.resizable // Resizable
                 },
-                'hidden md:table-cell',
             ]
         }),
         headercontent: {
@@ -297,8 +296,8 @@ export default {
                 { 'bg-primary-highlight text-primary-highlight-inverse': context?.highlighted },
 
                 //States
-                { 'hover:bg-surface-100 dark:hover:bg-[rgba(255,255,255,0.03)]': !context?.highlighted },
-                { 'hover:text-surface-700 hover:bg-surface-100 dark:hover:text-white dark:hover:bg-[rgba(255,255,255,0.03)]': !context?.highlighted },
+                { 'hover:bg-gray-50': !context?.highlighted },
+                { 'hover:text-gray-950 hover:bg-gray-50': !context?.highlighted },
                 'focus-visible:outline-none focus-visible:outline-offset-0 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-primary-500 dark:focus-visible:ring-primary-400',
 
                 // Transitions
@@ -1099,8 +1098,8 @@ export default {
             { 'odd:bg-surface-0 odd:text-surface-600 dark:odd:bg-surface-900 even:bg-surface-50 even:text-surface-600 dark:even:bg-surface-800/50': context.stripedRows },
 
             // State
-            { 'focus:outline-none focus:outline-offset-0 focus:ring-1 focus:ring-primary-500 ring-inset dark:focus:ring-primary-400': context.selectable },
-            { 'hover:bg-surface-300/20 dark:hover:bg-surface-800/50 hover:text-surface-600': props.selectionMode && !context.selected },
+            { 'focus:outline-none focus:outline-offset-0 focus:ring-1 focus:ring-transparent': context.selectable },
+            { 'hover:bg-gray-50 hover:text-gray-950': props.selectionMode && !context.selected },
 
             // Transition
             { 'transition duration-200': (props.selectionMode && !context.selected) || props.rowHover },
