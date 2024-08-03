@@ -24,7 +24,7 @@ return [
     "transaction" => "Transaction",
     "account_type" => "Account Type",
     "greeting" => "Welcome Back, Mosanes Admin!",
-    "greeting_caption" => "Ready to grow your trading community? Let's get started!",
+    "greeting_caption" => "Ready to grow your trading community?",
     "account_balance_equity" => "Account Balance and Equity",
     "balance" => "Balance",
     "equity" => "Equity",

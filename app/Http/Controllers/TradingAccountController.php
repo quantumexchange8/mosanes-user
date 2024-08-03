@@ -645,7 +645,7 @@ class TradingAccountController extends Controller
             if ($transaction->status == 'successful') {
                 if ($transaction->transaction_type == 'deposit') {
                     try {
-                        $trade = (new CTraderService)->createTrade($transaction->to, $transaction->transaction_amount, 1, "Deposit balance", ChangeTraderBalanceType::DEPOSIT);
+                        $trade = (new CTraderService)->createTrade($transaction->to_meta_login, $transaction->transaction_amount, 1, "Deposit balance", ChangeTraderBalanceType::DEPOSIT);
                     } catch (\Throwable $e) {
                         if ($e->getMessage() == "Not found") {
                             TradingUser::firstWhere('meta_login', $transaction->to)->update(['acc_status' => 'Inactive']);
