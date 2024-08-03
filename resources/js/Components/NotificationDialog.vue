@@ -108,7 +108,7 @@ onUnmounted(() => removeFinishEventListener());
                 <div class="flex flex-col items-center py-2 gap-2 self-stretch sm:gap-3">
                     <div class="flex flex-col justify-center items-start gap-1 self-stretch sm:flex-row sm:justify-normal sm:items-center">
                         <span class="w-[140px] text-gray-500 text-xs font-medium">{{ $t('public.date') }}</span>
-                        <span class="self-stretch text-gray-950 text-sm font-medium sm:self-auto sm:flex-grow">{{ formatDateTime(transaction.created_at) }}</span>
+                        <span class="self-stretch text-gray-950 text-sm font-medium sm:self-auto sm:flex-grow">{{ formatDateTime(transaction.approved_at) }}</span>
                     </div>
                     <div class="flex flex-col justify-center items-start gap-1 self-stretch sm:flex-row sm:justify-normal sm:items-center">
                         <span class="w-[140px] text-gray-500 text-xs font-medium">{{ $t('public.account') }}</span>

@@ -583,10 +583,9 @@ class TradingAccountController extends Controller
 
             $result['date'] = $transaction->approval_date;
 
-            return to_route('success_page')->with([
-                'title' => trans('public.success'),
-                'description' => trans('public.success_deposit'),
-                'payment' => $result
+            return redirect()->route('account')->with('notification', [
+                'details' => $transaction,
+                'type' => 'deposit',
             ]);
         } else {
             return to_route('dashboard');
@@ -636,7 +635,7 @@ class TradingAccountController extends Controller
                 'transaction_amount' => $result['amount'],
                 'status' => $status,
                 'remarks' => $result['remarks'],
-                'approval_date' => now()
+                'approved_at' => now()
             ]);
 
 //            Notification::route('mail', 'payment@currenttech.pro')
