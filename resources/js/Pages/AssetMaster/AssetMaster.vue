@@ -11,6 +11,7 @@ import Button from '@/Components/Button.vue';
 import Badge from '@/Components/Badge.vue';
 import Dropdown from 'primevue/dropdown';
 import { wTrans } from 'laravel-vue-i18n';
+import AssetMasterAction from "@/Pages/AssetMaster/Partials/AssetMasterAction.vue";
 
 const { formatAmount } = transactionFormat();
 
@@ -25,7 +26,6 @@ const getResults = async () => {
     try {
         const response = await axios.get('/asset_master/getMasters');
         masters.value = response.data.masters;
-        console.log(masters.value);
     } catch (error) {
         console.error('Error get masters:', error);
     }
@@ -99,7 +99,7 @@ const clearFilterGlobal = () => {
                     </Button> -->
                 </div>
 
-                <Dropdown 
+                <Dropdown
                     v-model="sorting"
                     :options="sortingDropdownOptions"
                 />
@@ -109,13 +109,13 @@ const clearFilterGlobal = () => {
                 v-if="masters"
                 class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-5 self-stretch"
             >
-                <div 
+                <div
                     v-for="(master, index) in masters"
                     :key="index"
                     class="w-full p-6 flex flex-col items-center gap-4 rounded-2xl bg-white shadow-toast"
                 >
-                    <div class="w-full flex items-start gap-4">
-                        <div class="w-14 h-14 rounded-full overflow-hidden md:w-[60px] md:h-[60px]">
+                    <div class="w-full flex items-center gap-4">
+                        <div class="w-[42px] h-[42px] shrink-0 grow-0 rounded-full overflow-hidden">
                             <div v-if="master.profile_photo">
                                 <img :src="master.profile_photo" alt="Profile Photo" />
                             </div>
@@ -135,11 +135,11 @@ const clearFilterGlobal = () => {
 
                     <div class="flex items-center gap-2 self-stretch">
                         <StatusBadge value="info">
-                            $ {{ formatAmount(master.minimum_invesment) }}
+                            $ {{ formatAmount(master.minimum_investment) }}
                         </StatusBadge>
                         <StatusBadge value="gray">
-                            <div v-if="master.minimum_invesment_period != 0">
-                                {{ master.minimum_invesment_period }} {{ $t('public.months') }}
+                            <div v-if="master.minimum_investment_period != 0">
+                                {{ master.minimum_investment_period }} {{ $t('public.months') }}
                             </div>
                             <div v-else>
                                 {{ $t('public.lock_free') }}
@@ -169,7 +169,7 @@ const clearFilterGlobal = () => {
                         </div>
                         <div class="w-full flex flex-col items-center">
                             <div class="self-stretch text-center font-semibold">
-                                <div 
+                                <div
                                     v-if="master.latest_profit != 0"
                                     :class="(master.latest_profit < 0) ? 'text-error-500' : 'text-success-500'"
                                 >
@@ -204,21 +204,9 @@ const clearFilterGlobal = () => {
                         </div>
                     </div>
 
-                    <div class="flex justify-center items-center gap-5 self-stretch">
-                        <Button
-                            variant="primary-flat"
-                            size="sm"
-                            type="button"
-                            class="w-full"
-                        >
-                            {{ $t('public.join_pamm') }}
-                        </Button>
-
-                        <!-- <div class="flex items-center gap-3">
-                            heart icon
-                            <div class="text-gray-950 text-sm font-medium">{{ 'like number' }}</div>
-                        </div> -->
-                    </div>
+                    <AssetMasterAction
+                        :master="master"
+                    />
                 </div>
             </div>
 

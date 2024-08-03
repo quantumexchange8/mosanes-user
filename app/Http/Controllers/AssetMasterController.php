@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\AssetMaster;
+use App\Models\TradingAccount;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class AssetMasterController extends Controller
@@ -22,8 +24,8 @@ class AssetMasterController extends Controller
                 'trader_name' => $master->trader_name,
                 'total_investors' => $master->total_investors,
                 'total_fund' => $master->total_fund,
-                'minimum_invesment' => $master->minimum_invesment,
-                'minimum_invesment_period' => $master->minimum_invesment_period,
+                'minimum_investment' => $master->minimum_investment,
+                'minimum_investment_period' => $master->minimum_investment_period,
                 'performance_fee' => $master->performance_fee,
                 'total_gain' => $master->total_gain,
                 'monthly_gain' => $master->monthly_gain,
@@ -48,8 +50,8 @@ class AssetMasterController extends Controller
                     'trader_name' => $master->trader_name,
                     'total_investors' => $master->total_investors,
                     'total_fund' => $master->total_fund,
-                    'minimum_invesment' => $master->minimum_invesment,
-                    'minimum_invesment_period' => $master->minimum_invesment_period,
+                    'minimum_investment' => $master->minimum_investment,
+                    'minimum_investment_period' => $master->minimum_investment_period,
                     'performance_fee' => $master->performance_fee,
                     'total_gain' => $master->total_gain,
                     'monthly_gain' => $master->monthly_gain,
@@ -60,6 +62,22 @@ class AssetMasterController extends Controller
 
         return response()->json([
             'masters' => $masters
+        ]);
+    }
+
+    public function getAvailableAccounts(Request $request)
+    {
+        $accounts = TradingAccount::where('user_id', Auth::id())
+            ->get()
+            ->map(function($account) {
+                return [
+                    'id' => $account->id,
+                    'meta_login' => $account->meta_login,
+                ];
+            });
+
+        return response()->json([
+            'accounts' => $accounts
         ]);
     }
 }

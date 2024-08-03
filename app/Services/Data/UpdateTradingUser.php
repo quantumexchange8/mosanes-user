@@ -16,6 +16,7 @@ class UpdateTradingUser
     {
         $tradingUser = TradingUser::query()->where('meta_login', $meta_login)->first();
 
+        \Log::debug('trading_user', $data);
         $tradingUser->meta_group = $data['groupName'];
         $tradingUser->leverage = $data['leverageInCents'] / 100;
 

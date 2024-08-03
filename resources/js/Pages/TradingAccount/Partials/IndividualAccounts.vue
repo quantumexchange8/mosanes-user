@@ -4,9 +4,11 @@ import StatusBadge from '@/Components/StatusBadge.vue';
 import Action from "@/Pages/TradingAccount/Partials/Action.vue";
 import ActionButton from "@/Pages/TradingAccount/Partials/ActionButton.vue";
 import Empty from '@/Components/Empty.vue';
+import {transactionFormat} from "@/Composables/index.js";
 
 const accounts = ref([]);
 const accountType = ref('individual');
+const { formatAmount } = transactionFormat();
 
 const props = defineProps({
     leverages: Array,
@@ -50,15 +52,15 @@ onMounted(fetchLiveAccounts);
             <div class="grid grid-cols-2 gap-2 self-stretch">
                 <div class="min-w-[140px] md:min-w-[100px] flex items-center gap-1 flex-grow">
                     <span class="w-16 text-gray-500 text-xs">{{ $t('public.balance') }}:</span>
-                    <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ account.balance }}</span>
+                    <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ formatAmount(account.balance) }}</span>
                 </div>
                 <div class="min-w-[140px] md:min-w-[100px] flex items-center gap-1 flex-grow">
                     <span class="w-16 text-gray-500 text-xs">{{ $t('public.equity') }}:</span>
-                    <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ account.equity }}</span>
+                    <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ formatAmount(account.equity) }}</span>
                 </div>
                 <div class="min-w-[140px] md:min-w-[100px] flex items-center gap-1 flex-grow">
                     <span class="w-16 text-gray-500 text-xs">{{ $t('public.credit') }}:</span>
-                    <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ account.credit }}</span>
+                    <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ formatAmount(account.credit) }}</span>
                 </div>
                 <div class="min-w-[140px] md:min-w-[100px] flex items-center gap-1 flex-grow">
                     <span class="w-16 text-gray-500 text-xs">{{ $t('public.leverage') }}:</span>

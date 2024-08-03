@@ -71,6 +71,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [AssetMasterController::class, 'index'])->name('asset_master');
         Route::get('/getMasters', [AssetMasterController::class, 'getMasters'])->name('asset_master.getMasters');
         Route::get('/getFilterMasters/{filter}', [AssetMasterController::class, 'getFilterMasters'])->name('asset_master.getFilterMasters');
+        Route::get('/getAvailableAccounts', [AssetMasterController::class, 'getAvailableAccounts'])->name('asset_master.getAvailableAccounts');
     });
 
     /**
