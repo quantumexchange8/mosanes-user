@@ -86,12 +86,11 @@ const handleContinue = () => {
 
     if (selectedStep.value.step < 3) {
         form.step = selectedStep.value.step;
-        selectStep(selectedStep.value.step + 1);
-        // form.post(route('register.validateStep'), {
-        //     onSuccess: () => {
-        //         selectStep(selectedStep.value.step + 1);
-        //     }
-        // });
+        form.post(route('register.validateStep'), {
+            onSuccess: () => {
+                selectStep(selectedStep.value.step + 1);
+            }
+        });
     } else {
         handleSubmit();
     }
@@ -115,6 +114,7 @@ const form = useForm({
     email: '',
     dial_code: '',
     phone: '',
+    phone_number: '',
     password: '',
     password_confirmation: '',
     referral_code: props.referral_code ? props.referral_code : '',
@@ -227,7 +227,7 @@ const changeLanguage = async (langVal) => {
                                 :class="selectedStep.step === 3 ? 'text-md text-left' : 'text-lg md:text-xl'"
                             >{{ $t(`public.${selectedStep.title}`) }}</span>
                             <span
-                                class="text-gray-500"
+                                class="text-gray-500 w-full"
                                 :class="selectedStep.step === 3 ? 'text-xs' : 'text-sm md:text-base'"
                             >{{ $t(`public.${selectedStep.caption_2}`) }}</span>
                         </div>
@@ -275,7 +275,7 @@ const changeLanguage = async (langVal) => {
 
                                     <!-- phone -->
                                     <div class="flex flex-col gap-1 items-start self-stretch">
-                                        <InputLabel for="phone" :value="$t('public.phone_number')" />
+                                        <InputLabel for="phone" :value="$t('public.phone_number')" :invalid="!!form.errors.phone" />
                                         <div class="flex gap-2 items-center self-stretch relative">
                                             <Dropdown
                                                 v-model="selectedCountry"

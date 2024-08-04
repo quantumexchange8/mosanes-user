@@ -132,7 +132,7 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         return redirect()->route('login')->with('toast', [
-            'title' => trans("public.toast_create_member_success"),
+            'title' => trans("public.success_register"),
             'type' => 'success',
         ]);
     }
