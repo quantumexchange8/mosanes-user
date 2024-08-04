@@ -1,9 +1,14 @@
 <script setup>
 import { IconWorld } from '@tabler/icons-vue';
 import {ref} from "vue";
-import {usePage} from "@inertiajs/vue3";
+import {Head, usePage} from "@inertiajs/vue3";
 // import {loadLanguageAsync} from "laravel-vue-i18n";
 import OverlayPanel from 'primevue/overlaypanel';
+import ToastList from "@/Components/ToastList.vue";
+
+defineProps({
+    title: String
+})
 
 const op = ref();
 const toggle = (event) => {
@@ -28,11 +33,13 @@ const changeLanguage = async (langVal) => {
 </script>
 
 <template>
+    <Head :title="title"></Head>
+
     <div
         style="background-image: url('/img/background-login.svg'); background-repeat: repeat-x;"
     >
         <div class="flex flex-col min-h-screen">
-            <div class="flex py-3 px-5 xs:px-10 justify-end items-center">
+            <div class="flex py-3 px-5 md:px-10 justify-end items-center">
                 <div
                     class="w-[60px] h-[60px] p-[17.5px] flex items-center justify-center rounded-full hover:cursor-pointer hover:bg-gray-100 text-gray-800"
                     @click="toggle"
@@ -43,6 +50,7 @@ const changeLanguage = async (langVal) => {
             <div class="flex flex-1 flex-col justify-center items-center pb-12 md:px-8 xs:gap-y-[60px]">
                 <div class="w-full flex sm:flex-1 justify-center">
                     <div class="w-full max-w-xs sm:max-w-none sm:w-[360px] flex flex-col justify-center items-center mx-5">
+                        <ToastList />
                         <slot />
                     </div>
                 </div>
