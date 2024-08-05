@@ -114,7 +114,7 @@ class AssetMasterController extends Controller
             'with_us' => $duration,
             'profile_photo' => $master->getFirstMediaUrl('master_profile_photo'),
         ];
-// dd($master_detail);
+
         return response()->json([
             'masterDetail' => $master_detail,
         ]);

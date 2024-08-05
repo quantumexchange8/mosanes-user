@@ -216,7 +216,7 @@ getResults();
                             </div>
                         </div>
                         <div class="col-span-2 flex flex-col items-center justify-center gap-3">
-                            <IconPeriod />
+                            <IconPeriod class="rounded-full" />
                             <div class="flex flex-col items-center gap-1 self-stretch">
                                 <div class="self-stretch text-gray-500 text-center text-xs">
                                     {{ $t('public.minimum_investment_period') }}
