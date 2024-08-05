@@ -403,4 +403,5 @@ return [
     "view_pamm_info" => "View PAMM Info",
     "with_us" => "With Us",
     "day_shortform" => "d",
+    "rebate_wallet" => "Rebate Wallet",
 ];

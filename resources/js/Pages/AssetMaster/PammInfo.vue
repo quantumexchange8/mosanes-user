@@ -2,11 +2,12 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { IconChevronRight } from '@tabler/icons-vue';
 import Button from '@/Components/Button.vue';
-import { ref } from 'vue';
+import { ref, watchEffect } from 'vue';
 import DefaultProfilePhoto from '@/Components/DefaultProfilePhoto.vue';
 import AssetMasterAction from "@/Pages/AssetMaster/Partials/AssetMasterAction.vue";
 import { IconCoin, IconFee, IconPeriod } from '@/Components/Icons/solid';
 import {transactionFormat} from "@/Composables/index.js";
+import { usePage } from '@inertiajs/vue3';
 
 const { formatAmount } = transactionFormat();
 
@@ -26,6 +27,12 @@ const getResults = async () => {
 };
 
 getResults();
+
+watchEffect(() => {
+    if (usePage().props.toast !== null) {
+        getResults();
+    }
+});
 
 </script>
 

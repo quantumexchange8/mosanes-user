@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { IconSearch, IconCircleXFilled, IconUserDollar, IconPremiumRights, IconAdjustments } from '@tabler/icons-vue';
-import { ref, watch } from 'vue';
+import { ref, watch, watchEffect } from 'vue';
 import {FilterMatchMode} from "primevue/api";
 import InputText from 'primevue/inputtext';
 import DefaultProfilePhoto from '@/Components/DefaultProfilePhoto.vue';
@@ -12,6 +12,7 @@ import Badge from '@/Components/Badge.vue';
 import Dropdown from 'primevue/dropdown';
 import { wTrans } from 'laravel-vue-i18n';
 import AssetMasterAction from "@/Pages/AssetMaster/Partials/AssetMasterAction.vue";
+import { usePage } from '@inertiajs/vue3';
 
 const { formatAmount } = transactionFormat();
 
@@ -55,6 +56,12 @@ const getResults = async () => {
 };
 
 getResults();
+
+watchEffect(() => {
+    if (usePage().props.toast !== null) {
+        getResults();
+    }
+});
 
 const getFilterData = async (filter) => {
     try {

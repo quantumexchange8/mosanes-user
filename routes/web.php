@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RebateController;
 use App\Http\Controllers\StructureController;
 use App\Http\Controllers\TradingAccountController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
@@ -85,6 +86,16 @@ Route::middleware('auth')->group(function () {
     Route::prefix('rebate_allocate')->group(function () {
         Route::get('/', [RebateController::class, 'index'])->name('rebate_allocate');
         Route::get('/getRebateAllocateData', [RebateController::class, 'getRebateAllocateData'])->name('rebate_allocate.getRebateAllocateData');
+    });
+
+    /**
+     * ==============================
+     *          Transaction
+     * ==============================
+     */
+    Route::prefix('transaction')->group(function () {
+        Route::get('/', [TransactionController::class, 'index'])->name('transaction');
+        Route::get('/getTotal', [TransactionController::class, 'getTotal'])->name('transaction.getTotal');
     });
 
     /**

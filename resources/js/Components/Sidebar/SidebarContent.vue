@@ -10,7 +10,8 @@ import {
     IconUsersGroup,
     IconId,
     IconCoinMonero,
-    IconBusinessplan
+    IconBusinessplan,
+    IconReceipt2
 } from '@tabler/icons-vue';
 
 </script>
@@ -62,6 +63,17 @@ import {
         >
             <template #icon>
                 <IconUsersGroup :size="20" stroke-width="1.25" />
+            </template>
+        </SidebarLink>
+
+        <!-- Transaction -->
+        <SidebarLink
+            :title="$t('public.transaction')"
+            :href="route('transaction')"
+            :active="route().current('transaction')"
+        >
+            <template #icon>
+                <IconReceipt2 :size="20" stroke-width="1.25" />
             </template>
         </SidebarLink>
 
