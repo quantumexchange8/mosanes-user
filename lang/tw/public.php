@@ -382,7 +382,7 @@ return [
     "deposit_amount" => "存款金額",
     "txid" => "TxID",
     "tnc" => "條款和條件",
-    "fee_and_conditions" => "費用和條件",
+    "fees_and_conditions" => "費用和條件",
     "minimum_investment" => "最低投資",
     "minimum_investment_period" => "最低投資期限",
     "performance_fee" => "業績費",
@@ -400,4 +400,7 @@ return [
     "total_group_net_balance" => "群組總淨餘額",
     "total_group_net_asset" => "群組總淨資產",
     "available_rebate_balance" => "可用回饋餘額",
+    "view_pamm_info" => "查看資產大師信息",
+    "with_us" => "資產賬戶歷史",
+    "day_shortform" => "天",
 ];

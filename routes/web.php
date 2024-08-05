@@ -73,6 +73,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/getMasters', [AssetMasterController::class, 'getMasters'])->name('asset_master.getMasters');
         Route::get('/getFilterMasters/{filter}', [AssetMasterController::class, 'getFilterMasters'])->name('asset_master.getFilterMasters');
         Route::get('/getAvailableAccounts', [AssetMasterController::class, 'getAvailableAccounts'])->name('asset_master.getAvailableAccounts');
+        Route::get('/info/{id}', [AssetMasterController::class, 'showPammInfo'])->name('asset_master.showPammInfo');
+        Route::get('/getMasterDetail', [AssetMasterController::class, 'getMasterDetail'])->name('asset_master.getMasterDetail');
     });
 
     /**

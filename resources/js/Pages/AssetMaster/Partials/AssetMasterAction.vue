@@ -47,6 +47,7 @@ const submitForm = () => {
             size="sm"
             type="button"
             class="w-full"
+            :disabled="!master"
             @click="visible = true"
         >
             {{ $t('public.join_pamm') }}
@@ -86,7 +87,7 @@ const submitForm = () => {
                         </div>
                     </div>
                     <div class="flex flex-col items-start gap-3 w-full pt-4 self-stretch">
-                        <span class="text-sm text-gray-950 font-bold">{{ $t('public.fee_and_conditions' )}}</span>
+                        <span class="text-sm text-gray-950 font-bold">{{ $t('public.fees_and_conditions' )}}</span>
                         <div class="flex flex-col gap-1 items-center self-stretch">
                             <div class="flex py-1 gap-3 items-center self-stretch">
                                 <span class="w-full text-gray-500 font-medium text-xs">{{ $t('public.minimum_investment') }}</span>

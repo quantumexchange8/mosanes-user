@@ -147,9 +147,6 @@ class StructureController extends Controller
     public function viewDownline($id_number)
     {
         $user = User::where('id_number', $id_number)->select('id', 'name', 'role')->first();
-        // $upline = $user->upline;
-        // $user['upline_name'] = $upline->name;
-        // $user['profile_photo']
 
         return Inertia::render('Structure/ViewDownline', [
             'user' => $user,

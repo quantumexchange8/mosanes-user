@@ -16,11 +16,34 @@ import AssetMasterAction from "@/Pages/AssetMaster/Partials/AssetMasterAction.vu
 const { formatAmount } = transactionFormat();
 
 const sortingDropdownOptions = [
-    'Latest', 'Popular', 'Largest Fund', 'Most Investor', 'My Favourites', 'My Joining'
-    //wTrans('public.lastest'), wTrans('public.popular'), wTrans('public.largest_fund'), wTrans('public.most_investor'), wTrans('public.my_favourites'), wTrans('public.my_joining')
+    {
+        name: wTrans('public.lastest'),
+        value: 'created_at'
+    },
+    {
+        name: wTrans('public.popular'),
+        value: 'popular'
+    },
+    {
+        name: wTrans('public.largest_fund'),
+        value: 'total_fund'
+    },
+    {
+        name: wTrans('public.most_investor'),
+        value: 'total_investors'
+    },
+    {
+        name: wTrans('public.my_favourites'),
+        value: 'favourites'
+    },
+    {
+        name: wTrans('public.my_joining'),
+        value: 'joining'
+    },
 ]
+
 const masters = ref();
-const sorting = ref(sortingDropdownOptions[0])
+const sorting = ref(sortingDropdownOptions[0].value)
 
 const getResults = async () => {
     try {
@@ -45,6 +68,10 @@ const getFilterData = async (filter) => {
 watch(sorting, (newValue) => {
     getFilterData(newValue)
 })
+
+const viewPammInfo = (index) => {
+    window.open(route('asset_master.showPammInfo', masters.value[index].id), '_self')
+}
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -102,6 +129,9 @@ const clearFilterGlobal = () => {
                 <Dropdown
                     v-model="sorting"
                     :options="sortingDropdownOptions"
+                    optionLabel="name"
+                    option-value="value"
+                    class="w-40"
                 />
             </div>
 
@@ -114,7 +144,10 @@ const clearFilterGlobal = () => {
                     :key="index"
                     class="w-full p-6 flex flex-col items-center gap-4 rounded-2xl bg-white shadow-toast"
                 >
-                    <div class="w-full flex items-center gap-4">
+                    <div
+                        @click="viewPammInfo(index)"
+                        class="w-full flex items-center gap-4 hover:cursor-pointer"
+                    >
                         <div class="w-[42px] h-[42px] shrink-0 grow-0 rounded-full overflow-hidden">
                             <div v-if="master.profile_photo">
                                 <img :src="master.profile_photo" alt="Profile Photo" />
@@ -124,10 +157,10 @@ const clearFilterGlobal = () => {
                             </div>
                         </div>
                         <div class="flex flex-col items-start">
-                            <div class="self-stretch truncate w-64 text-gray-950 font-bold">
+                            <div class="self-stretch truncate w-40 text-gray-950 font-bold">
                                 {{ master.asset_name }}
                             </div>
-                            <div class="self-stretch truncate w-24 text-gray-500 text-sm">
+                            <div class="self-stretch truncate w-36 text-gray-500 text-sm">
                                 {{ master.trader_name }}
                             </div>
                         </div>
@@ -146,7 +179,7 @@ const clearFilterGlobal = () => {
                             </div>
                         </StatusBadge>
                         <StatusBadge value="gray">
-                            {{ master.performance_fee||master.performance_fee == 0 ? formatAmount(master.performance_fee, 0)+'%' : $t('public.zero') }} {{ $t('public.fee') }}
+                            {{ master.performance_fee||master.performance_fee > 0 ? formatAmount(master.performance_fee, 0)+'%' : $t('public.zero') }} {{ $t('public.fee') }}
                         </StatusBadge>
                     </div>
 
@@ -163,7 +196,7 @@ const clearFilterGlobal = () => {
                             <div class="self-stretch text-gray-950 text-center font-semibold">
                                 {{ master.monthly_gain }}%
                             </div>
-                            <div class="self-stretch text-gray-500 text-center text-xs">
+                            <div class="w-16 sm:w-auto mx-auto truncate self-stretch text-gray-500 text-center text-xs">
                                 {{ $t('public.monthly_gain') }}
                             </div>
                         </div>
@@ -210,8 +243,63 @@ const clearFilterGlobal = () => {
                 </div>
             </div>
 
-            <div v-else>
-                loading
+            <div
+                v-else
+                class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-5 self-stretch"
+            >
+                <div class="w-full p-6 flex flex-col items-center gap-4 rounded-2xl bg-white shadow-toast">
+                    <div class="w-full flex items-center gap-4 hover:cursor-pointer">
+                        <div class="w-[42px] h-[42px] shrink-0 grow-0 rounded-full overflow-hidden animate-pulse">
+                            <DefaultProfilePhoto />
+                        </div>
+                        <div class="flex flex-col items-start animate-pulse">
+                            <div class="h-2 bg-gray-200 rounded-full w-40 my-2"></div>
+                            <div class="h-2 bg-gray-200 rounded-full w-36 my-1.5"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 self-stretch">
+                        <div class="h-2 bg-info-200 rounded-full w-12 my-2"></div>
+                        <div class="h-2 bg-gray-200 rounded-full w-12 my-2"></div>
+                        <div class="h-2 bg-gray-200 rounded-full w-12 my-2"></div>
+                    </div>
+
+                    <div class="py-2 flex justify-center items-center gap-2 self-stretch border-y border-solid border-gray-200">
+                        <div class="w-full flex flex-col items-center">
+                            <div class="h-2 bg-gray-200 rounded-full w-16 my-2"></div>
+                            <div class="self-stretch text-gray-500 text-center text-xs">
+                                {{ $t('public.total_gain') }}
+                            </div>
+                        </div>
+                        <div class="w-full flex flex-col items-center">
+                            <div class="h-2 bg-gray-200 rounded-full w-16 my-2"></div>
+                            <div class="self-stretch text-gray-500 text-center text-xs">
+                                {{ $t('public.monthly_gain') }}
+                            </div>
+                        </div>
+                        <div class="w-full flex flex-col items-center">
+                            <div class="h-2 bg-gray-200 rounded-full w-16 my-2"></div>
+                            <div class="self-stretch text-gray-500 text-center text-xs">
+                                {{ $t('public.lastest') }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center gap-1 self-stretch">
+                        <div class="py-1 flex items-center gap-3 self-stretch">
+                            <IconUserDollar size="20" stroke-width="1.25" />
+                            <div class="h-2 bg-gray-200 rounded-full w-40 my-1.5"></div>
+                        </div>
+                        <div class="py-1 flex items-center gap-3 self-stretch">
+                            <IconPremiumRights size="20" stroke-width="1.25" />
+                            <div class="h-2 bg-gray-200 rounded-full w-40 my-1.5"></div>
+                        </div>
+                    </div>
+
+                    <AssetMasterAction
+                        :master="null"
+                    />
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>

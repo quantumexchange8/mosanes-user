@@ -33,7 +33,6 @@ const getUserData = async () => {
         const response = await axios.get(`/structure/getUserData?id=${props.user.id}`);
 
         userDetail.value = response.data.userDetail;
-        // console.log(userDetail.value);
         tradingAccounts.value = response.data.tradingAccounts;
         tradingAccountsLength.value = tradingAccounts.value.length;
         counterDuration.value = 1;
