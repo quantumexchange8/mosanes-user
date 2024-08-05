@@ -26,6 +26,8 @@ let removeFinishEventListener = Inertia.on("finish", () => {
         if (page.props.notification.type === 'withdrawal') {
             showWithdrawalDialog.value = true;
         } else if (page.props.notification.type === 'deposit') {
+            console.log('enter: ', page.props.notification.type)
+
             showDepositDialog.value = true;
         }
     }
@@ -71,11 +73,11 @@ onUnmounted(() => removeFinishEventListener());
                     </div>
                     <div class="flex flex-col justify-center items-start gap-1 self-stretch sm:flex-row sm:justify-normal sm:items-center">
                         <span class="w-[140px] text-gray-500 text-xs font-medium">{{ $t('public.requested_amount') }}</span>
-                        <span class="self-stretch text-gray-950 text-sm font-medium sm:self-auto sm:flex-grow">{{ transaction.transaction_amount }}</span>
+                        <span class="self-stretch text-gray-950 text-sm font-medium sm:self-auto sm:flex-grow">$ {{ formatAmount(transaction.amount) }}</span>
                     </div>
-                    <div class="flex flex-col items-start gap-1 self-stretch sm:flex-row">
-                        <span class="w-[140px] text-gray-500 text-xs font-medium">{{ $t('public.receiving_address') }}</span>
-                        <span class="self-stretch text-gray-950 text-sm font-medium sm:self-auto sm:flex-grow">{{ transaction.receiving_address }}</span>
+                    <div class="flex flex-col items-start gap-1 self-stretch md:flex-row">
+                        <span class="min-w-[140px] text-gray-500 text-xs font-medium">{{ $t('public.receiving_address') }}</span>
+                        <span class="text-gray-950 w-full md:max-w-[200px] text-sm font-medium break-words">{{ transaction.to_wallet_address }}</span>
                     </div>
                 </div>
             </div>
@@ -120,7 +122,7 @@ onUnmounted(() => removeFinishEventListener());
                     </div>
                     <div class="flex flex-col justify-center items-start gap-1 self-stretch sm:flex-row sm:justify-normal sm:items-center">
                         <span class="w-[140px] text-gray-500 text-xs font-medium">{{ $t('public.txid') }}</span>
-                        <span class="self-stretch text-gray-950 text-sm font-medium sm:self-auto sm:flex-grow">{{ transaction.transaction_number }}</span>
+                        <span class="self-stretch text-gray-950 text-sm font-medium sm:self-auto sm:flex-grow">{{ transaction.txn_hash }}</span>
                     </div>
                 </div>
             </div>

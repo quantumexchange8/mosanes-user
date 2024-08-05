@@ -193,7 +193,7 @@ return [
     "filter_status" => "Filter by status",
     "filter_withdrawal_from" => "Filter by withdrawal from",
     "filter_transfer_type" => "Filter by transfer type",
-    "success" => "Successful",
+    "successful" => "Successful",
     "processing" => "Processing",
     "failed" => "Failed",
     "rebate" => "Rebate",
@@ -403,4 +403,6 @@ return [
     "view_pamm_info" => "View PAMM Info",
     "with_us" => "With Us",
     "day_shortform" => "d",
+    "copy" => "Copy",
+    "copied" => "Copied!",
 ];

@@ -4,11 +4,13 @@ import StatusBadge from '@/Components/StatusBadge.vue';
 import Action from "@/Pages/TradingAccount/Partials/Action.vue";
 import ActionButton from "@/Pages/TradingAccount/Partials/ActionButton.vue";
 import Empty from '@/Components/Empty.vue';
-import {transactionFormat} from "@/Composables/index.js";
+import {generalFormat, transactionFormat} from "@/Composables/index.js";
 
-const accounts = ref([]);
+const isLoading = ref(false);
+const accounts = ref(null);
 const accountType = ref('individual');
 const { formatAmount } = transactionFormat();
+const { formatRgbaColor } = generalFormat();
 
 const props = defineProps({
     leverages: Array,
@@ -18,11 +20,16 @@ const props = defineProps({
 
 // Fetch live accounts from the backend
 const fetchLiveAccounts = async () => {
+    isLoading.value = true;
     try {
         const response = await axios.get(`/account/getLiveAccount?accountType=${accountType.value}`);
-        accounts.value = response.data;
+        accounts.value = response.data ?? [];
+
+        console.log(accounts.value);
     } catch (error) {
         console.error('Error fetching live accounts:', error);
+    } finally {
+        isLoading.value = false;
     }
 };
 
@@ -32,37 +39,77 @@ onMounted(fetchLiveAccounts);
 </script>
 
 <template>
-    <Empty
-        v-if="!accounts.length"
-        :title="$t('public.empty_live_acccount_title')"
-        :message="$t('public.empty_live_acccount_message')"
-    />
+    <div
+        v-if="isLoading"
+        class="flex flex-col justify-center items-center py-4 pl-6 pr-3 gap-5 flex-grow md:pr-6 rounded-2xl border-l-8 bg-white shadow-toast w-1/2 animate-pulse"
+    >
+        <div class="flex items-center gap-5 self-stretch">
+            <div class="w-32 h-3 bg-gray-200 rounded-full my-2"></div>
+            <div
+                class="flex px-2 py-1 justify-center items-center text-xs font-semibold hover:-translate-y-1 transition-all duration-300 ease-in-out rounded"
+            >
+                <div class="w-20 h-2.5 bg-gray-200 rounded-full my-2"></div>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 self-stretch">
+            <div class="w-full flex items-center gap-1 flex-grow">
+                <span class="w-16 text-gray-500 text-xs">{{ $t('public.balance') }}:</span>
+                <div class="w-20 h-2 bg-gray-200 rounded-full my-2"></div>
+            </div>
+            <div class="w-full flex items-center gap-1 flex-grow">
+                <span class="w-16 text-gray-500 text-xs">{{ $t('public.equity') }}:</span>
+                <div class="w-20 h-2 bg-gray-200 rounded-full my-2"></div>
+            </div>
+            <div class="w-full flex items-center gap-1 flex-grow">
+                <span class="w-16 text-gray-500 text-xs">{{ $t('public.credit') }}:</span>
+                <div class="w-20 h-2 bg-gray-200 rounded-full my-2"></div>
+            </div>
+            <div class="w-full flex items-center gap-1 flex-grow">
+                <span class="w-16 text-gray-500 text-xs">{{ $t('public.leverage') }}:</span>
+                <div class="w-20 h-2 bg-gray-200 rounded-full my-2"></div>
+            </div>
+        </div>
+    </div>
 
-    <div v-else class="w-full grid grid-cols-1 gap-5 md:grid-cols-2">
-        <div v-for="account in accounts" :key="account.id" class="min-w-[300px] flex flex-col justify-center items-center py-4 pl-6 pr-3 gap-5 flex-grow md:pr-6 rounded-2xl border-l-8 border-success-500 bg-white shadow-toast">
+    <div
+        v-if="!isLoading && accounts"
+        class="w-full grid grid-cols-1 gap-5 md:grid-cols-2"
+    >
+        <div
+            v-for="account in accounts"
+            :key="account.id"
+            class="flex flex-col justify-center items-center py-4 pl-6 pr-3 gap-5 flex-grow md:pr-6 rounded-2xl border-l-8 bg-white shadow-toast w-full"
+            :style="{'borderColor': `#${account.account_type_color}`}"
+        >
             <div class="flex items-center gap-5 self-stretch">
                 <div class="flex items-center content-center gap-3 md:gap-4 flex-grow">
                     <span class="text-gray-950 font-semibold md:text-lg">#{{ account.meta_login }}</span>
-                    <StatusBadge value="success">
+                    <div
+                        class="flex px-2 py-1 justify-center items-center text-xs font-semibold hover:-translate-y-1 transition-all duration-300 ease-in-out rounded"
+                        :style="{
+                            backgroundColor: formatRgbaColor(account.account_type_color, 0.15),
+                            color: `#${account.account_type_color}`,
+                        }"
+                    >
                         {{ account.account_type }}
-                    </StatusBadge>
+                    </div>
                 </div>
                 <Action :account="account" type="individual" :leverages="leverages" :walletOptions="walletOptions" />
             </div>
             <div class="grid grid-cols-2 gap-2 self-stretch">
-                <div class="min-w-[140px] md:min-w-[100px] flex items-center gap-1 flex-grow">
+                <div class="w-full flex items-center gap-1 flex-grow">
                     <span class="w-16 text-gray-500 text-xs">{{ $t('public.balance') }}:</span>
                     <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ formatAmount(account.balance) }}</span>
                 </div>
-                <div class="min-w-[140px] md:min-w-[100px] flex items-center gap-1 flex-grow">
+                <div class="w-full flex items-center gap-1 flex-grow">
                     <span class="w-16 text-gray-500 text-xs">{{ $t('public.equity') }}:</span>
                     <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ formatAmount(account.equity) }}</span>
                 </div>
-                <div class="min-w-[140px] md:min-w-[100px] flex items-center gap-1 flex-grow">
+                <div class="w-full flex items-center gap-1 flex-grow">
                     <span class="w-16 text-gray-500 text-xs">{{ $t('public.credit') }}:</span>
                     <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ formatAmount(account.credit) }}</span>
                 </div>
-                <div class="min-w-[140px] md:min-w-[100px] flex items-center gap-1 flex-grow">
+                <div class="w-full flex items-center gap-1 flex-grow">
                     <span class="w-16 text-gray-500 text-xs">{{ $t('public.leverage') }}:</span>
                     <span class="text-gray-950 text-xs font-medium">1:{{ account.leverage }}</span>
                 </div>
@@ -72,4 +119,11 @@ onMounted(fetchLiveAccounts);
             </div>
         </div>
     </div>
+
+    <Empty
+        v-else-if="!isLoading"
+        :title="$t('public.empty_live_acccount_title')"
+        :message="$t('public.empty_live_acccount_message')"
+    />
+
 </template>
