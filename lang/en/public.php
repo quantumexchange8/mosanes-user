@@ -408,5 +408,7 @@ return [
     "copied" => "Copied!",
     "paginator_caption" => "Showing {first} to {last} of {totalRecords} entries",
     "no_transaction_header" => "No transaction found.",
-    "loading_transactions_caption" => "Loading transactions data. Please wait."
+    "loading_transactions_caption" => "Loading transactions data. Please wait.",
+    "standard_account" => "Standard Account",
+    "premium_account" => "Premium Account",
 ];

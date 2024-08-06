@@ -112,4 +112,9 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->hasMany(Transaction::class, 'user_id', 'id');
     }
+
+    public function rebateAllocations(): HasMany
+    {
+        return $this->hasMany(RebateAllocation::class, 'user_id', 'id');
+    }
 }

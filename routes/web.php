@@ -86,6 +86,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('rebate_allocate')->group(function () {
         Route::get('/', [RebateController::class, 'index'])->name('rebate_allocate');
         Route::get('/getRebateAllocateData', [RebateController::class, 'getRebateAllocateData'])->name('rebate_allocate.getRebateAllocateData');
+        Route::get('/getAgents', [RebateController::class, 'getAgents'])->name('rebate_allocate.getAgents');
     });
 
     /**

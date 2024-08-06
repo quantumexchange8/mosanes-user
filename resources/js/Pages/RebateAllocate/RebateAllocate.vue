@@ -9,7 +9,7 @@ import {
     WithdrawalIcon
 } from "@/Components/Icons/solid.jsx";
 import {trans} from "laravel-vue-i18n";
-import Listing from "@/Pages/Structure/Partials/Listing.vue";
+import RebateTable from "@/Pages/RebateAllocate/Partials/RebateTable.vue";
 
 const { formatAmount } = transactionFormat();
 const rebates = ref([]);
@@ -18,34 +18,6 @@ const group_total_deposit = ref(999);
 const group_total_withdrawal = ref(999);
 const total_group_net_balance = ref(999);
 const total_group_net_asset = ref(999);
-
-// data overview
-const dataOverviews = computed(() => [
-    {
-        icon: DepositIcon,
-        total: group_total_deposit.value,
-        label: trans('public.group_total_deposit'),
-        borderColor: 'border-green',
-    },
-    {
-        icon: WithdrawalIcon,
-        total: group_total_withdrawal.value,
-        label: trans('public.group_total_withdrawal'),
-        borderColor: 'border-pink',
-    },
-    {
-        icon: NetBalanceIcon,
-        total: total_group_net_balance.value,
-        label: trans('public.total_group_net_balance'),
-        borderColor: 'border-[#FEDC32]',
-    },
-    {
-        icon: NetAssetIcon,
-        total: total_group_net_asset.value,
-        label: trans('public.total_group_net_asset'),
-        borderColor: 'border-indigo',
-    },
-]);
 
 const getRebateAllocateData = async () => {
     try {
@@ -83,7 +55,7 @@ getRebateAllocateData();
                 </div>
             </div>
 
-            <Listing />
+            <RebateTable />
         </div>
     </AuthenticatedLayout>
 </template>
