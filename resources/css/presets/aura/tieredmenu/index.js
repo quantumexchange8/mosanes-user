@@ -6,11 +6,12 @@ export default {
 
             // Size
             'min-w-[12rem]',
-            'p-1',
+            'py-2',
 
             // Colors
-            'bg-surface-0 dark:bg-surface-900',
-            'border border-surface-200 dark:border-surface-700'
+            'bg-white',
+            'border border-gray-200',
+            'shadow-dropdown'
         ]
     },
     menu: {
@@ -27,16 +28,13 @@ export default {
     },
     content: ({ context }) => ({
         class: [
-            //Shape
-            'rounded-[4px]',
-
             // Colors
-            'text-surface-700 dark:text-white/80',
-            {
-                'text-surface-500 dark:text-white/70': !context.focused && !context.active,
-                'text-surface-500 dark:text-white/70 bg-surface-200': context.focused && !context.active,
-                'text-primary-highlight-inverse bg-primary-highlight': (context.focused && context.active) || context.active || (!context.focused && context.active)
-            },
+            'text-gray-950',
+            // {
+            //     'text-surface-500 dark:text-white/70': !context.focused && !context.active,
+            //     'text-surface-500 dark:text-white/70 bg-surface-200': context.focused && !context.active,
+            //     'text-primary-highlight-inverse bg-primary-highlight': (context.focused && context.active) || context.active || (!context.focused && context.active)
+            // },
 
             // Transitions
             'transition-shadow',
@@ -44,7 +42,7 @@ export default {
 
             // States
             {
-                'hover:bg-surface-100 dark:hover:bg-[rgba(255,255,255,0.03)]': !context.active,
+                'hover:bg-gray-100': !context.active,
                 'hover:bg-primary-highlight-hover text-primary-highlight-inverse': context.active
             },
 
@@ -65,7 +63,10 @@ export default {
             'px-3',
 
             // Color
-            'text-surface-700 dark:text-white/80',
+            'text-gray-950',
+
+            // Font
+            'text-sm',
 
             // Misc
             'no-underline',
@@ -80,7 +81,7 @@ export default {
             'mr-2',
 
             // Color
-            'text-surface-600 dark:text-white/70'
+            'text-gray-500'
         ]
     },
     label: {
@@ -101,7 +102,7 @@ export default {
             'min-w-[12.5rem]',
 
             // Shape
-            'shadow-none sm:shadow-md',
+            'shadow-dropdown',
             'border border-surface-200 dark:border-surface-700',
 
             // Position
@@ -113,6 +114,6 @@ export default {
         ]
     },
     separator: {
-        class: 'border-t border-surface-200 dark:border-surface-600 my-[2px]'
+        class: 'border-t-4 border-gray-200 my-[2px]'
     }
 };

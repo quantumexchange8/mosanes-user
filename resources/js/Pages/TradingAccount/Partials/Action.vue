@@ -1,10 +1,17 @@
 <script setup>
-import { ref, watchEffect, onMounted } from 'vue';
+import {ref, watchEffect, onMounted, h, computed} from 'vue';
 import { usePage, useForm } from "@inertiajs/vue3";
 import axios from 'axios';
 import Dialog from 'primevue/dialog';
 import Button from "@/Components/Button.vue";
-import { IconDots, IconCreditCardPay, IconScale, IconHistory, IconX, IconDatabaseMinus, IconTrash } from '@tabler/icons-vue';
+import {
+    IconDots,
+    IconCreditCardPay,
+    IconScale,
+    IconHistory,
+    IconDatabaseMinus,
+    IconTrash
+} from '@tabler/icons-vue';
 import OverlayPanel from "primevue/overlaypanel";
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -15,6 +22,9 @@ import toast from '@/Composables/toast';
 import AccountReport from '@/Pages/TradingAccount/Partials/AccountReport.vue';
 import { useConfirm } from 'primevue/useconfirm';
 import { trans, wTrans } from "laravel-vue-i18n";
+import TieredMenu from "primevue/tieredmenu";
+import AccountWithdrawal from "@/Pages/TradingAccount/Partials/AccountWithdrawal.vue";
+import ChangeLeverage from "@/Pages/TradingAccount/Partials/ChangeLeverage.vue";
 
 const props = defineProps({
     account: Object,
@@ -33,7 +43,7 @@ const walletOptions = ref(props.walletOptions);
 const paymentAccounts = usePage().props.auth.payment_account;
 
 const toggle = (event) => {
-    op.value.toggle(event);
+    menu.value.toggle(event);
 };
 
 const openDialog = (dialogRef, formRef = null) => {
@@ -194,6 +204,76 @@ const toggleFullAmount = () => {
     }
 };
 
+
+// new
+const menu = ref();
+const visible = ref(false);
+const dialogType = ref('');
+
+const items = ref([
+    {
+        label: trans('public.withdrawal'),
+        icon: h(IconCreditCardPay),
+        command: () => {
+            visible.value = true;
+            dialogType.value = 'withdrawal';
+        },
+    },
+    {
+        label: trans('public.change_leverage'),
+        icon: h(IconScale),
+        command: () => {
+            if (props.account.account_type_leverage === 0) {
+                visible.value = true;
+                dialogType.value = 'change_leverage';
+            } else {
+                toast.add({
+                    title: trans('public.toast_leverage_change_warning'),
+                    type: 'warning',
+                });
+            }
+        },
+        account_type: 'Standard Account'
+    },
+    {
+        label: trans('public.revoke_pamm'),
+        icon: h(IconDatabaseMinus),
+        command: () => {
+            visible.value = true;
+            dialogType.value = 'revoke_pamm';
+        },
+        account_type: 'Premium Account'
+    },
+    {
+        label: trans('public.account_report'),
+        icon: h(IconHistory),
+        command: () => {
+            visible.value = true;
+            dialogType.value = 'account_report';
+        },
+    },
+    {
+        separator: true,
+    },
+    {
+        label: trans('public.delete_account'),
+        icon: h(IconTrash),
+        command: () => {
+            visible.value = true;
+            dialogType.value = 'delete_account';
+        },
+        action: 'delete_account'
+    },
+]);
+
+const filteredItems = computed(() => {
+    return items.value.filter(item => {
+        if (item.account_type) {
+            return item.account_type === props.account.account_type;
+        }
+        return true;
+    });
+});
 </script>
 
 <template>
@@ -205,6 +285,8 @@ const toggleFullAmount = () => {
         iconOnly
         pill
         @click="toggle"
+        aria-haspopup="true"
+        aria-controls="overlay_tmenu"
     >
         <IconDots size="16" stroke-width="1.25" color="#667085" />
     </Button>
@@ -220,6 +302,48 @@ const toggleFullAmount = () => {
     >
         <IconTrash size="16" stroke-width="1.25" color="#667085" />
     </Button>
+
+    <!-- Menu -->
+    <TieredMenu ref="menu" id="overlay_tmenu" :model="filteredItems" popup>
+        <template #item="{ item, props }">
+            <div
+                class="flex items-center gap-3 self-stretch"
+                v-bind="props.action"
+            >
+                <component :is="item.icon" size="20" stroke-width="1.25" :color="item.action === 'delete_account' ? '#F04438' : '#667085'" />
+                <span class="font-medium" :class="{'text-error-500': item.action === 'delete_account'}">{{ item.label }}</span>
+            </div>
+        </template>
+    </TieredMenu>
+
+    <Dialog
+        v-model:visible="visible"
+        modal
+        :header="$t(`public.${dialogType}`)"
+        class="dialog-xs"
+        :class="(dialogType === 'account_report') ? 'md:dialog-md' : 'md:dialog-sm'"
+    >
+        <template v-if="dialogType === 'withdrawal'">
+            <AccountWithdrawal
+                :account="account"
+                @update:visible="visible = false"
+            />
+        </template>
+
+        <template v-if="dialogType === 'change_leverage'">
+            <ChangeLeverage
+                :account="account"
+                @update:visible="visible = false"
+            />
+        </template>
+
+        <template v-if="dialogType === 'account_report'">
+            <AccountReport
+                :account="props.account"
+                @update:visible="visible = false"
+            />
+        </template>
+    </Dialog>
 
     <OverlayPanel ref="op">
         <div class="w-60 py-2 flex flex-col items-center">

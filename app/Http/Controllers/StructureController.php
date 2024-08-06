@@ -171,7 +171,9 @@ class StructureController extends Controller
 
         $trading_accounts = $user->tradingAccounts;
         try {
-            (new CTraderService)->getUserInfo(collect($trading_accounts));
+            foreach ($trading_accounts as $trading_account) {
+                (new CTraderService)->getUserInfo($trading_account->meta_login);
+            }
         } catch (\Throwable $e) {
             Log::error($e->getMessage());
         }

@@ -146,7 +146,7 @@ const buttonSize = computed(() => {
 </script>
 
 <template>
-    <AuthenticatedLayout :title="$t('public.transaction')">
+    <AuthenticatedLayout :title="$t('public.accounts')">
         <div class="flex flex-col pt-3 gap-20 md:pt-5 md:gap-[100px]">
             <div class="flex flex-col items-start gap-5 self-stretch">
                 <!-- banner -->

@@ -10,8 +10,9 @@ import Loader from "@/Components/Loader.vue";
 import { IconX } from '@tabler/icons-vue';
 import Dialog from 'primevue/dialog';
 import StatusBadge from '@/Components/StatusBadge.vue';
-import { trans, wTrans } from "laravel-vue-i18n";
+import { wTrans } from "laravel-vue-i18n";
 import Tag from 'primevue/tag';
+import dayjs from 'dayjs'
 
 const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 
@@ -43,7 +44,7 @@ const getAccountReport = async (filterDate = null, selectedOption = null) => {
 
         if (filterDate) {
             const [startDate, endDate] = filterDate;
-            url += `&startDate=${startDate}&endDate=${endDate}`;
+            url += `&startDate=${dayjs(startDate).format('YYYY-MM-DD')}&endDate=${dayjs(endDate).format('YYYY-MM-DD')}`;
         }
 
         if (selectedOption) {
@@ -61,11 +62,10 @@ const getAccountReport = async (filterDate = null, selectedOption = null) => {
 
 getAccountReport();
 
-const today = new Date();
-const ninetyDaysAgo = new Date();
-ninetyDaysAgo.setDate(today.getDate() - 90);
+const today = dayjs();
+const ninetyDaysAgo = today.subtract(90, 'day');
 
-selectedDate.value = [ninetyDaysAgo, today];
+selectedDate.value = [ninetyDaysAgo.toDate(), today.toDate()];
 
 watch(selectedDate, (newDateRange) => {
     if (Array.isArray(newDateRange)) {
@@ -82,7 +82,6 @@ watch(selectedDate, (newDateRange) => {
         console.warn('Invalid date range format:', newDateRange);
     }
 });
-
 watch(selectedOption, (newOption) => {
     getAccountReport(selectedDate.value, newOption);
 });
@@ -118,7 +117,6 @@ function copyToClipboard(text) {
 
     document.body.removeChild(textArea);
 }
-
 </script>
 
 <template>
