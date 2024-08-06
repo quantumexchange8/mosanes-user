@@ -406,4 +406,7 @@ return [
     "rebate_wallet" => "Rebate Wallet",
     "copy" => "Copy",
     "copied" => "Copied!",
+    "paginator_caption" => "Showing {first} to {last} of {totalRecords} entries",
+    "no_transaction_header" => "No transaction found.",
+    "loading_transactions_caption" => "Loading transactions data. Please wait."
 ];
