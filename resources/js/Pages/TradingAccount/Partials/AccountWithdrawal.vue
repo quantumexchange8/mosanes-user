@@ -1,13 +1,8 @@
 <script setup>
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
 import InputLabel from "@/Components/InputLabel.vue";
 import InputNumber from 'primevue/inputnumber';
 import {useForm} from "@inertiajs/vue3";
 import Button from "@/Components/Button.vue"
-import {
-    IconCurrencyDollar
-} from "@tabler/icons-vue"
 import InputError from "@/Components/InputError.vue";
 import Dropdown from "primevue/dropdown";
 import {ref, watch} from "vue";
@@ -125,15 +120,17 @@ const closeDialog = () => {
             <Button
                 type="button"
                 variant="gray-tonal"
-                class="w-full sm:w-[120px]"
+                class="w-full md:w-[120px]"
                 @click.prevent="closeDialog()"
+                :disabled="form.processing"
             >
                 {{ $t('public.cancel') }}
             </Button>
             <Button
                 variant="primary-flat"
-                class="w-full sm:w-[120px]"
+                class="w-full md:w-[120px]"
                 @click.prevent="submitForm"
+                :disabled="form.processing"
             >
                 {{ $t('public.confirm') }}
             </Button>

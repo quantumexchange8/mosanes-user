@@ -113,6 +113,24 @@ class TradingAccountController extends Controller
         $user = Auth::user();
         $accountType = $request->input('accountType');
 
+        $conn = (new CTraderService)->connectionStatus();
+        if ($conn['code'] != 0) {
+            return back()
+                ->with('toast', [
+                    'title' => 'Connection Error',
+                    'type' => 'error'
+                ]);
+        }
+
+        $trading_accounts = $user->tradingAccounts;
+        try {
+            foreach ($trading_accounts as $trading_account) {
+                (new CTraderService)->getUserInfo($trading_account->meta_login);
+            }
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage());
+        }
+
         $liveAccounts = TradingAccount::with('account_type')
             ->where('user_id', $user->id)
             ->when($accountType, function ($query) use ($accountType) {
@@ -131,6 +149,7 @@ class TradingAccountController extends Controller
                     'leverage' => $account->margin_leverage,
                     'equity' => $account->equity,
                     'account_type' => $account->account_type->name,
+                    'account_type_leverage' => $account->account_type->leverage,
                     'account_type_color' => $account->account_type->color,
                 ];
             });
@@ -145,31 +164,8 @@ class TradingAccountController extends Controller
         $endDate = $request->query('endDate');
         $type = $request->query('type');
 
-        // Convert date strings to YYYY-MM-DD format directly
-        if ($startDate) {
-            // Extract the date part from the string
-            if (preg_match('/(\w{3} \w{3} \d{2} \d{4})/', $startDate, $matches)) {
-                $datePart = $matches[1]; // e.g., "Jul 10 2024"
-                $startDate = (new \DateTime($datePart))->format('Y-m-d');
-            } else {
-                $startDate = null; // Handle error or invalid format
-            }
-        }
-
-        if ($endDate) {
-            // Extract the date part from the string
-            if (preg_match('/(\w{3} \w{3} \d{2} \d{4})/', $endDate, $matches)) {
-                $datePart = $matches[1]; // e.g., "Jul 10 2024"
-                $endDate = (new \DateTime($datePart))->format('Y-m-d');
-            } else {
-                $endDate = null; // Handle error or invalid format
-            }
-        }
-
-        // Query for transactions
         $query = Transaction::query();
 
-        // Ensure category is 'trading_account'
         $query->where('category', 'trading_account');
 
         if ($meta_login) {
@@ -179,11 +175,11 @@ class TradingAccountController extends Controller
             });
         }
 
-        // Apply date filter based on availability of startDate and/or endDate
         if ($startDate && $endDate) {
-            // Both startDate and endDate are provided
-            $query->whereDate('created_at', '>=', $startDate)
-                ->whereDate('created_at', '<=', $endDate);
+            $start_date = Carbon::createFromFormat('Y-m-d', $startDate)->startOfDay();
+            $end_date = Carbon::createFromFormat('Y-m-d', $endDate)->endOfDay();
+
+            $query->whereBetween('created_at', [$start_date, $end_date]);
         }
 
         // Apply type filter

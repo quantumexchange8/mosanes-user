@@ -24,8 +24,6 @@ const fetchLiveAccounts = async () => {
     try {
         const response = await axios.get(`/account/getLiveAccount?accountType=${accountType.value}`);
         accounts.value = response.data ?? [];
-
-        console.log(accounts.value);
     } catch (error) {
         console.error('Error fetching live accounts:', error);
     } finally {
