@@ -40,7 +40,7 @@ const openDialog = (dialogRef, formRef = null) => {
     if (formRef) formRef.reset();
     if (dialogRef === 'withdrawal') {
         // Check if paymentAccounts is empty
-        if (paymentAccounts.length == 0) {
+        if (paymentAccounts.length === 0) {
             requireAccountConfirmation('crypto');
         } else {
             showWithdrawalDialog.value = true;
@@ -92,6 +92,7 @@ const form = useForm({
 
 
 const submitWithdrawal = () => {
+    withdrawalForm.receiving_wallet = paymentAccounts[0].account_no
     withdrawalForm.post(route('account.withdrawal_from_account'), {
         onSuccess: () => {
             // Close the dialog and show the withdrawal request dialog
@@ -270,13 +271,13 @@ const toggleFullAmount = () => {
                         <div class="relative w-full">
                             <IconField iconPosition="left" class="w-full">
                                     <div class="text-gray-950 text-sm">$</div>
-                                    <InputText 
+                                    <InputText
                                         id="amount"
                                         type="number"
-                                        class="block w-full" 
+                                        class="block w-full"
                                         v-model="withdrawalForm.amount"
                                         :placeholder="$t('public.amount_placeholder')"
-                                        :invalid="withdrawalForm.errors.amount"
+                                        :invalid="!!withdrawalForm.errors.amount"
                                     />
                             </IconField>
                             <span
@@ -303,8 +304,7 @@ const toggleFullAmount = () => {
                             :placeholder="$t('public.receiving_wallet_placeholder')"
                             class="w-full"
                             scroll-height="236px"
-                            :invalid="withdrawalForm.errors.receiving_wallet"
-                            :disabled="!walletOptions.length"
+                            :invalid="!!withdrawalForm.errors.receiving_wallet"
                         />
                         <span class="self-stretch text-gray-500 text-xs">{{ withdrawalForm.receiving_wallet }}</span>
                         <InputError :message="withdrawalForm.errors.receiving_wallet" />
@@ -347,7 +347,7 @@ const toggleFullAmount = () => {
                 </div>
                 <div class="self-stretch">
                     <span class="text-gray-500 text-xs">
-                        {{ $t('public.agreement_text') }} 
+                        {{ $t('public.agreement_text') }}
                         <span class="text-primary-500 text-xs font-medium">
                             {{ $t('public.trading_account_agreement') }}
                         </span>

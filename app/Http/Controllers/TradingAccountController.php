@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use App\Models\AccountType;
 use App\Models\TradingUser;
@@ -129,7 +130,8 @@ class TradingAccountController extends Controller
                     'credit' => $account->credit,
                     'leverage' => $account->margin_leverage,
                     'equity' => $account->equity,
-                    'account_type' => $account->account_type->name
+                    'account_type' => $account->account_type->name,
+                    'account_type_color' => $account->account_type->color,
                 ];
             });
 
@@ -208,7 +210,6 @@ class TradingAccountController extends Controller
         ]);
 
         $user = Auth::user();
-        $amount = $request->amount;
 
         $transaction = Transaction::create([
             'user_id' => $user->id,
@@ -216,9 +217,6 @@ class TradingAccountController extends Controller
             'transaction_type' => 'deposit',
             'to_meta_login' => $request->meta_login,
             'transaction_number' => RunningNumberService::getID('transaction'),
-            'amount' => $amount,
-            'transaction_charges' => 0,
-            'transaction_amount' => $amount,
             'status' => 'processing',
         ]);
 
@@ -226,7 +224,6 @@ class TradingAccountController extends Controller
 
         $payoutSetting = config('payment-gateway');
         $domain = $_SERVER['HTTP_HOST'];
-        $intAmount = intval($amount * 1000000);
 
         if ($domain === 'mosanes-live.pro') {
             $selectedPayout = $payoutSetting['live'];
@@ -234,12 +231,11 @@ class TradingAccountController extends Controller
             $selectedPayout = $payoutSetting['staging'];
         }
 
-        $vCode = md5($intAmount . $selectedPayout['appId'] . $transaction->transaction_number . $selectedPayout['merchantId']);
+        $vCode = md5($selectedPayout['appId'] . $transaction->transaction_number . $selectedPayout['merchantId'] . $selectedPayout['ttKey']);
 
         $params = [
             'userName' => $user->name,
             'userEmail' => $user->email,
-            'amount' => $intAmount,
             'orderNumber' => $transaction->transaction_number,
             'userId' => $user->id,
             'merchantId' => $selectedPayout['merchantId'],
@@ -324,102 +320,79 @@ class TradingAccountController extends Controller
 
     }
 
-    //this only sent request to admin
     public function withdrawal_from_account(Request $request)
     {
-        // $request->validate([
-        //     'account_id' => 'required|exists:trading_accounts,id',
-        //     'amount' => 'required|numeric|gt:0',
-        //     'receiving_wallet' => 'required'
-        // ]);
+        $validator = Validator::make($request->all(), [
+            'account_id' => ['required', 'exists:trading_accounts,id'],
+            'amount' => ['required', 'numeric', 'gt:30'],
+            'receiving_wallet' => ['required']
+        ])->setAttributeNames([
+            'account_id' => trans('public.account'),
+            'amount' => trans('public.amount'),
+            'receiving_wallet' => trans('public.receiving_wallet'),
+        ]);
+        $validator->validate();
 
-        // $conn = (new CTraderService)->connectionStatus();
-        // if ($conn['code'] != 0) {
-        //     return back()
-        //         ->with('toast', [
-        //             'title' => 'Connection Error',
-        //             'type' => 'error'
-        //         ]);
-        // }
+        $amount = $request->amount;
 
-        // $tradingAccount = TradingAccount::find($request->account_id);
-        // (new CTraderService)->getUserInfo(collect($tradingAccount));
+        // request withdrawal
+         $conn = (new CTraderService)->connectionStatus();
+         if ($conn['code'] != 0) {
+             return back()
+                 ->with('toast', [
+                     'title' => 'Connection Error',
+                     'type' => 'error'
+                 ]);
+         }
 
-        // $tradingAccount = TradingAccount::find($request->account_id);
-        // $amount = $request->input('amount');
-        // $receiving_wallet = $request->input('receiving_wallet');
+         $tradingAccount = TradingAccount::find($request->account_id);
+         (new CTraderService)->getUserInfo(collect($tradingAccount));
 
-        // $paymentAccount = PaymentAccount::where('receiving_wallet', $receiving_wallet)->first();
+         if ($tradingAccount->balance < $amount) {
+             throw ValidationException::withMessages(['amount' => trans('public.insufficient_balance')]);
+         }
 
-        // if ($tradingAccount->balance < $amount) {
-        //     throw ValidationException::withMessages(['wallet' => trans('public.insufficient_balance')]);
-        // }
+         try {
+             $trade = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, $tradingAccount->account_type_id, "Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
+         } catch (\Throwable $e) {
+             if ($e->getMessage() == "Not found") {
+                 TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'Inactive']);
+             } else {
+                 Log::error($e->getMessage());
+             }
+             return back()
+                 ->with('toast', [
+                     'title' => 'Trading account error',
+                     'type' => 'error'
+                 ]);
+         }
 
-        // try {
-        //     $trade = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, $tradingAccount->account_type_id, "Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
-        // } catch (\Throwable $e) {
-        //     if ($e->getMessage() == "Not found") {
-        //         TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'Inactive']);
-        //     } else {
-        //         Log::error($e->getMessage());
-        //     }
-        //     return response()->json(['success' => false, 'message' => $e->getMessage()]);
-        // }
+         $tradingAccount = TradingAccount::find($request->account_id);
+         $amount = $request->input('amount');
+         $paymentWallet = PaymentAccount::where('user_id', Auth::id())
+             ->where('account_no', $request->receiving_wallet)
+             ->first();
 
-        // $ticket = $trade->getTicket();
-        // Transaction::create([
-        //     'user_id' => Auth::id(),
-        //     'category' => 'trading_account',
-        //     'transaction_type' => 'fund_out',
-        //     'from_meta_login' => $tradingAccount->meta_login,
-        //     'ticket' => $ticket,
-        //     'transaction_number' => RunningNumberService::getID('transaction'),
-        //     'amount' => $amount,
-        //     'transaction_charges' => 0,
-        //     'transaction_amount' => $amount,
-        //     'status' => 'successful',
-        // ]);
+         $transaction = Transaction::create([
+             'user_id' => Auth::id(),
+             'category' => 'trading_account',
+             'transaction_type' => 'withdrawal',
+             'from_meta_login' => $tradingAccount->meta_login,
+             'transaction_number' => RunningNumberService::getID('transaction'),
+             'payment_account_id' => $paymentWallet->id,
+             'to_wallet_address' => $paymentWallet->account_no,
+             'ticket' => $trade->getTicket(),
+             'amount' => $amount,
+             'transaction_charges' => 0,
+             'transaction_amount' => $amount,
+             'status' => 'processing',
+         ]);
 
-        // // $new_balance = $wallet->balance + $amount;
-        // $transaction = Transaction::create([
-        //     'user_id' => Auth::id(),
-        //     'category' => 'wallet',
-        //     'transaction_type' => 'withdrawal_from_account',
-        //     'payment_account_id' => $paymentAccount->id,
-        //     'from_meta_login' => $tradingAccount->meta_login,
-        //     'transaction_number' => RunningNumberService::getID('transaction'),
-        //     'amount' => $amount,
-        //     'transaction_charges' => 0,
-        //     'transaction_amount' => $amount,
-        //     'status' => 'processing',
-        // ]);
-
-        // // Fetch the payment account's account number
-        // $paymentAccount = PaymentAccount::find($transaction->payment_account_id);
-
-        // $transactionData = [
-        //     'user_id' => Auth::id(),
-        //     'transaction_number' => $transaction->transaction_number,
-        //     'from_meta_login' => $transaction->from_meta_login,
-        //     'transaction_amount' => $transaction->transaction_amount,
-        //     'amount' => $transaction->amount,
-        //     'receiving_address' => $paymentAccount->account_no,
-        //     'created_at =>  $transaction->created_at,
-        // ];
-
-        $transactionData = [
-            'user_id' => 1,
-            'transaction_number' => 'TX1234567890',
-            'from_meta_login' => '123456',
-            'transaction_amount' => 1000.00,
-            'amount' => 1000.00,
-            'receiving_address' => 'dummy_address',
-            'created_at' => '2024-07-27 16:09:45',
-        ];
+        // disable trade
 
         // Set notification data in the session
         return redirect()->back()->with('notification', [
-            'details' => $transactionData,
+            'details' => $transaction,
             'type' => 'withdrawal',
             // 'withdrawal_type' => 'rebate' this not put show meta_login put rebate show Rebate put bonus show Bonus
         ]);
@@ -583,7 +556,7 @@ class TradingAccountController extends Controller
 
             $result['date'] = $transaction->approval_date;
 
-            return redirect()->route('account')->with('notification', [
+            return redirect()->route('dashboard')->with('notification', [
                 'details' => $transaction,
                 'type' => 'deposit',
             ]);
@@ -621,7 +594,7 @@ class TradingAccountController extends Controller
 //        }
         $selectedPayout = $payoutSetting['staging'];
 
-        $dataToHash = md5($transaction->transaction_number . 'mosanes' . $selectedPayout['merchantId']);
+        $dataToHash = md5($transaction->transaction_number . $selectedPayout['appId'] . $selectedPayout['merchantId']);
         $status = $result['status'] == 'success' ? 'successful' : 'failed';
 
         if ($result['token'] === $dataToHash) {

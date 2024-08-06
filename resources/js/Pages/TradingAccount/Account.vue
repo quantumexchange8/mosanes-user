@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Button from "@/Components/Button.vue";
-import { ref, h, watch, onMounted } from "vue";
+import {ref, h, watch, onMounted, computed} from "vue";
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import IndividualAccounts from '@/Pages/TradingAccount/Partials/IndividualAccounts.vue';
@@ -107,7 +107,7 @@ getOptions();
 function selectAccount(type) {
     selectedAccountType.value = type;
     liveAccountForm.accountType = type;
-    
+
     // Find selected account and update leverage
     const selectedAccount = accountOptions.value.find(account => account.account_group === type);
     if (selectedAccount && selectedAccount.leverage) {
@@ -118,7 +118,7 @@ function selectAccount(type) {
 }
 
 const openLiveAccount = () => {
-    liveAccountForm.leverage = 
+    liveAccountForm.leverage =
     liveAccountForm.post(route('account.create_live_account'), {
         onSuccess: () => {
             closeDialog('live', liveAccountForm);
@@ -140,15 +140,17 @@ const openDemoAccount = () => {
     });
 };
 
-
+const buttonSize = computed(() => {
+    return window.innerWidth < 768 ? 'sm' : 'base';
+})
 </script>
 
 <template>
     <AuthenticatedLayout :title="$t('public.transaction')">
         <div class="flex flex-col pt-3 gap-20 md:pt-5 md:gap-[100px]">
-            <div class="flex flex-col items-center px-3 gap-5 self-stretch md:px-5">
+            <div class="flex flex-col items-start gap-5 self-stretch">
                 <!-- banner -->
-                <div class="h-[260px] pl-5 pt-5 pr-3 pb-[26px] self-stretch rounded-2xl bg-white shadow-toast md:h-60 bg-[url('/img/background-account-banner.svg')] bg-no-repeat bg-right-bottom bg-contain 
+                <div class="h-[260px] pl-5 pt-5 pr-3 pb-[26px] self-stretch rounded-2xl bg-white shadow-toast md:h-60 bg-[url('/img/background-account-banner.svg')] bg-no-repeat bg-right-bottom bg-contain
                     md:pl-8 md:pt-[30px] md:pb-[30px] md:pr-[246px]
                     xl:pt-11 xl:pb-11 xl:pr-[343px]"
                     >
@@ -159,10 +161,24 @@ const openDemoAccount = () => {
                             <span class="self-stretch text-gray-700 text-xs md:text-sm">{{ $t('public.account_banner_message') }}</span>
                         </div>
                         <div class="flex flex-col justify-center items-start gap-3 self-stretch md:flex-row md:justify-end md:items-center md:gap-5">
-                            <Button size="sm" variant="primary-flat" class="w-[142px] md:hidden" @click="openDialog('live', liveAccountForm)">{{ $t('public.live_account') }}</Button>
-                            <Button size="base" variant="primary-flat" class="hidden md:block w-full" @click="openDialog('live', liveAccountForm)">{{ $t('public.live_account') }}</Button>
-                            <Button size="sm" variant="primary-outlined" class="w-[142px] md:hidden" @click="openDialog('demo', demoAccountForm)">{{ $t('public.demo_account') }}</Button>
-                            <Button size="base" variant="primary-outlined" class="hidden md:block w-full" @click="openDialog('demo', demoAccountForm)">{{ $t('public.demo_account') }}</Button>
+                            <Button
+                                type="button"
+                                variant="primary-flat"
+                                class="w-[142px] md:w-full"
+                                :size="buttonSize"
+                                @click="openDialog('live', liveAccountForm)"
+                            >
+                                {{ $t('public.live_account') }}
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="primary-outlined"
+                                class="w-[142px] md:w-full"
+                                :size="buttonSize"
+                                @click="openDialog('demo', demoAccountForm)"
+                            >
+                                {{ $t('public.demo_account') }}
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -176,7 +192,7 @@ const openDemoAccount = () => {
 
                 <component :is="tabs[activeIndex]?.component" :leverages="leverages"  :transferOptions="transferOptions"  :walletOptions="walletOptions"/>
             </div>
-            
+
         </div>
     </AuthenticatedLayout>
 
@@ -186,9 +202,9 @@ const openDemoAccount = () => {
                 <div class="flex flex-col items-start gap-2 self-stretch">
                     <InputLabel for="accountType" :value="$t('public.account_type_placeholder')" />
                     <div class="flex flex-col items-start gap-3 self-stretch">
-                        <div 
-                            v-for="(account, index) in accountOptions" 
-                            :key="account.account_group" 
+                        <div
+                            v-for="(account, index) in accountOptions"
+                            :key="account.account_group"
                             @click="selectAccount(account.account_group)"
                             class="group flex flex-col items-start py-3 px-4 gap-1 self-stretch rounded-lg border shadow-input transition-colors duration-300"
                             :class="{
@@ -198,7 +214,7 @@ const openDemoAccount = () => {
                             }"
                         >
                             <div class="flex items-center gap-3 self-stretch">
-                                <span 
+                                <span
                                     class="flex-grow text-sm font-semibold transition-colors duration-300 group-hover:text-primary-700"
                                     :class="{
                                         'text-primary-700': selectedAccountType === account.account_group,
@@ -209,7 +225,7 @@ const openDemoAccount = () => {
                                 </span>
                                 <IconCircleCheckFilled v-if="selectedAccountType === account.account_group" size="20" stroke-width="1.25" color="#2970FF" />
                             </div>
-                            <span 
+                            <span
                                 class="self-stretch text-xs transition-colors duration-300 group-hover:text-primary-500"
                                 :class="{
                                     'text-primary-500': selectedAccountType === account.account_group,
@@ -259,7 +275,7 @@ const openDemoAccount = () => {
                     <InputLabel for="amount" :value="$t('public.amount')" />
                     <IconField iconPosition="left" class="w-full">
                         <div class="text-gray-950 text-sm">$</div>
-                        <InputText 
+                        <InputText
                             id="amount"
                             type="number"
                             class="block w-full"

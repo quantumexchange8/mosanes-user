@@ -11,6 +11,7 @@ import { IconX } from '@tabler/icons-vue';
 import Dialog from 'primevue/dialog';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import { trans, wTrans } from "laravel-vue-i18n";
+import Tag from 'primevue/tag';
 
 const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 
@@ -19,11 +20,12 @@ const props = defineProps({
 });
 
 const transactions = ref(null);
-const selectedDate = ref([]);
-const selectedOption = ref(null);
+const selectedDate = ref();
+const selectedOption = ref('all');
 const loading = ref(false);
 const visible = ref(false);
-const data = ref({}); 
+const data = ref({});
+const tooltipText = ref('copy')
 
 const transferOptions = [
   { name: wTrans('public.all'), value: 'all' },
@@ -32,15 +34,15 @@ const transferOptions = [
   { name: wTrans('public.transfer'), value: 'transfer' }
 ];
 
-const getAccountReport = async (selectedDate = [], selectedOption = null) => {
+const getAccountReport = async (filterDate = null, selectedOption = null) => {
     if (loading.value) return;
     loading.value = true;
 
     try {
         let url = `/account/getAccountReport?meta_login=${props.account.meta_login}`;
 
-        if (selectedDate.length) {
-            const [startDate, endDate] = selectedDate;
+        if (filterDate) {
+            const [startDate, endDate] = filterDate;
             url += `&startDate=${startDate}&endDate=${endDate}`;
         }
 
@@ -58,6 +60,12 @@ const getAccountReport = async (selectedDate = [], selectedOption = null) => {
 };
 
 getAccountReport();
+
+const today = new Date();
+const ninetyDaysAgo = new Date();
+ninetyDaysAgo.setDate(today.getDate() - 90);
+
+selectedDate.value = [ninetyDaysAgo, today];
 
 watch(selectedDate, (newDateRange) => {
     if (Array.isArray(newDateRange)) {
@@ -80,7 +88,7 @@ watch(selectedOption, (newOption) => {
 });
 
 const clearDate = () => {
-    selectedDate.value = [];
+    selectedDate.value = null;
 };
 
 const openDialog = (rowData) => {
@@ -99,11 +107,11 @@ function copyToClipboard(text) {
 
     try {
         const successful = document.execCommand('copy');
-        if (successful) {
-            console.log('Copied to clipboard:', textToCopy);
-        } else {
-            console.error('Unable to copy to clipboard.');
-        }
+
+        tooltipText.value = 'copied';
+        setTimeout(() => {
+            tooltipText.value = 'copy';
+        }, 1500);
     } catch (err) {
         console.error('Copy to clipboard failed:', err);
     }
@@ -133,12 +141,11 @@ function copyToClipboard(text) {
                     <Calendar
                         v-model="selectedDate"
                         selectionMode="range"
-                        :manualInput="false"
-                        dateFormat="dd/mm/yy"
-                        showIcon 
+                        dateFormat="yy/mm/dd"
+                        showIcon
                         iconDisplay="input"
                         :placeholder="$t('public.date_placeholder')"
-                        class="w-full"
+                        class="w-full font-normal"
                     />
                     <div
                         v-if="selectedDate && selectedDate.length > 0"
@@ -154,7 +161,7 @@ function copyToClipboard(text) {
                     optionLabel="name"
                     optionValue="value"
                     :placeholder="$t('public.transaction_type_option_placeholder')"
-                    class="w-full"
+                    class="w-full font-normal"
                     scroll-height="236px"
                 />
             </div>
@@ -166,32 +173,39 @@ function copyToClipboard(text) {
                 <span class="text-sm text-gray-700">{{ $t('public.loading_caption') }}</span>
             </div>
         </template>
-        <Column 
-            field="created_at" 
-            sortable 
-            :header="$t('public.date')" 
+        <Column
+            field="created_at"
+            sortable
+            :header="$t('public.date')"
             class="hidden md:table-cell"
         >
             <template #body="slotProps">
                 {{ formatDateTime(slotProps.data.created_at) }}
             </template>
         </Column>
-        <Column 
-            :header="$t('public.description')" 
+        <Column
+            :header="$t('public.description')"
             class="hidden md:table-cell"
         >
             <template #body="slotProps">
-                {{ slotProps.data.transaction_type }}
+                {{ $t(`public.${slotProps.data.transaction_type}`) }}
             </template>
         </Column>
-        <Column 
-            field="transaction_amount" 
-            sortable 
-            :header="$t('public.amount') + ` ($)`" 
+        <Column
+            field="transaction_amount"
+            sortable
+            :header="$t('public.amount') + ` ($)`"
             class="hidden md:table-cell"
         >
             <template #body="slotProps">
-                {{ formatAmount(slotProps.data.transaction_amount) }}
+                <div
+                    :class="{
+                            'text-success-500': slotProps.data.to_meta_login,
+                            'text-error-500': slotProps.data.from_meta_login,
+                        }"
+                >
+                    {{ formatAmount(slotProps.data.transaction_amount > 0 ? slotProps.data.transaction_amount : 0) }}
+                </div>
             </template>
         </Column>
         <Column class="md:hidden">
@@ -205,17 +219,28 @@ function copyToClipboard(text) {
                             {{ formatDateTime(slotProps.data.created_at) }}
                         </span>
                     </div>
-                    <div class="overflow-hidden text-right text-ellipsis font-semibold">
-                        {{ formatAmount(slotProps.data.transaction_amount) }}
+                    <div
+                        class="overflow-hidden text-right text-ellipsis font-semibold"
+                        :class="{
+                            'text-success-500': slotProps.data.to_meta_login,
+                            'text-error-500': slotProps.data.from_meta_login,
+                        }"
+                    >
+                        {{ formatAmount(slotProps.data.transaction_amount > 0 ? slotProps.data.transaction_amount : 0) }}
                     </div>
                 </div>
             </template>
         </Column>
     </DataTable>
 
-    <Dialog v-model:visible="visible" modal :header="$t('public.transfer_details')" class="dialog-xs md:dialog-md">
-        <div 
-            class="flex flex-col items-center gap-3 self-stretch" 
+    <Dialog
+        v-model:visible="visible"
+        modal
+        :header="$t('public.transfer_details')"
+        class="dialog-xs md:dialog-sm"
+    >
+        <div
+            class="flex flex-col items-center gap-3 self-stretch"
             :class="{
                 'pb-4 border-b border-gray-200': ['deposit', 'withdrawal', 'balance_in', 'balance_out', 'credit_in', 'credit_out', 'rebate_in', 'rebate_out'].includes(data.transaction_type)
             }"
@@ -226,19 +251,19 @@ function copyToClipboard(text) {
             </div>
             <div class="flex items-center gap-1 self-stretch">
                 <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.transaction_date') }}</span>
-                <span class="flex-grow text-gray-950 text-sm font-medium">{{ data.created_at }}</span>
+                <span class="flex-grow text-gray-950 text-sm font-medium">{{ formatDateTime(data.created_at) }}</span>
             </div>
             <div class="flex items-center gap-1 self-stretch">
                 <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.account') }}</span>
-                <span class="flex-grow text-gray-950 text-sm font-medium">{{  }}</span>
+                <span class="flex-grow text-gray-950 text-sm font-medium">{{ data.to_meta_login ? data.to_meta_login : data.from_meta_login }}</span>
             </div>
             <div class="flex items-center gap-1 self-stretch">
                 <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.description') }}</span>
-                <span class="flex-grow text-gray-950 text-sm font-medium">{{ data.transaction_type }}</span>
+                <span class="flex-grow text-gray-950 text-sm font-medium">{{ $t(`public.${data.transaction_type}`) }}</span>
             </div>
             <div class="flex items-center gap-1 self-stretch">
                 <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.amount') }}</span>
-                <span class="flex-grow text-gray-950 text-sm font-medium">{{ data.transaction_amount }}</span>
+                <span class="flex-grow text-gray-950 text-sm font-medium">$ {{ data.transaction_amount }}</span>
             </div>
             <div class="flex items-center gap-1 self-stretch">
                 <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.status') }}</span>
@@ -246,29 +271,38 @@ function copyToClipboard(text) {
             </div>
         </div>
         <div v-if="['deposit', 'withdrawal'].includes(data.transaction_type)" class="flex flex-col items-center py-4 gap-3 self-stretch border-b border-gray-200">
-            <div v-if="data.transaction_type == 'deposit'" class="h-[42px] flex flex-col justify-center items-start gap-1 self-stretch md:h-auto md:flex-row md:justify-normal md:items-center">
+            <div v-if="data.transaction_type === 'deposit'" class="flex flex-col justify-center items-start gap-1 self-stretch md:flex-row md:justify-normal md:items-center relative">
+                <Tag
+                    v-if="tooltipText === 'copied'"
+                    class="absolute -top-1 right-[120px] md:-top-7 md:right-20"
+                    severity="contrast"
+                    :value="$t(`public.${tooltipText}`)"
+                ></Tag>
                 <span class="self-stretch w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.sent_address') }}</span>
-                <div class="flex justify-center items-center self-stretch" @click="copyToClipboard('TAzY2emMte5Zs4vJu2La8KmXwkzoE78qgs')">
-                    <span class="flex-grow overflow-hidden text-gray-950 text-ellipsis text-sm font-medium">{{ 'TAzY2emMte5Zs4vJu2La8KmXwkzoE78qgs' }}</span>
+                <div
+                    class="w-full max-w-[360px] md:max-w-[220px] text-gray-950 font-medium text-sm truncate select-none cursor-pointer"
+                    @click="copyToClipboard(data.to_wallet_address)"
+                >
+                    {{ data.to_wallet_address }}
                 </div>
             </div>
-            <div v-if="data.transaction_type == 'withdrawal'" class="h-[42px] flex flex-col justify-center items-start gap-1 self-stretch md:h-auto md:flex-row md:justify-normal md:items-center">
+            <div v-if="data.transaction_type === 'withdrawal'" class="h-[42px] flex flex-col justify-center items-start gap-1 self-stretch md:h-auto md:flex-row md:justify-normal md:items-center">
                 <span class="self-stretch w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.wallet_name') }}</span>
                 <div class="flex justify-center items-center self-stretch" @click="copyToClipboard('My Wallet')">
-                    <span class="flex-grow overflow-hidden text-gray-950 text-ellipsis text-sm font-medium">{{ 'My Wallet' }}</span>
+                    <span class="w-full max-w-[360px] md:max-w-[220px] overflow-hidden text-gray-950 text-ellipsis text-sm font-medium">{{ 'My Wallet' }}</span>
                 </div>
             </div>
-            <div v-if="data.transaction_type == 'withdrawal'" class="h-[42px] flex flex-col justify-center items-start gap-1 self-stretch md:h-auto md:flex-row md:justify-normal md:items-center">
+            <div v-if="data.transaction_type === 'withdrawal'" class="h-[42px] flex flex-col justify-center items-start gap-1 self-stretch md:h-auto md:flex-row md:justify-normal md:items-center">
                 <span class="self-stretch w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.receiving_address') }}</span>
                 <div class="flex justify-center items-center self-stretch" @click="copyToClipboard('TAzY2emMte5Zs4vJu2La8KmXwkzoE78qgs')">
-                    <span class="flex-grow overflow-hidden text-gray-950 text-ellipsis text-sm font-medium">{{ 'TAzY2emMte5Zs4vJu2La8KmXwkzoE78qgs' }}</span>
+                    <span class="w-full max-w-[360px] md:max-w-[220px] overflow-hidden text-gray-950 text-ellipsis text-sm font-medium">{{ 'TAzY2emMte5Zs4vJu2La8KmXwkzoE78qgs' }}</span>
                 </div>
             </div>
         </div>
         <div class="flex flex-col items-center py-4 gap-3 self-stretch">
             <div class="flex flex-col items-start gap-1 self-stretch md:flex-row">
                 <span class="h-5 flex flex-col justify-center self-stretch text-gray-500 text-xs font-medium md:w-[120px]">{{ $t('public.remarks') }}</span>
-                <span class="self-stretch text-gray-950 text-sm font-medium md:flex-grow">{{ data.remarks }}</span>
+                <span class="md:max-w-[220px] text-gray-950 text-sm font-medium md:flex-grow">{{ data.remarks }}</span>
             </div>
         </div>
     </Dialog>
