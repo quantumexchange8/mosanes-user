@@ -510,11 +510,14 @@ class TradingAccountController extends Controller
         ]);
 
         $account = TradingAccount::find($request->account_id);
+        $trading_user = TradingUser::where('meta_login', $account->meta_login)
+            ->first();
 
         try {
             (new CTraderService)->deleteTrader($account->meta_login);
 
             $account->delete();
+            $trading_user->delete();
         } catch (\Throwable $e) {
             Log::error($e->getMessage());
 

@@ -267,4 +267,8 @@ return [
     "day_shortform" => "天",
     "copy" => "拷貝",
     "copied" => "已拷貝!",
+    "referral_qr_code" => "推薦二維碼",
+    "referral_caption" => "掃描此二維碼以註冊新帳戶.",
+    "download_qr_to_invite_friends" => "下載二維碼發送並邀請朋友！",
+    "or_access_the_link_below" => "或訪問下方連結",
 ];

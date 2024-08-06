@@ -22,8 +22,6 @@ import ChangeLeverage from "@/Pages/TradingAccount/Partials/ChangeLeverage.vue";
 const props = defineProps({
     account: Object,
     type: String,
-    leverages: Array,
-    walletOptions: Array,
 });
 
 const paymentAccounts = usePage().props.auth.payment_account;
