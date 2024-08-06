@@ -11,18 +11,18 @@ class TradingAccount extends Model
 {
     use SoftDeletes;
 
-    // Relations
-    public function accountType(): HasOne
-    {
-        return $this->hasOne(AccountType::class, 'id', 'account_type_id');
-    }
-
     protected $guarded = [];
 
     protected $casts = [
         'balance' => 'decimal:2',
         'created_at' => 'datetime:Y-m-d',
     ];
+
+    // Relations
+    public function accountType(): HasOne
+    {
+        return $this->hasOne(AccountType::class, 'id', 'account_type_id');
+    }
 
     public function account_type(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

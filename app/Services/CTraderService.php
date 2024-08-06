@@ -124,21 +124,16 @@ class CTraderService
         $trade->setType($type);
         $trade->setTicket($response['balanceHistoryId']);
 
-
-        $data = $this->getUser($meta_login);
-        (new UpdateTradingUser)->execute($meta_login, $data);
-        (new UpdateTradingAccount)->execute($meta_login, $data, $accountType);
+        $this->getUserInfo($meta_login);
         return $trade;
     }
 
-    public function getUserInfo($trading_users): void
+    public function getUserInfo($meta_login): void
     {
-        foreach ($trading_users as $row) {
-            $data = $this->getUser($row->meta_login);
-            if ($data) {
-                (new UpdateTradingUser)->execute($row->meta_login, $data);
-                (new UpdateTradingAccount)->execute($row->meta_login, $data, $row->account_type_id);
-            }
+        $data = $this->getUser($meta_login);
+        if ($data) {
+            (new UpdateTradingUser)->execute($meta_login, $data);
+            (new UpdateTradingAccount)->execute($meta_login, $data);
         }
     }
 }

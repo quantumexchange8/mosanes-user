@@ -346,7 +346,7 @@ class TradingAccountController extends Controller
          }
 
          $tradingAccount = TradingAccount::find($request->account_id);
-         (new CTraderService)->getUserInfo(collect($tradingAccount));
+         (new CTraderService)->getUserInfo($tradingAccount->meta_login);
 
          if ($tradingAccount->balance < $amount) {
              throw ValidationException::withMessages(['amount' => trans('public.insufficient_balance')]);
