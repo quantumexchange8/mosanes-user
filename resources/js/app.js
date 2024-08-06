@@ -10,16 +10,21 @@ import { i18nVue } from 'laravel-vue-i18n'
 import PrimeVue from "primevue/config";
 import ConfirmationService from 'primevue/confirmationservice';
 import Tooltip from 'primevue/tooltip';
+import iosZoomFix from '../js/Composables/ios-zoom-fix.js';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
-    resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
+    resolve: (name) =>
+        resolvePageComponent(
+            `./Pages/${name}.vue`,
+            import.meta.glob('./Pages/**/*.vue')
+        ),
     setup({ el, App, props, plugin }) {
-        return createApp({ render: () => h(App, props) })
+        const app = createApp({ render: () => h(App, props) })
             .use(plugin)
-            .use(ZiggyVue)
+            .use(ZiggyVue, Ziggy)
             .use(i18nVue, {
                 resolve: async lang => {
                     const langs = import.meta.glob('../../lang/*.json');
@@ -32,10 +37,15 @@ createInertiaApp({
                 pt: Aura
             })
             .use(ConfirmationService)
-            .directive('tooltip', Tooltip)
-            .mount(el);
+            .directive('tooltip', Tooltip);
+
+        app.mount(el);
+
+        // Run the iOS zoom fix
+        iosZoomFix();
     },
     progress: {
-        color: '#2B398C',
-    },
-});
+        color: '#2B398C'
+    }
+})
+
