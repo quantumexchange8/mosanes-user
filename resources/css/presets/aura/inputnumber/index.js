@@ -17,10 +17,10 @@ export default {
         ]
     }),
     input: {
-        root: ({ parent, context }) => ({
+        root: ({ props, parent, context }) => ({
             class: [
                 // Font
-                'leading-none',
+                'caret-primary-500 text-sm',
 
                 // Display
                 'flex flex-auto',
@@ -29,38 +29,39 @@ export default {
                 { 'text-center': parent.props.showButtons && parent.props.buttonLayout == 'vertical' },
 
                 // Spacing
-                'py-2 px-3',
                 'm-0',
 
                 // Shape
-                'rounded-md',
+                'rounded-lg',
                 { 'rounded-l-none rounded-r-none': parent.props.showButtons && parent.props.buttonLayout == 'horizontal' },
                 { 'rounded-none': parent.props.showButtons && parent.props.buttonLayout == 'vertical' },
 
                 { 'border-0': parent.instance.$parentInstance?.$name == 'InputGroup' && !parent.props.showButtons },
 
                 // Colors
-                'text-surface-800 dark:text-white/80',
-                'placeholder:text-surface-400 dark:placeholder:text-surface-500',
-                { 'bg-surface-0 dark:bg-surface-950': !context.disabled },
+                'text-gray-950',
+                'placeholder:text-gray-400',
+                { 'bg-white': !context.disabled },
                 'border',
-                { 'border-surface-300 dark:border-surface-700': !parent.props.invalid },
+                { 'border-gray-300': !parent.props.invalid },
 
                 // Invalid State
-                'invalid:focus:ring-red-200',
-                'invalid:hover:border-red-500',
-                { 'border-red-500 dark:border-red-400': parent.props.invalid },
+                { 'border-error-500': parent.props.invalid },
 
                 // States
-                { 'hover:border-primary': !parent.props.invalid },
-                'focus:outline-none focus:outline-offset-0 focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-400 focus:z-10',
-                { 'bg-surface-200 dark:bg-surface-700 select-none pointer-events-none cursor-default': context.disabled },
+                { 'hover:border-gray-500': !parent.props.invalid },
+                'focus:outline-none focus:ring-0 focus:border-primary-500',
+                { 'bg-gray-50 text-gray-300 placeholder:text-gray-300 select-none pointer-events-none cursor-default': context.disabled },
 
                 // Filled State *for FloatLabel
                 { filled: parent.instance?.$parentInstance?.$name == 'FloatLabel' && parent.state.d_modelValue !== null },
 
                 //Position
-                { 'order-2': parent.props.buttonLayout == 'horizontal' || parent.props.buttonLayout == 'vertical' }
+                { 'order-2': parent.props.buttonLayout == 'horizontal' || parent.props.buttonLayout == 'vertical' },
+
+                // Misc
+                'appearance-none shadow-input',
+                'transition-colors duration-200'
             ]
         })
     },

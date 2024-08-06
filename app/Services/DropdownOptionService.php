@@ -94,7 +94,7 @@ class DropdownOptionService
 
     public function getWalletOptions(): Collection
     {
-        $walletOptions = PaymentAccount::where('user_id', Auth::id())
+        return PaymentAccount::where('user_id', Auth::id())
                     ->get()
                     ->map(function ($walletOption) {
                         return [
@@ -102,7 +102,6 @@ class DropdownOptionService
                             'value' => $walletOption->account_no,
                         ];
                     });
-        return $walletOptions;
     }
 
 

@@ -325,11 +325,11 @@ class TradingAccountController extends Controller
         $validator = Validator::make($request->all(), [
             'account_id' => ['required', 'exists:trading_accounts,id'],
             'amount' => ['required', 'numeric', 'gt:30'],
-            'receiving_wallet' => ['required']
+            'wallet_address' => ['required']
         ])->setAttributeNames([
             'account_id' => trans('public.account'),
             'amount' => trans('public.amount'),
-            'receiving_wallet' => trans('public.receiving_wallet'),
+            'wallet_address' => trans('public.receiving_wallet'),
         ]);
         $validator->validate();
 
@@ -367,10 +367,9 @@ class TradingAccountController extends Controller
                  ]);
          }
 
-         $tradingAccount = TradingAccount::find($request->account_id);
          $amount = $request->input('amount');
          $paymentWallet = PaymentAccount::where('user_id', Auth::id())
-             ->where('account_no', $request->receiving_wallet)
+             ->where('account_no', $request->wallet_address)
              ->first();
 
          $transaction = Transaction::create([
