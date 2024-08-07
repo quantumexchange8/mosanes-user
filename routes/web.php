@@ -37,7 +37,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/getDashboardData', [DashboardController::class, 'getDashboardData'])->name('getDashboardData');
 
-
+        Route::post('/walletWithdrawal', [TransactionController::class, 'walletWithdrawal'])->name('dashboard.walletWithdrawal');
     });
 
     /**

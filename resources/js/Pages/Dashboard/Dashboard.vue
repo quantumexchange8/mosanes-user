@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Button from '@/Components/Button.vue';
 import {usePage} from "@inertiajs/vue3";
 import {transactionFormat} from "@/Composables/index.js";
-import {computed, ref} from "vue";
+import {computed, ref, watchEffect} from "vue";
 import {
     DepositIcon,
     WithdrawalIcon,
@@ -60,6 +60,13 @@ const getDashboardData = async () => {
 };
 
 getDashboardData();
+
+
+watchEffect(() => {
+    if (usePage().props.toast !== null) {
+        getDashboardData();
+    }
+});
 </script>
 
 <template>
