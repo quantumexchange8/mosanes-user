@@ -13,6 +13,7 @@ const props = defineProps({
 })
 
 const transferOptions = ref([]);
+const transferAmount = ref(0);
 const {formatAmount} = transactionFormat()
 const emit = defineEmits(['update:visible'])
 
@@ -34,7 +35,8 @@ const form = useForm({
 })
 
 watch(transferOptions, (newAccount) => {
-    form.meta_login = newAccount[0].value
+    transferAmount.value = newAccount[0].value
+    form.meta_login = newAccount[0].name
 })
 
 const toggleFullAmount = () => {
@@ -71,7 +73,7 @@ const closeDialog = () => {
                 <div class="flex flex-col items-start gap-1 self-stretch">
                     <InputLabel for="receiving_wallet" :value="$t('public.transfer_to')" />
                     <Dropdown
-                        v-model="form.meta_login"
+                        v-model="transferAmount"
                         :options="transferOptions"
                         optionLabel="name"
                         optionValue="value"
@@ -82,7 +84,7 @@ const closeDialog = () => {
                         :disabled="!transferOptions.length"
                     />
                     <InputError :message="form.errors.meta_login" />
-                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.balance') }}: $ {{ transferOptions.length ? formatAmount(form.meta_login, 0) : $t('public.loading_caption')}}</span>
+                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.balance') }}: $ {{ transferOptions.length ? formatAmount(transferAmount, 0) : $t('public.loading_caption')}}</span>
                 </div>
 
                 <div class="flex flex-col items-start gap-1 self-stretch">
