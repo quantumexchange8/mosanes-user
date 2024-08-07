@@ -6,6 +6,7 @@ import WalletWithdrawal from "@/Pages/Dashboard/Partials/WalletWithdrawal.vue";
 import {usePage} from "@inertiajs/vue3";
 import {trans} from "laravel-vue-i18n";
 import {useConfirm} from "primevue/useconfirm";
+import WalletTransfer from "@/Pages/Dashboard/Partials/WalletTransfer.vue";
 
 const props = defineProps({
     rebateWallet: Object
@@ -86,6 +87,13 @@ const openDialog = (type) => {
         :header="$t(`public.${dialogType}`)"
         class="dialog-xs md:dialog-sm"
     >
+        <template v-if="dialogType === 'transfer'">
+            <WalletTransfer
+                :rebateWallet="rebateWallet"
+                @update:visible="visible = false"
+            />
+        </template>
+
         <template v-if="dialogType === 'withdrawal'">
             <WalletWithdrawal
                 :rebateWallet="rebateWallet"

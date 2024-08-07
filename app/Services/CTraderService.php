@@ -104,7 +104,7 @@ class CTraderService
     }
 
     //changeTraderBalance
-    public function createTrade($meta_login, $amount, $accountType, $comment, $type): Trade
+    public function createTrade($meta_login, $amount, $comment, $type): Trade
     {
         $response = Http::acceptJson()->post($this->baseURL . "/v2/webserv/traders/$meta_login/changebalance?token=$this->token", [
             'login' => $meta_login,

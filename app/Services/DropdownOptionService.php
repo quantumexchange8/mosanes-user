@@ -12,6 +12,7 @@ use App\Models\SettingLeverage;
 use App\Models\TradingAccount;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class DropdownOptionService
 {
@@ -81,15 +82,23 @@ class DropdownOptionService
 
     public function getInternalTransferOptions(): Collection
     {
-        $transferOptions = TradingAccount::where('user_id', Auth::id())
-                    ->get()
-                    ->map(function ($transferOption) {
-                        return [
-                            'name' => $transferOption->meta_login,
-                            'value' => $transferOption->balance,
-                        ];
-                    });
-        return $transferOptions;
+        $user = Auth::user();
+
+        $trading_accounts = $user->tradingAccounts;
+        try {
+            foreach ($trading_accounts as $trading_account) {
+                (new CTraderService)->getUserInfo($trading_account->meta_login);
+            }
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage());
+        }
+
+        return $user->tradingAccounts->map(function($trading_account) {
+            return [
+                'name' => $trading_account->meta_login,
+                'value' => $trading_account->balance,
+            ];
+        });
     }
 
     public function getWalletOptions(): Collection

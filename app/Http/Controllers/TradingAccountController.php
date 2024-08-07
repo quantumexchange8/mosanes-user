@@ -349,7 +349,7 @@ class TradingAccountController extends Controller
          }
 
          try {
-             $trade = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, $tradingAccount->account_type_id, "Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
+             $trade = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount,"Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
          } catch (\Throwable $e) {
              if ($e->getMessage() == "Not found") {
                  TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'Inactive']);
@@ -620,7 +620,7 @@ class TradingAccountController extends Controller
             if ($transaction->status == 'successful') {
                 if ($transaction->transaction_type == 'deposit') {
                     try {
-                        $trade = (new CTraderService)->createTrade($transaction->to_meta_login, $transaction->transaction_amount, 1, "Deposit balance", ChangeTraderBalanceType::DEPOSIT);
+                        $trade = (new CTraderService)->createTrade($transaction->to_meta_login, $transaction->transaction_amount, "Deposit balance", ChangeTraderBalanceType::DEPOSIT);
                     } catch (\Throwable $e) {
                         if ($e->getMessage() == "Not found") {
                             TradingUser::firstWhere('meta_login', $transaction->to)->update(['acc_status' => 'Inactive']);

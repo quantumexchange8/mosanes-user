@@ -146,7 +146,7 @@ return [
     "rebate_earned" => "返傭所得",
     "referred_member" => "會員人數",
     "referred_agent" => "代理人數",
-    "structure" => "組織詳情",
+    "structure" => "會員網路",
     "role" => "角色",
     "all_trading_accounts" => "下線成員的交易賬戶數據",
     "trading_account_empty_caption" => "尚未擁有交易帳戶",
@@ -271,4 +271,6 @@ return [
     "referral_caption" => "掃描此二維碼以註冊新帳戶.",
     "download_qr_to_invite_friends" => "下載二維碼發送並邀請朋友！",
     "or_access_the_link_below" => "或訪問下方連結",
+    "select" => "選擇",
+    "toast_transfer_success" => "轉帳成功!",
 ];

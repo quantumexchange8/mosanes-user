@@ -16,29 +16,29 @@ import RebateWalletAction from "@/Pages/Dashboard/RebateWalletAction.vue";
 
 const user = usePage().props.auth.user;
 const { formatAmount } = transactionFormat();
-const group_total_deposit = ref(999);
-const group_total_withdrawal = ref(999);
-const total_group_net_balance = ref(999);
-const total_group_net_asset = ref(999);
+const groupTotalDeposit = ref(0);
+const groupTotalWithdrawal = ref(0);
+const totalGroupNetBalance = ref(0);
+const total_group_net_asset = ref(0);
 const rebateWallet = ref();
 
 // data overview
 const dataOverviews = computed(() => [
     {
         icon: DepositIcon,
-        total: group_total_deposit.value,
+        total: groupTotalDeposit.value,
         label: trans('public.group_total_deposit'),
         borderColor: 'border-green',
     },
     {
         icon: WithdrawalIcon,
-        total: group_total_withdrawal.value,
+        total: groupTotalWithdrawal.value,
         label: trans('public.group_total_withdrawal'),
         borderColor: 'border-pink',
     },
     {
         icon: NetBalanceIcon,
-        total: total_group_net_balance.value,
+        total: totalGroupNetBalance.value,
         label: trans('public.total_group_net_balance'),
         borderColor: 'border-[#FEDC32]',
     },
@@ -54,6 +54,9 @@ const getDashboardData = async () => {
     try {
         const response = await axios.get('/dashboard/getDashboardData');
         rebateWallet.value = response.data.rebateWallet
+        groupTotalDeposit.value = response.data.groupTotalDeposit
+        groupTotalWithdrawal.value = response.data.groupTotalWithdrawal
+        totalGroupNetBalance.value = response.data.totalGroupNetBalance
     } catch (error) {
         console.error('Error pending counts:', error);
     }
