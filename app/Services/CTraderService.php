@@ -97,7 +97,7 @@ class CTraderService
 
     public function getUser($meta_login)
     {
-        $response = Http::acceptJson()->get($this->baseURL . "/v2/webserv/traders/{$meta_login}?token={$this->token}")->json();
+        $response = Http::acceptJson()->get($this->baseURL . "/v2/webserv/traders/$meta_login?token=$this->token")->json();
         //TraderTO
         Log::debug($response);
         return $response;
@@ -135,6 +135,11 @@ class CTraderService
             (new UpdateTradingUser)->execute($meta_login, $data);
             (new UpdateTradingAccount)->execute($meta_login, $data);
         }
+    }
+
+    public function deleteTrader($meta_login): void
+    {
+        Http::delete($this->baseURL . "/v2/webserv/traders/$meta_login");
     }
 }
 

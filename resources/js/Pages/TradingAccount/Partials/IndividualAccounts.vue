@@ -1,13 +1,14 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import {ref, onMounted, watchEffect} from "vue";
 import StatusBadge from '@/Components/StatusBadge.vue';
 import Action from "@/Pages/TradingAccount/Partials/Action.vue";
 import ActionButton from "@/Pages/TradingAccount/Partials/ActionButton.vue";
 import Empty from '@/Components/Empty.vue';
 import {generalFormat, transactionFormat} from "@/Composables/index.js";
+import {usePage} from "@inertiajs/vue3";
 
 const isLoading = ref(false);
-const accounts = ref(null);
+const accounts = ref([]);
 const accountType = ref('individual');
 const { formatAmount } = transactionFormat();
 const { formatRgbaColor } = generalFormat();
@@ -23,7 +24,7 @@ const fetchLiveAccounts = async () => {
     isLoading.value = true;
     try {
         const response = await axios.get(`/account/getLiveAccount?accountType=${accountType.value}`);
-        accounts.value = response.data ?? [];
+        accounts.value = response.data;
     } catch (error) {
         console.error('Error fetching live accounts:', error);
     } finally {
@@ -34,6 +35,11 @@ const fetchLiveAccounts = async () => {
 // Fetch live accounts when the component is mounted
 onMounted(fetchLiveAccounts);
 
+watchEffect(() => {
+    if (usePage().props.toast !== null) {
+        fetchLiveAccounts();
+    }
+});
 </script>
 
 <template>
@@ -70,7 +76,7 @@ onMounted(fetchLiveAccounts);
     </div>
 
     <div
-        v-if="!isLoading && accounts"
+        v-if="!isLoading && accounts.length > 0"
         class="w-full grid grid-cols-1 gap-5 md:grid-cols-2"
     >
         <div
@@ -119,7 +125,7 @@ onMounted(fetchLiveAccounts);
     </div>
 
     <Empty
-        v-else-if="!isLoading"
+        v-else-if="!isLoading && accounts.length === 0"
         :title="$t('public.empty_live_acccount_title')"
         :message="$t('public.empty_live_acccount_message')"
     />

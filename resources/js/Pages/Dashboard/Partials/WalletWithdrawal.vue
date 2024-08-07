@@ -9,7 +9,7 @@ import {ref, watch} from "vue";
 import {transactionFormat} from "@/Composables/index.js";
 
 const props = defineProps({
-    account: Object,
+    rebateWallet: Object,
 })
 
 const walletOptions = ref([]);
@@ -27,26 +27,26 @@ const getOptions = async () => {
 
 getOptions();
 
-watch(walletOptions, (newWallet) => {
-    form.wallet_address = newWallet[0].value
-})
-
 const form = useForm({
-    account_id: props.account.id,
+    wallet_id: props.rebateWallet.id,
     amount: 0,
     wallet_address: '',
+})
+
+watch(walletOptions, (newWallet) => {
+    form.wallet_address = newWallet[0].value
 })
 
 const toggleFullAmount = () => {
     if (form.amount) {
         form.amount = 0;
     } else {
-        form.amount = Number(props.account.balance);
+        form.amount = Number(props.rebateWallet.balance);
     }
 };
 
 const submitForm = () => {
-    form.post(route('account.withdrawal_from_account'), {
+    form.post(route('dashboard.rebate_withdrawal'), {
         onSuccess: () => {
             closeDialog();
         }
@@ -62,9 +62,9 @@ const closeDialog = () => {
     <form>
         <div class="flex flex-col items-center gap-8 self-stretch md:gap-10">
             <div class="flex flex-col items-center gap-5 self-stretch">
-                <div class="flex flex-col justify-center items-center py-4 px-8 gap-2 self-stretch bg-gray-200">
-                    <span class="w-full text-gray-500 text-center text-xs font-medium">#{{ account.meta_login }} - {{ $t('public.current_account_balance') }}</span>
-                    <span class="w-full text-gray-950 text-center text-xl font-semibold">$ {{ formatAmount(account.balance) }}</span>
+                <div class="flex flex-col justify-center items-center py-4 px-8 gap-2 self-stretch bg-logo">
+                    <span class="w-full text-gray-100 text-center text-xs font-medium">{{ $t('public.available_rebate_balance') }}</span>
+                    <span class="w-full text-white text-center text-xl font-semibold">$ {{ formatAmount(rebateWallet.balance) }}</span>
                 </div>
 
                 <!-- input fields -->
@@ -78,7 +78,7 @@ const closeDialog = () => {
                             class="w-full"
                             inputClass="py-3 px-4"
                             :min="0"
-                            :max="Number(account.balance)"
+                            :max="Number(rebateWallet.balance)"
                             :step="100"
                             :minFractionDigits="2"
                             fluid

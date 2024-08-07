@@ -9,9 +9,10 @@ import {
     WithdrawalIcon,
     NetBalanceIcon,
     NetAssetIcon,
-} from '@/Components/Icons/solid';
+} from '@/Components/Icons/solid.jsx';
 import {trans} from "laravel-vue-i18n";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
+import RebateWalletAction from "@/Pages/Dashboard/RebateWalletAction.vue";
 
 const user = usePage().props.auth.user;
 const { formatAmount } = transactionFormat();
@@ -19,6 +20,7 @@ const group_total_deposit = ref(999);
 const group_total_withdrawal = ref(999);
 const total_group_net_balance = ref(999);
 const total_group_net_asset = ref(999);
+const rebateWallet = ref();
 
 // data overview
 const dataOverviews = computed(() => [
@@ -47,6 +49,17 @@ const dataOverviews = computed(() => [
         borderColor: 'border-indigo',
     },
 ]);
+
+const getDashboardData = async () => {
+    try {
+        const response = await axios.get('/dashboard/getDashboardData');
+        rebateWallet.value = response.data.rebateWallet
+    } catch (error) {
+        console.error('Error pending counts:', error);
+    }
+};
+
+getDashboardData();
 </script>
 
 <template>
@@ -55,7 +68,7 @@ const dataOverviews = computed(() => [
             <div class="flex flex-col gap-5 items-center self-stretch w-full">
                 <!-- greeting card -->
                 <div class="bg-white rounded-2xl h-30 md:h-40 shadow-toast relative overflow-hidden p-8 w-full">
-                    <div class="flex flex-col gap-2 items-start justify-center w-full max-w-[180px] xl:max-w-[280px]">
+                    <div class="flex flex-col gap-2 items-start justify-center w-full max-w-[180px] sm:max-w-[500px] xl:max-w-[300px]">
                         <span class="text-lg text-gray-950 font-bold">{{ $t('public.welcome_back', {'name': user.name}) }}</span>
                         <span class="text-xs text-gray-700">{{ $t('public.greeting_caption') }}</span>
                     </div>
@@ -116,25 +129,12 @@ const dataOverviews = computed(() => [
                         </div>
                         <div class="flex flex-col gap-3 items-start self-stretch">
                             <span class="text-sm text-gray-200 font-medium">{{ $t('public.available_rebate_balance') }}</span>
-                            <span class="text-xxl text-white font-semibold">$ {{ formatAmount(0) }}</span>
+                            <span class="text-xxl text-white font-semibold">$ {{ formatAmount(rebateWallet ? rebateWallet.balance : 0) }}</span>
                         </div>
                     </div>
-                    <div class="bg-white py-7 px-10 flex gap-5 items-center self-stretch">
-                        <Button
-                            type="button"
-                            variant="gray-outlined"
-                            class="w-full"
-                        >
-                            {{ $t('public.transfer') }}
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="gray-outlined"
-                            class="w-full"
-                        >
-                            {{ $t('public.withdrawal') }}
-                        </Button>
-                    </div>
+                    <RebateWalletAction
+                        :rebateWallet="rebateWallet"
+                    />
                 </div>
             </div>
         </div>

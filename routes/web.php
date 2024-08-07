@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AssetMasterController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RebateController;
 use App\Http\Controllers\StructureController;
@@ -26,9 +27,18 @@ Route::post('deposit_callback', [TradingAccountController::class, 'depositCallba
 
 Route::middleware('auth')->group(function () {
     Route::get('deposit_return', [TradingAccountController::class, 'depositReturn']);
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+
+    /**
+     * ==============================
+     *          Dashboard
+     * ==============================
+     */
+    Route::prefix('dashboard')->group(function() {
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/getDashboardData', [DashboardController::class, 'getDashboardData'])->name('getDashboardData');
+
+
+    });
 
     /**
      * ==============================
