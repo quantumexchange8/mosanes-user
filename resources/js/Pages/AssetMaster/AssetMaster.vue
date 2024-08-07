@@ -186,7 +186,7 @@ const clearFilterGlobal = () => {
                             </div>
                         </StatusBadge>
                         <StatusBadge value="gray">
-                            {{ master.performance_fee||master.performance_fee > 0 ? formatAmount(master.performance_fee, 0)+'%' : $t('public.zero') }} {{ $t('public.fee') }}
+                            {{ master.performance_fee || master.performance_fee > 0 ? formatAmount(master.performance_fee, 0)+'%' : $t('public.zero_fee') }}
                         </StatusBadge>
                     </div>
 

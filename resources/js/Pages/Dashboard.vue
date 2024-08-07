@@ -55,7 +55,7 @@ const dataOverviews = computed(() => [
             <div class="flex flex-col gap-5 items-center self-stretch w-full">
                 <!-- greeting card -->
                 <div class="bg-white rounded-2xl h-30 md:h-40 shadow-toast relative overflow-hidden p-8 w-full">
-                    <div class="flex flex-col gap-2 items-start justify-center w-full max-w-[180px] xl:max-w-[280px]">
+                    <div class="flex flex-col gap-2 items-start justify-center w-full max-w-[180px] sm:max-w-[500px] xl:max-w-[300px]">
                         <span class="text-lg text-gray-950 font-bold">{{ $t('public.welcome_back', {'name': user.name}) }}</span>
                         <span class="text-xs text-gray-700">{{ $t('public.greeting_caption') }}</span>
                     </div>

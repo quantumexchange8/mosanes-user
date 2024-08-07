@@ -6,12 +6,14 @@ import Button from "@/Components/Button.vue"
 import InputError from "@/Components/InputError.vue";
 import Dropdown from "primevue/dropdown";
 import {ref, watch} from "vue";
+import {transactionFormat} from "@/Composables/index.js";
 
 const props = defineProps({
     account: Object,
 })
 
 const walletOptions = ref([]);
+const {formatAmount} = transactionFormat()
 const emit = defineEmits(['update:visible'])
 
 const getOptions = async () => {
@@ -94,7 +96,7 @@ const closeDialog = () => {
                             {{ form.amount ? $t('public.clear') : $t('public.full_amount') }}
                         </div>
                     </div>
-                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.minimum_amount') }}: ${{ $t('public.minimum_amount_placeholder') }}</span>
+                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.minimum_amount') }}: ${{ formatAmount(30) }}</span>
                     <InputError :message="form.errors.amount" />
                 </div>
 

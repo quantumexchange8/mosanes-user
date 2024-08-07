@@ -505,29 +505,37 @@ class TradingAccountController extends Controller
     public function delete_account(Request $request)
     {
         $request->validate([
-            'account_id' => 'required|exists:trading_accounts,id',
-            'type' => 'nullable|string'
+            'account_id' => ['required', 'exists:trading_accounts,id'],
+            'type' => ['nullable', 'string']
         ]);
 
         $account = TradingAccount::find($request->account_id);
+        $trading_user = TradingUser::where('meta_login', $account->meta_login)
+            ->first();
 
-        // Check if the account exists
-        if ($account) {
-            // Delete the account
-            // $account->delete();
+        try {
+            (new CTraderService)->deleteTrader($account->meta_login);
 
-            // Determine the success message based on the type parameter
-            $successTitle = trans('public.toast_delete_account_success');
-            if ($request->type === 'demo') {
-                $successTitle = trans('public.toast_delete_demo_account_success');
-            }
+            $account->delete();
+            $trading_user->delete();
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage());
 
-            // Redirect back with the success message
             return back()->with('toast', [
-                'title' => $successTitle,
-                'type' => 'success',
+                'title' => 'CTrader connection error',
+                'type' => 'error',
             ]);
         }
+
+        $successTitle = trans('public.toast_delete_account_success');
+        if ($request->type === 'demo') {
+            $successTitle = trans('public.toast_delete_demo_account_success');
+        }
+
+        return back()->with('toast', [
+            'title' => $successTitle,
+            'type' => 'success',
+        ]);
     }
 
     //payment gateway return function
