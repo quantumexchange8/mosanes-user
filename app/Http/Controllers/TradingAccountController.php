@@ -171,7 +171,7 @@ class TradingAccountController extends Controller
         if ($meta_login) {
             $query->where(function($subQuery) use ($meta_login) {
                 $subQuery->where('from_meta_login', $meta_login)
-                         ->orWhere('to_meta_login', $meta_login);
+                    ->orWhere('to_meta_login', $meta_login);
             });
         }
 
@@ -190,7 +190,7 @@ class TradingAccountController extends Controller
             } elseif ($type === 'withdrawal') {
                 $query->where('transaction_type', 'withdrawal');
             } elseif ($type === 'transfer') {
-                $query->where('transaction_type', 'transfer');
+                $query->where('transaction_type', 'account_to_account');
             }
         }
 
@@ -438,20 +438,19 @@ class TradingAccountController extends Controller
              'category' => 'trading_account',
              'transaction_type' => 'account_to_account',
              'from_meta_login' => $tradingAccount->meta_login,
-             'to_meta_login' => $to_meta_login,
              'ticket' => $ticketFrom,
              'transaction_number' => RunningNumberService::getID('transaction'),
              'amount' => $amount,
              'transaction_charges' => 0,
              'transaction_amount' => $amount,
              'status' => 'successful',
+             'comment' => 'to ' . $to_meta_login
          ]);
 
          Transaction::create([
              'user_id' => Auth::id(),
              'category' => 'trading_account',
              'transaction_type' => 'account_to_account',
-             'from_meta_login' => $tradingAccount->meta_login,
              'to_meta_login' => $to_meta_login,
              'ticket' => $ticketTo,
              'transaction_number' => RunningNumberService::getID('transaction'),
@@ -459,6 +458,7 @@ class TradingAccountController extends Controller
              'transaction_charges' => 0,
              'transaction_amount' => $amount,
              'status' => 'successful',
+             'comment' => 'from ' . $tradingAccount->meta_login
          ]);
 
         return back()->with('toast', [
