@@ -73,7 +73,7 @@ class TransactionController extends Controller
                 ]);
         }
 
-        $tradingAccount = TradingAccount::find($request->account_id);
+        $tradingAccount = TradingAccount::where('meta_login', $request->meta_login)->first();
         (new CTraderService)->getUserInfo($tradingAccount->meta_login);
 
         if ($wallet->balance < $amount) {
