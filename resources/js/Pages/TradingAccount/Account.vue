@@ -85,7 +85,6 @@ const closeDialog = (dialogName, formRef = null) => {
 
 const leverages = ref();
 const transferOptions = ref();
-const walletOptions = ref();
 const accountOptions = ref([]);
 const selectedAccountType = ref('');
 
@@ -93,8 +92,6 @@ const getOptions = async () => {
     try {
         const response = await axios.get('/account/getOptions');
         leverages.value = response.data.leverages;
-        transferOptions.value = response.data.transferOptions;
-        walletOptions.value = response.data.walletOptions;
         accountOptions.value = response.data.accountOptions;
     } catch (error) {
         console.error('Error changing locale:', error);
@@ -118,7 +115,6 @@ function selectAccount(type) {
 }
 
 const openLiveAccount = () => {
-    liveAccountForm.leverage =
     liveAccountForm.post(route('account.create_live_account'), {
         onSuccess: () => {
             closeDialog('live', liveAccountForm);
@@ -190,7 +186,7 @@ const buttonSize = computed(() => {
                     </TabView>
                 </div>
 
-                <component :is="tabs[activeIndex]?.component" :leverages="leverages"  :transferOptions="transferOptions"  :walletOptions="walletOptions"/>
+                <component :is="tabs[activeIndex]?.component" />
             </div>
 
         </div>

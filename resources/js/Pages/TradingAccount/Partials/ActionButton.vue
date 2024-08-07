@@ -2,7 +2,7 @@
 import Button from "@/Components/Button.vue";
 import { SwitchHorizontal01Icon } from "@/Components/Icons/outline";
 import { IconInfoOctagonFilled } from '@tabler/icons-vue';
-import { ref } from 'vue';
+import {computed, ref} from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -14,13 +14,32 @@ import axios from 'axios';
 
 const props = defineProps({
     account: Object,
-    transferOptions: Array,
 });
 
 const showDepositDialog = ref(false);
 const showTransferDialog = ref(false);
-const transferOptions = ref(props.transferOptions);
+const transferOptions = ref([]);
 const selectedAccount = ref(0);
+
+const getOptions = async () => {
+    try {
+        const response = await axios.get('/account/getOptions');
+        transferOptions.value = response.data.transferOptions;
+    } catch (error) {
+        console.error('Error changing locale:', error);
+    }
+};
+
+getOptions();
+
+// Computed property to exclude 'meta_login' from account.meta_login
+const filteredTransferOptions = computed(() => {
+    if (!transferOptions.value.length) {
+        return [];
+    }
+
+    return transferOptions.value.filter(option => option.name !== props.account.meta_login);
+});
 
 const openDialog = (dialogRef) => {
     if (dialogRef === 'deposit') {
@@ -122,11 +141,12 @@ const submitForm = (formType) => {
                     <InputLabel for="to_meta_login" :value="$t('public.transfer_to')" />
                     <Dropdown
                         v-model="selectedAccount"
-                        :options="transferOptions"
+                        :options="filteredTransferOptions"
                         optionLabel="name"
                         :placeholder="$t('public.transfer_to_placeholder')"
                         class="w-full"
                         scroll-height="236px"
+                        :disabled="!filteredTransferOptions.length"
                     />
                     <span class="self-stretch text-gray-500 text-xs">{{ $t('public.balance') }}: $ {{ selectedAccount ? selectedAccount.value : selectedAccount }}</span>
                     <InputError :message="transferForm.errors.to_meta_login" />

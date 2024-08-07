@@ -395,71 +395,72 @@ class TradingAccountController extends Controller
 
     public function internal_transfer(Request $request)
     {
-        // $request->validate([
-        //     'account_id' => 'required|exists:trading_accounts,id',
-        // ]);
+         $request->validate([
+             'account_id' => 'required|exists:trading_accounts,id',
+         ]);
 
-        // $conn = (new CTraderService)->connectionStatus();
-        // if ($conn['code'] != 0) {
-        //     return back()
-        //         ->with('toast', [
-        //             'title' => 'Connection Error',
-        //             'type' => 'error'
-        //         ]);
-        // }
+         $conn = (new CTraderService)->connectionStatus();
+         if ($conn['code'] != 0) {
+             return back()
+                 ->with('toast', [
+                     'title' => 'Connection Error',
+                     'type' => 'error'
+                 ]);
+         }
 
-        // $tradingAccount = TradingAccount::find($request->account_id);
-        // (new CTraderService)->getUserInfo(collect($tradingAccount));
+         $tradingAccount = TradingAccount::find($request->account_id);
+         (new CTraderService)->getUserInfo(collect($tradingAccount));
 
-        // $tradingAccount = TradingAccount::find($request->account_id);
-        // $amount = $request->input('amount');
-        // $to_meta_login = $request->input('to_meta_login');
+         $tradingAccount = TradingAccount::find($request->account_id);
+         $amount = $request->input('amount');
+         $to_meta_login = $request->input('to_meta_login');
 
-        // if ($tradingAccount->balance < $amount) {
-        //     throw ValidationException::withMessages(['wallet' => trans('public.insufficient_balance')]);
-        // }
+         if ($tradingAccount->balance < $amount) {
+             throw ValidationException::withMessages(['wallet' => trans('public.insufficient_balance')]);
+         }
 
-        // try {
-        //     $tradeFrom = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, $tradingAccount->account_type_id, "Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
-        //     $tradeTo = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, $tradingAccount->account_type_id, "Deposit To Account", ChangeTraderBalanceType::DEPOSIT);
-        // } catch (\Throwable $e) {
-        //     if ($e->getMessage() == "Not found") {
-        //         TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'Inactive']);
-        //     } else {
-        //         Log::error($e->getMessage());
-        //     }
-        //     return response()->json(['success' => false, 'message' => $e->getMessage()]);
-        // }
+         try {
+             $tradeFrom = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, "Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
+             $tradeTo = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, "Deposit To Account", ChangeTraderBalanceType::DEPOSIT);
+         } catch (\Throwable $e) {
+             if ($e->getMessage() == "Not found") {
+                 TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'Inactive']);
+             } else {
+                 Log::error($e->getMessage());
+             }
+             return response()->json(['success' => false, 'message' => $e->getMessage()]);
+         }
 
-        // $ticketFrom = $tradeFrom->getTicket();
-        // $ticketTo = $tradeTo->getTicket();
-        // Transaction::create([
-        //     'user_id' => Auth::id(),
-        //     'category' => 'trading_account',
-        //     'transaction_type' => 'internal_transfer',
-        //     'from_meta_login' => $tradingAccount->meta_login,
-        //     'ticket' => $ticketFrom,
-        //     'transaction_number' => RunningNumberService::getID('transaction'),
-        //     'amount' => $amount,
-        //     'transaction_charges' => 0,
-        //     'transaction_amount' => $amount,
-        //     'status' => 'successful',
-        // ]);
+         $ticketFrom = $tradeFrom->getTicket();
+         $ticketTo = $tradeTo->getTicket();
+         Transaction::create([
+             'user_id' => Auth::id(),
+             'category' => 'trading_account',
+             'transaction_type' => 'account_to_account',
+             'from_meta_login' => $tradingAccount->meta_login,
+             'to_meta_login' => $to_meta_login,
+             'ticket' => $ticketFrom,
+             'transaction_number' => RunningNumberService::getID('transaction'),
+             'amount' => $amount,
+             'transaction_charges' => 0,
+             'transaction_amount' => $amount,
+             'status' => 'successful',
+         ]);
 
-        // Transaction::create([
-        //     'user_id' => Auth::id(),
-        //     'category' => 'trading_account',
-        //     'transaction_type' => 'internal_transfer',
-        //     'to_meta_login' => $to_meta_login,
-        //     'ticket' => $ticketTo,
-        //     'transaction_number' => RunningNumberService::getID('transaction'),
-        //     'amount' => $amount,
-        //     'transaction_charges' => 0,
-        //     'transaction_amount' => $amount,
-        //     'status' => 'successful',
-        // ]);
+         Transaction::create([
+             'user_id' => Auth::id(),
+             'category' => 'trading_account',
+             'transaction_type' => 'account_to_account',
+             'from_meta_login' => $tradingAccount->meta_login,
+             'to_meta_login' => $to_meta_login,
+             'ticket' => $ticketTo,
+             'transaction_number' => RunningNumberService::getID('transaction'),
+             'amount' => $amount,
+             'transaction_charges' => 0,
+             'transaction_amount' => $amount,
+             'status' => 'successful',
+         ]);
 
-        // Redirect back with success message
         return back()->with('toast', [
             'title' => trans('public.toast_internal_transfer_success'),
             'type' => 'success',

@@ -99,6 +99,7 @@ class TransactionController extends Controller
             'user_id' => Auth::id(),
             'category' => 'rebate_wallet',
             'transaction_type' => 'transfer_to_account',
+            'from_wallet_id' => $wallet->id,
             'to_meta_login' => $tradingAccount->meta_login,
             'transaction_number' => RunningNumberService::getID('transaction'),
             'ticket' => $trade->getTicket(),

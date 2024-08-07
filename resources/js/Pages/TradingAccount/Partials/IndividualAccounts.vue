@@ -13,12 +13,6 @@ const accountType = ref('individual');
 const { formatAmount } = transactionFormat();
 const { formatRgbaColor } = generalFormat();
 
-const props = defineProps({
-    leverages: Array,
-    transferOptions: Array,
-    walletOptions: Array,
-});
-
 // Fetch live accounts from the backend
 const fetchLiveAccounts = async () => {
     isLoading.value = true;
@@ -98,7 +92,7 @@ watchEffect(() => {
                         {{ account.account_type }}
                     </div>
                 </div>
-                <Action :account="account" type="individual" :leverages="leverages" :walletOptions="walletOptions" />
+                <Action :account="account" :type="accountType" />
             </div>
             <div class="grid grid-cols-2 gap-2 self-stretch">
                 <div class="w-full flex items-center gap-1 flex-grow">
@@ -119,7 +113,7 @@ watchEffect(() => {
                 </div>
             </div>
             <div class="flex justify-end items-center gap-3 self-stretch">
-                <ActionButton :account="account" :transferOptions="transferOptions" />
+                <ActionButton :account="account" />
             </div>
         </div>
     </div>
