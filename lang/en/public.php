@@ -415,4 +415,5 @@ return [
     "referral_caption" => "Scan this QR code to register new account.",
     "download_qr_to_invite_friends" => "Download QR to Invite Friends!",
     "or_access_the_link_below" => "or access the link below",
+    "search_agent" => "Search Agent",
 ];

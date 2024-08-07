@@ -1,17 +1,22 @@
 <script setup>
 import DefaultProfilePhoto from "@/Components/DefaultProfilePhoto.vue";
 import Dropdown from "primevue/dropdown";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 const props = defineProps({
     agents: Array,
 })
 
 const selectedAgent = ref(props.agents[0]);
+
+watch(()=>props.agents, () => {
+    selectedAgent.value = props.agents[0];
+})
 </script>
 
 <template>
-    <Dropdown 
+    <Dropdown
+        v-if="agents.length > 1"
         v-model="selectedAgent"
         :options="agents"
         filter
@@ -49,4 +54,20 @@ const selectedAgent = ref(props.agents[0]);
             </div>
         </template>
     </Dropdown>
+    <div
+        v-else
+        class="py-2 px-3 flex items-center gap-3 w-full"
+    >
+        <div class="w-5 h-5 rounded-full overflow-hidden">
+            <template v-if="agents[0].profile_photo">
+                <img :src="agents[0].profile_photo" alt="profile_picture" />
+            </template>
+            <template v-else>
+                <DefaultProfilePhoto />
+            </template>
+        </div>
+        <div class="w-28 xl:w-auto truncate text-gray-950 text-sm">
+            {{ agents[0].name }}
+        </div>
+    </div>
 </template>
