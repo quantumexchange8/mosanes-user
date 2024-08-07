@@ -421,7 +421,7 @@ class TradingAccountController extends Controller
 
          try {
              $tradeFrom = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, "Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
-             $tradeTo = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, "Deposit To Account", ChangeTraderBalanceType::DEPOSIT);
+             $tradeTo = (new CTraderService)->createTrade($to_meta_login, $amount, "Deposit To Account", ChangeTraderBalanceType::DEPOSIT);
          } catch (\Throwable $e) {
              if ($e->getMessage() == "Not found") {
                  TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'Inactive']);

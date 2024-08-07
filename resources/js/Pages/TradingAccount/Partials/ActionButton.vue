@@ -11,6 +11,7 @@ import Dialog from 'primevue/dialog';
 import Dropdown from "primevue/dropdown";
 import IconField from 'primevue/iconfield';
 import axios from 'axios';
+import InputNumber from "primevue/inputnumber";
 
 const props = defineProps({
     account: Object,
@@ -66,8 +67,16 @@ const depositForm = useForm({
 const transferForm = useForm({
     account_id: props.account.id,
     to_meta_login: '',
-    amount: '',
+    amount: 0,
 });
+
+const toggleFullAmount = () => {
+    if (transferForm.amount) {
+        transferForm.amount = 0;
+    } else {
+        transferForm.amount = Number(props.account.balance);
+    }
+};
 
 const submitForm = (formType) => {
     if (formType === 'deposit') {
@@ -151,24 +160,54 @@ const submitForm = (formType) => {
                     <span class="self-stretch text-gray-500 text-xs">{{ $t('public.balance') }}: $ {{ selectedAccount ? selectedAccount.value : selectedAccount }}</span>
                     <InputError :message="transferForm.errors.to_meta_login" />
                 </div>
+
                 <div class="flex flex-col items-start gap-1 self-stretch">
                     <InputLabel for="amount" :value="$t('public.amount')" />
-                    <IconField iconPosition="left" class="w-full">
-                        <div class="text-gray-950 text-sm">$</div>
-                        <InputText
-                            id="amount"
-                            type="number"
-                            class="block w-full"
+                    <div class="relative w-full">
+                        <InputNumber
                             v-model="transferForm.amount"
-                            :placeholder="$t('public.amount_placeholder')"
+                            inputId="currency-us"
+                            prefix="$ "
+                            class="w-full"
+                            inputClass="py-3 px-4"
+                            :min="0"
+                            :step="100"
+                            :minFractionDigits="2"
+                            fluid
+                            autofocus
+                            :invalid="!!transferForm.errors.amount"
                         />
-                    </IconField>
+                        <div
+                            class="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-sm font-semibold"
+                            :class="{
+                                    'text-primary-500': !transferForm.amount,
+                                    'text-error-500': transferForm.amount,
+                                }"
+                            @click="toggleFullAmount"
+                        >
+                            {{ transferForm.amount ? $t('public.clear') : $t('public.full_amount') }}
+                        </div>
+                    </div>
                     <InputError :message="transferForm.errors.amount" />
                 </div>
             </div>
             <div class="flex justify-end items-center pt-5 gap-4 self-stretch sm:pt-7">
-                <Button type="button" variant="gray-tonal" class="w-full sm:w-[120px]" @click.prevent="closeDialog('transfer')">{{ $t('public.cancel') }}</Button>
-                <Button variant="primary-flat" class="w-full sm:w-[120px]" @click.prevent="submitForm('transfer')">{{ $t('public.confirm') }}</Button>
+                <Button
+                    type="button"
+                    variant="gray-tonal"
+                    class="w-full sm:w-[120px]"
+                    @click.prevent="closeDialog('transfer')"
+                >
+                    {{ $t('public.cancel') }}
+                </Button>
+                <Button
+                    variant="primary-flat"
+                    class="w-full sm:w-[120px]"
+                    @click.prevent="submitForm('transfer')"
+                    :disabled="depositForm.processing || transferForm.processing"
+                >
+                    {{ $t('public.confirm') }}
+                </Button>
             </div>
         </form>
     </Dialog>
