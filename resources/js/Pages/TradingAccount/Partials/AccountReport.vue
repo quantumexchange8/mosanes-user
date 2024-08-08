@@ -82,6 +82,7 @@ watch(selectedDate, (newDateRange) => {
         console.warn('Invalid date range format:', newDateRange);
     }
 });
+
 watch(selectedOption, (newOption) => {
     getAccountReport(selectedDate.value, newOption);
 });
@@ -194,7 +195,7 @@ const actionWord = (comment) => {
             class="hidden md:table-cell"
         >
             <template #body="slotProps">
-                <span v-if="slotProps.data.transaction_type === 'account_to_account'">{{ $t(`public.${actionWord(slotProps.data.comment)}`) }} {{ slotProps.data.comment.split(' ')[1] }}</span>
+                <span v-if="['transfer_to_account', 'account_to_account'].includes(slotProps.data.transaction_type)">{{ $t(`public.${actionWord(slotProps.data.comment)}`) }} {{ slotProps.data.comment.split(' ')[1] }}</span>
                 <span v-else>{{ $t(`public.${slotProps.data.transaction_type}`) }}</span>
             </template>
         </Column>
@@ -267,7 +268,7 @@ const actionWord = (comment) => {
             <div class="flex items-center gap-1 self-stretch">
                 <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.description') }}</span>
                 <div class="flex-grow text-gray-950 text-sm font-medium">
-                    <span v-if="data.transaction_type === 'account_to_account'">{{ $t(`public.${actionWord(data.comment)}`) }} {{ data.comment.split(' ')[1] }}</span>
+                    <span v-if="['transfer_to_account', 'account_to_account'].includes(data.transaction_type)">{{ $t(`public.${actionWord(data.comment)}`) }} {{ data.comment.split(' ')[1] }}</span>
                     <span v-else>{{ $t(`public.${data.transaction_type}`) }}</span>
                 </div>
             </div>
@@ -298,14 +299,21 @@ const actionWord = (comment) => {
             </div>
             <div v-if="data.transaction_type === 'withdrawal'" class="h-[42px] flex flex-col justify-center items-start gap-1 self-stretch md:h-auto md:flex-row md:justify-normal md:items-center">
                 <span class="self-stretch w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.wallet_name') }}</span>
-                <div class="flex justify-center items-center self-stretch" @click="copyToClipboard('My Wallet')">
-                    <span class="w-full max-w-[360px] md:max-w-[220px] overflow-hidden text-gray-950 text-ellipsis text-sm font-medium">{{ 'My Wallet' }}</span>
-                </div>
+                <span class="w-full max-w-[360px] md:max-w-[220px] overflow-hidden text-gray-950 text-ellipsis text-sm font-medium">{{ data.wallet_name }}</span>
             </div>
-            <div v-if="data.transaction_type === 'withdrawal'" class="h-[42px] flex flex-col justify-center items-start gap-1 self-stretch md:h-auto md:flex-row md:justify-normal md:items-center">
+            <div v-if="data.transaction_type === 'withdrawal'" class="h-[42px] flex flex-col justify-center items-start gap-1 self-stretch md:h-auto md:flex-row md:justify-normal md:items-center relative">
+                <Tag
+                    v-if="tooltipText === 'copied'"
+                    class="absolute -top-1 right-[120px] md:-top-7 md:right-20"
+                    severity="contrast"
+                    :value="$t(`public.${tooltipText}`)"
+                ></Tag>
                 <span class="self-stretch w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.receiving_address') }}</span>
-                <div class="flex justify-center items-center self-stretch" @click="copyToClipboard('TAzY2emMte5Zs4vJu2La8KmXwkzoE78qgs')">
-                    <span class="w-full max-w-[360px] md:max-w-[220px] overflow-hidden text-gray-950 text-ellipsis text-sm font-medium">{{ 'TAzY2emMte5Zs4vJu2La8KmXwkzoE78qgs' }}</span>
+                <div
+                    class="w-full max-w-[360px] md:max-w-[220px] text-gray-950 font-medium text-sm truncate select-none cursor-pointer"
+                    @click="copyToClipboard(data.to_wallet_address)"
+                >
+                    {{ data.to_wallet_address }}
                 </div>
             </div>
         </div>
