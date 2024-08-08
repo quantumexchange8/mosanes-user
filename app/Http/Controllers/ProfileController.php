@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Services\DropdownOptionService;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): Response
+    public function index(Request $request): Response
     {
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
@@ -59,5 +60,12 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    public function getFilterData()
+    {
+        return response()->json([
+            'countries' => (new DropdownOptionService())->getCountries(),
+        ]);
     }
 }

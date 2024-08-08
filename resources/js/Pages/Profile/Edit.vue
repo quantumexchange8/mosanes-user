@@ -4,6 +4,8 @@ import DeleteUserForm from './Partials/DeleteUserForm.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
 import { Head } from '@inertiajs/vue3';
+import ChangeProfilePhoto from "@/Pages/Profile/Partials/ChangeProfilePhoto.vue";
+import KycVerfication from "@/Pages/Profile/Partials/KycVerfication.vue";
 
 defineProps({
     mustVerifyEmail: {
@@ -16,30 +18,16 @@ defineProps({
 </script>
 
 <template>
-    <Head title="Profile" />
+    <AuthenticatedLayout :title="$t('public.my_profile')">
+        <div class="flex flex-col items-center gap-5 self-stretch">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-5 self-stretch">
+                <ChangeProfilePhoto />
+                <KycVerfication />
+            </div>
 
-    <AuthenticatedLayout>
-        <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Profile</h2>
-        </template>
-
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                    <UpdateProfileInformationForm
-                        :must-verify-email="mustVerifyEmail"
-                        :status="status"
-                        class="max-w-xl"
-                    />
-                </div>
-
-                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                    <UpdatePasswordForm class="max-w-xl" />
-                </div>
-
-                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                    <DeleteUserForm class="max-w-xl" />
-                </div>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-5 self-stretch">
+                <UpdateProfileInformationForm />
+                <UpdatePasswordForm />
             </div>
         </div>
     </AuthenticatedLayout>

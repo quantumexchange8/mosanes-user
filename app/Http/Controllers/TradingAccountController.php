@@ -31,10 +31,22 @@ class TradingAccountController extends Controller
 
     public function getOptions()
     {
-        // Fetch account options where category is 'Individual' and status is 'active'
+        $locale = app()->getLocale();
+
         $accountOptions = AccountType::whereNot('account_group', 'Demo Account')
             ->where('status', 'active')
-            ->get();
+            ->get()
+            ->map(function ($accountType) use ($locale) {
+                $translations = json_decode($accountType->descriptions, true);
+                return [
+                    'id' => $accountType->id,
+                    'name' => $accountType->name,
+                    'slug' => $accountType->slug,
+                    'account_group' => $accountType->account_group,
+                    'leverage' => $accountType->leverage,
+                    'descriptions' => $translations[$locale],
+                ];
+            });
 
         return response()->json([
             'leverages' => (new DropdownOptionService())->getLeveragesOptions(),
