@@ -117,6 +117,14 @@ function copyToClipboard(text) {
 
     document.body.removeChild(textArea);
 }
+
+const actionWord = (comment) => {
+    if (comment) {
+        const [firstWord] = comment.split(' ');
+        return firstWord;
+    }
+    return '';
+};
 </script>
 
 <template>
@@ -186,7 +194,8 @@ function copyToClipboard(text) {
             class="hidden md:table-cell"
         >
             <template #body="slotProps">
-                {{ $t(`public.${slotProps.data.transaction_type}`) }}
+                <span v-if="slotProps.data.transaction_type === 'account_to_account'">{{ $t(`public.${actionWord(slotProps.data.comment)}`) }} {{ slotProps.data.comment.split(' ')[1] }}</span>
+                <span v-else>{{ $t(`public.${slotProps.data.transaction_type}`) }}</span>
             </template>
         </Column>
         <Column
@@ -253,11 +262,14 @@ function copyToClipboard(text) {
             </div>
             <div class="flex items-center gap-1 self-stretch">
                 <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.account') }}</span>
-                <span class="flex-grow text-gray-950 text-sm font-medium">{{ data.to_meta_login ? data.to_meta_login : data.from_meta_login }}</span>
+                <span class="flex-grow text-gray-950 text-sm font-medium">{{ account.meta_login }}</span>
             </div>
             <div class="flex items-center gap-1 self-stretch">
                 <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.description') }}</span>
-                <span class="flex-grow text-gray-950 text-sm font-medium">{{ $t(`public.${data.transaction_type}`) }}</span>
+                <div class="flex-grow text-gray-950 text-sm font-medium">
+                    <span v-if="data.transaction_type === 'account_to_account'">{{ $t(`public.${actionWord(data.comment)}`) }} {{ data.comment.split(' ')[1] }}</span>
+                    <span v-else>{{ $t(`public.${data.transaction_type}`) }}</span>
+                </div>
             </div>
             <div class="flex items-center gap-1 self-stretch">
                 <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.amount') }}</span>
@@ -297,7 +309,7 @@ function copyToClipboard(text) {
                 </div>
             </div>
         </div>
-        <div class="flex flex-col items-center py-4 gap-3 self-stretch">
+        <div v-if="['deposit', 'withdrawal'].includes(data.transaction_type)" class="flex flex-col items-center py-4 gap-3 self-stretch">
             <div class="flex flex-col items-start gap-1 self-stretch md:flex-row">
                 <span class="h-5 flex flex-col justify-center self-stretch text-gray-500 text-xs font-medium md:w-[120px]">{{ $t('public.remarks') }}</span>
                 <span class="md:max-w-[220px] text-gray-950 text-sm font-medium md:flex-grow">{{ data.remarks }}</span>

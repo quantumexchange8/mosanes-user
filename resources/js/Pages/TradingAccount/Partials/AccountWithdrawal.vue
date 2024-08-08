@@ -78,7 +78,6 @@ const closeDialog = () => {
                             class="w-full"
                             inputClass="py-3 px-4"
                             :min="0"
-                            :max="Number(account.balance)"
                             :step="100"
                             :minFractionDigits="2"
                             fluid

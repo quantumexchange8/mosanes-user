@@ -67,7 +67,7 @@ class CTraderService
                 'depositCurrency' => 'USD',
                 'name' => $user->name,
                 'description' => $remarks,
-                'accessRights' => CTraderAccessRights::FULL_ACCESS,
+                'accessRights' => $group == 'Standard Account' ? CTraderAccessRights::FULL_ACCESS : CTraderAccessRights::NO_TRADING,
                 'balance' => 0,
                 'leverageInCents' => $leverage * 100,
                 'contactDetails' => [
@@ -76,11 +76,8 @@ class CTraderService
                 'accountType' => CTraderAccountType::HEDGED,
             ])->json();
 
-            // Log::debug('createUser accountResponse', ['accountResponse' => $accountResponse]);
-
             if (isset($accountResponse['login'])) {
-                $response = $this->linkAccountTOCTID($accountResponse['login'], $mainPassword, $user->ct_user_id);
-                // Log::debug('linkAccountTOCTID result', ['response' => $response]);
+                $this->linkAccountTOCTID($accountResponse['login'], $mainPassword, $user->ct_user_id);
 
                 (new CreateTradingUser)->execute($user, $accountResponse, $accountType, $remarks);
                 (new CreateTradingAccount)->execute($user, $accountResponse, $accountType);
@@ -104,7 +101,7 @@ class CTraderService
     }
 
     //changeTraderBalance
-    public function createTrade($meta_login, $amount, $accountType, $comment, $type): Trade
+    public function createTrade($meta_login, $amount, $comment, $type): Trade
     {
         $response = Http::acceptJson()->post($this->baseURL . "/v2/webserv/traders/$meta_login/changebalance?token=$this->token", [
             'login' => $meta_login,

@@ -12,14 +12,15 @@ const props = defineProps({
     rebateWallet: Object,
 })
 
-const walletOptions = ref([]);
+const transferOptions = ref([]);
+const transferAmount = ref(0);
 const {formatAmount} = transactionFormat()
 const emit = defineEmits(['update:visible'])
 
 const getOptions = async () => {
     try {
         const response = await axios.get('/account/getOptions');
-        walletOptions.value = response.data.walletOptions;
+        transferOptions.value = response.data.transferOptions;
     } catch (error) {
         console.error('Error changing locale:', error);
     }
@@ -30,11 +31,12 @@ getOptions();
 const form = useForm({
     wallet_id: props.rebateWallet.id,
     amount: 0,
-    wallet_address: '',
+    meta_login: '',
 })
 
-watch(walletOptions, (newWallet) => {
-    form.wallet_address = newWallet[0].value
+watch(transferOptions, (newAccount) => {
+    transferAmount.value = newAccount[0].value
+    form.meta_login = newAccount[0].name
 })
 
 const toggleFullAmount = () => {
@@ -46,7 +48,7 @@ const toggleFullAmount = () => {
 };
 
 const submitForm = () => {
-    form.post(route('dashboard.walletWithdrawal'), {
+    form.post(route('dashboard.walletTransfer'), {
         onSuccess: () => {
             closeDialog();
         }
@@ -68,6 +70,23 @@ const closeDialog = () => {
                 </div>
 
                 <!-- input fields -->
+                <div class="flex flex-col items-start gap-1 self-stretch">
+                    <InputLabel for="receiving_wallet" :value="$t('public.transfer_to')" />
+                    <Dropdown
+                        v-model="transferAmount"
+                        :options="transferOptions"
+                        optionLabel="name"
+                        optionValue="value"
+                        :placeholder="$t('public.select')"
+                        class="w-full"
+                        scroll-height="236px"
+                        :invalid="!!form.errors.meta_login"
+                        :disabled="!transferOptions.length"
+                    />
+                    <InputError :message="form.errors.meta_login" />
+                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.balance') }}: $ {{ transferOptions.length ? formatAmount(transferAmount, 0) : $t('public.loading_caption')}}</span>
+                </div>
+
                 <div class="flex flex-col items-start gap-1 self-stretch">
                     <InputLabel for="amount" :value="$t('public.amount')" />
                     <div class="relative w-full">
@@ -95,25 +114,8 @@ const closeDialog = () => {
                             {{ form.amount ? $t('public.clear') : $t('public.full_amount') }}
                         </div>
                     </div>
-                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.minimum_amount') }}: ${{ formatAmount(30) }}</span>
+                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.minimum_amount') }}: ${{ formatAmount(30,0) }}</span>
                     <InputError :message="form.errors.amount" />
-                </div>
-
-                <div class="flex flex-col items-start gap-1 self-stretch">
-                    <InputLabel for="receiving_wallet" :value="$t('public.receiving_wallet')" />
-                    <Dropdown
-                        v-model="form.wallet_address"
-                        :options="walletOptions"
-                        optionLabel="name"
-                        optionValue="value"
-                        :placeholder="$t('public.receiving_wallet_placeholder')"
-                        class="w-full"
-                        scroll-height="236px"
-                        :invalid="!!form.errors.wallet_address"
-                        :disabled="!walletOptions.length"
-                    />
-                    <InputError :message="form.errors.wallet_address" />
-                    <span class="self-stretch text-gray-500 text-xs">{{ walletOptions.length ? form.wallet_address : $t('public.loading_caption')}}</span>
                 </div>
             </div>
         </div>
@@ -131,7 +133,7 @@ const closeDialog = () => {
                 variant="primary-flat"
                 class="w-full md:w-[120px]"
                 @click.prevent="submitForm"
-                :disabled="form.processing"
+                :disabled="form.processing || !transferOptions.length"
             >
                 {{ $t('public.confirm') }}
             </Button>

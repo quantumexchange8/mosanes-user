@@ -415,4 +415,6 @@ return [
     "download_qr_to_invite_friends" => "Download QR to Invite Friends!",
     "or_access_the_link_below" => "or access the link below",
     "search_agent" => "Search Agent",
+    "select" => "Select",
+    "toast_transfer_success" => "Transfer successful!",
 ];

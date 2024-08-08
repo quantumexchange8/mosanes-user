@@ -6,12 +6,6 @@ import Empty from '@/Components/Empty.vue';
 const accounts = ref([]);
 const accountType = ref('demo');
 
-const props = defineProps({
-    leverages: Array,
-    transferOptions: Array,
-    walletOptions: Array,
-});
-
 // Fetch live accounts from the backend
 const fetchLiveAccounts = async () => {
   try {
@@ -28,10 +22,10 @@ onMounted(fetchLiveAccounts);
 </script>
 
 <template>
-  <Empty 
-    v-if="!accounts.length" 
+  <Empty
+    v-if="!accounts.length"
     :title="$t('public.empty_demo_acccount_title')"
-    :message="$t('public.empty_demo_acccount_message')" 
+    :message="$t('public.empty_demo_acccount_message')"
   />
 
   <div class="w-full grid grid-cols-1 gap-5 md:grid-cols-2">
