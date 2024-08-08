@@ -30,7 +30,7 @@ const fetchLiveAccounts = async () => {
 onMounted(fetchLiveAccounts);
 
 watchEffect(() => {
-    if (usePage().props.toast !== null) {
+    if (usePage().props.toast !== null || usePage().props.notification !== null) {
         fetchLiveAccounts();
     }
 });
