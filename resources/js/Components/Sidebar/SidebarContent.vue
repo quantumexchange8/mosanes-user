@@ -4,14 +4,15 @@ import SidebarLink from '@/Components/Sidebar/SidebarLink.vue'
 import SidebarCollapsible from '@/Components/Sidebar/SidebarCollapsible.vue'
 import SidebarCollapsibleItem from '@/Components/Sidebar/SidebarCollapsibleItem.vue'
 import {ref} from "vue";
-import {usePage} from "@inertiajs/vue3";
+import {Link, usePage} from "@inertiajs/vue3";
 import {
     IconLayoutDashboard,
     IconUsersGroup,
     IconId,
     IconCoinMonero,
     IconBusinessplan,
-    IconReceipt2
+    IconReceipt2,
+    IconLogout
 } from '@tabler/icons-vue';
 
 </script>
@@ -88,17 +89,18 @@ import {
             </template>
         </SidebarLink>
 
-
-        <!-- Profile -->
-        <!-- <SidebarLink
-            title="My Profile"
-            :href="route('profile.edit')"
-            :active="route().current('profile.edit')"
-        >
-            <template #icon>
-                <IconUserCircle :size="20" stroke-width="1.25" />
-            </template>
-        </SidebarLink> -->
-
+        <div class="py-6 w-full">
+            <SidebarLink
+                :title="$t('public.log_out')"
+                :href="route('logout')"
+                method="post"
+                as="button"
+                class="text-left"
+            >
+                <template #icon>
+                    <IconLogout :size="20" stroke-width="1.25" />
+                </template>
+            </SidebarLink>
+        </div>
     </PerfectScrollbar>
 </template>

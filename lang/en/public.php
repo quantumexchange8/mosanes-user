@@ -293,4 +293,5 @@ return [
     "reset_password_caption" => "Please enter your current password to reset password.",
     "current_password" => "Current Password",
     "toast_reset_password_success" => "Password has been reset.",
+    "log_out" => "Log Out",
 ];

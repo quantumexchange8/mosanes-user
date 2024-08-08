@@ -293,4 +293,5 @@ return [
     "reset_password_caption" => "請輸入您目前使用的密碼用於更換新密碼.",
     "current_password" => "目前使用的密碼",
     "toast_reset_password_success" => "密碼已重設.",
+    "log_out" => "退出",
 ];
