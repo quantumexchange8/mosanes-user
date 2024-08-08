@@ -11,6 +11,7 @@ use App\Services\ChangeTraderBalanceType;
 use App\Services\CTraderService;
 use App\Services\RunningNumberService;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -39,8 +40,11 @@ class TransactionController extends Controller
     public function getTransactions()
     {
         $transactions = Transaction::where('category', 'trading_account')
-            ->where('transaction_type', 'deposit')
-            ->orWhere('transaction_type', 'withdrawal')
+            ->where(function (Builder $query) {
+                $query->where('transaction_type', 'deposit')
+                    ->orWhere('transaction_type', 'withdrawal');
+            })
+            ->orderBy('created_at', 'DESC')
             ->get();
 
         return response()->json([

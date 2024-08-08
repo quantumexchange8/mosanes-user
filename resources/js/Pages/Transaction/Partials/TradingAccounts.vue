@@ -18,6 +18,10 @@ import Badge from '@/Components/Badge.vue';
 import InputText from 'primevue/inputtext';
 import { usePage } from '@inertiajs/vue3';
 import StatusBadge from "@/Components/StatusBadge.vue";
+import RadioButton from 'primevue/radiobutton';
+import Calendar from 'primevue/calendar';
+import Dialog from 'primevue/dialog';
+import TradingAccountDetails from '@/Pages/Transaction/Partials/TradingAccountDetails.vue';
 
 const { formatDateTime, formatAmount } = transactionFormat();
 
@@ -74,10 +78,6 @@ const filters = ref({
     status: { value: null, matchMode: FilterMatchMode.EQUALS },
 });
 
-const rowClicked = (id_number) => {
-    window.open(route('', id_number), '_self')
-}
-
 // overlay panel
 const op = ref();
 const uplines = ref()
@@ -86,7 +86,6 @@ const levels = ref([])
 const upline_id = ref(null)
 const level = ref(null)
 const filterCount = ref(0);
-const lvl = trans('public.level_shortname');
 
 const toggle = (event) => {
     op.value.toggle(event);
@@ -124,6 +123,15 @@ const clearFilter = () => {
 const clearFilterGlobal = () => {
     filters.value['global'].value = null;
 }
+
+// dialog
+const visible = ref(false);
+const selectedRow = ref();
+const rowClicked = (data) => {
+    console.log(data);
+    selectedRow.value = data;
+    visible.value = true;
+}
 </script>
 
 <template>
@@ -143,7 +151,7 @@ const clearFilterGlobal = () => {
             :loading="loading"
             table-style="min-width:fit-content"
             selectionMode="single"
-            @row-click="rowClicked($event.data.id)"
+            @row-click="rowClicked($event.data)"
         >
             <template #header>
                 <div class="flex flex-col md:flex-row gap-3 items-center self-stretch">
@@ -195,64 +203,186 @@ const clearFilterGlobal = () => {
                     <span class="text-sm text-gray-700">{{ $t('public.loading_transactions_caption') }}</span>
                 </div>
             </template>
-            <Column field="date" sortable style="width: 15%" class="hidden md:table-cell">
-                <template #header>
-                    <span>{{ $t('public.date') }}</span>
-                </template>
+            <Column
+                field="created_at"
+                sortable
+                :header="$t('public.date')"
+            >
                 <template #body="slotProps">
                     {{ formatDateTime(slotProps.data.created_at) }}
                 </template>
             </Column>
-            <Column field="level" sortable headerClass="hidden md:table-cell" class="w-1/5 md:w-auto">
-                <template #header>
-                    <span>{{ $t('public.level') }}</span>
-                </template>
+            <Column
+                field="transaction_number"
+                sortable
+                class="w-auto"
+                :header="$t('public.id')"
+            >
                 <template #body="slotProps">
-                    <span class="md:hidden">Lvl </span>
-                    {{ slotProps.data.level }}
+                    {{ slotProps.data.transaction_number }}
                 </template>
             </Column>
-            <Column field="name" sortable :header="$t('public.name')" headerClass="hidden md:table-cell" class="w-auto">
+            <Column
+                field="description"
+                class="w-auto"
+                :header="$t('public.description')"
+            >
                 <template #body="slotProps">
-                    <div class="flex items-center gap-3">
-                        <div class="w-7 h-7 rounded-full overflow-hidden">
-                            <!-- <DefaultProfilePhoto /> -->
-                        </div>
-                        <div class="flex flex-col items-start">
-                            <div class="w-20 truncate font-medium xl:w-36">
-                                {{ slotProps.data.name }}
-                            </div>
-                            <div class="w-20 truncate text-gray-500 text-xs xl:w-36">
-                                {{ slotProps.data.email }}
-                            </div>
-                        </div>
-                    </div>
+                    {{ $t(`public.${slotProps.data.transaction_type}`) }}
                 </template>
             </Column>
-            <Column field="role" headerClass="hidden md:table-cell">
-                <template #header>
-                    <span>{{ $t('public.role') }}</span>
+            <Column
+                field="account"
+                class="w-auto"
+                :header="$t('public.account')"
+            >
+                <template #body="slotProps">
+                    {{ slotProps.data.transaction_type === 'deposit' ? slotProps.data.to_meta_login : slotProps.data.from_meta_login }}
                 </template>
+            </Column>
+            <Column
+                field="amount"
+                sortable
+                class="w-auto"
+                :header="`${$t('public.amount')} ($)`"
+            >
+                <template #body="slotProps">
+                    {{ formatAmount(slotProps.data.transaction_type === 'deposit' ? slotProps.data.transaction_amount : slotProps.data.amount) }}
+                </template>
+            </Column>
+            <Column
+                field="status"
+                :header="$t('public.status')"
+            >
                 <template #body="slotProps">
                     <div class="flex py-3 items-center flex-1">
-                        <!-- <StatusBadge :value="slotProps.data.role">
-                            {{ $t(`public.${slotProps.data.role}`) }}
-                        </StatusBadge> -->
-                    </div>
-                </template>
-            </Column>
-            <Column field="upline" sortable :header="$t('public.upline')" style="width: 35%" class="hidden md:table-cell">
-                <template #body="slotProps">
-                    <div class="flex items-center gap-3">
-                        <div class="w-7 h-7 rounded-full overflow-hidden">
-                            <!-- <DefaultProfilePhoto /> -->
-                        </div>
-                        <div class="w-20 truncate font-medium xl:w-36">
-                            {{ slotProps.data.upline_name }}
-                        </div>
+                        <StatusBadge :value="slotProps.data.status">
+                            {{ $t(`public.${slotProps.data.status}`) }}
+                        </StatusBadge>
                     </div>
                 </template>
             </Column>
         </DataTable>
     </div>
+
+    <OverlayPanel ref="op">
+        <div class="flex flex-col gap-8 w-60 py-5 px-4">
+            <!-- Filter Role-->
+            <div class="flex flex-col gap-2 items-center self-stretch">
+                <div class="flex self-stretch text-xs text-gray-950 font-semibold">
+                    {{ $t('public.filter_role_header') }}
+                </div>
+                <div class="flex flex-col gap-1 self-stretch">
+                    <div class="flex items-center gap-2 text-sm text-gray-950">
+                        <RadioButton v-model="filters['role'].value" inputId="role_member" value="member" />
+                        <label for="role_member">{{ $t('public.member') }}</label>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-950">
+                        <RadioButton v-model="filters['role'].value" inputId="role_agent" value="agent" />
+                        <label for="role_agent">{{ $t('public.agent') }}</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Level-->
+            <div class="flex flex-col gap-2 items-center self-stretch">
+                <div class="flex self-stretch text-xs text-gray-950 font-semibold">
+                    {{ $t('public.filter_level_header') }}
+                </div>
+                <!-- <Dropdown
+                    v-model="level"
+                    :options="levels"
+                    filter
+                    :filterFields="['name']"
+                    optionLabel="name"
+                    :placeholder="$t('public.select_level_placeholder')"
+                    class="w-full"
+                    scroll-height="236px"
+                >
+                    <template #value="slotProps">
+                        <div v-if="slotProps.value" class="flex items-center gap-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 rounded-full overflow-hidden grow-0 shrink-0"></div>
+                                <div>{{ slotProps.value.name }}</div>
+                            </div>
+                        </div>
+                        <span v-else class="text-gray-400">{{ slotProps.placeholder }}</span>
+                    </template>
+                    <template #option="slotProps">
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 rounded-full overflow-hidden grow-0 shrink-0"></div>
+                            <div>{{ slotProps.option.name }}</div>
+                        </div>
+                    </template>
+                </Dropdown> -->
+            </div>
+
+            <!-- Filter Upline-->
+            <div class="flex flex-col gap-2 items-center self-stretch">
+                <div class="flex self-stretch text-xs text-gray-950 font-semibold">
+                    {{ $t('public.filter_upline_header') }}
+                </div>
+                <!-- <Dropdown
+                    v-model="upline_id"
+                    :options="uplines"
+                    filter
+                    :filterFields="['name']"
+                    optionLabel="name"
+                    :placeholder="$t('public.select_upline_placeholder')"
+                    class="w-full"
+                    scroll-height="236px"
+                >
+                    <template #value="slotProps">
+                        <div v-if="slotProps.value" class="flex items-center gap-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-5 h-5 rounded-full overflow-hidden">
+                                    <template v-if="slotProps.value.profile_photo">
+                                        <img :src="slotProps.value.profile_photo" alt="profile_picture" />
+                                    </template>
+                                    <template v-else>
+                                        <DefaultProfilePhoto />
+                                    </template>
+                                </div>
+                                <div>{{ slotProps.value.name }}</div>
+                            </div>
+                        </div>
+                        <span v-else class="text-gray-400">{{ slotProps.placeholder }}</span>
+                    </template>
+                    <template #option="slotProps">
+                        <div class="flex items-center gap-2">
+                            <div class="w-5 h-5 rounded-full overflow-hidden">
+                                <template v-if="slotProps.option.profile_photo">
+                                    <img :src="slotProps.option.profile_photo" alt="profile_picture" />
+                                </template>
+                                <template v-else>
+                                    <DefaultProfilePhoto />
+                                </template>
+                            </div>
+                            <div>{{ slotProps.option.name }}</div>
+                        </div>
+                    </template>
+                </Dropdown> -->
+            </div>
+
+            <div class="flex w-full">
+                <Button
+                    type="button"
+                    variant="primary-outlined"
+                    class="flex justify-center w-full"
+                    @click="clearFilter()"
+                >
+                    {{ $t('public.clear_all') }}
+                </Button>
+            </div>
+        </div>
+    </OverlayPanel>
+
+    <Dialog
+        v-model:visible="visible"
+        modal
+        :header="$t('public.details')"
+        class="md:dialog-sm"
+    >
+        <TradingAccountDetails :details="selectedRow" />
+    </Dialog>
 </template>
