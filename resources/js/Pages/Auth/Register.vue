@@ -9,14 +9,14 @@ import {
     IconKey,
     IconScanEye,
     IconWorld,
-    IconCheck
+    IconCheck,
+    IconX
 } from "@tabler/icons-vue"
 import {computed, h, ref} from "vue";
 import InputText from "primevue/inputtext";
 import Dropdown from "primevue/dropdown";
 import Password from 'primevue/password';
 import {KycFemale, KycMale} from "@/Components/Icons/solid.jsx";
-import FileUpload from 'primevue/fileupload';
 import OverlayPanel from 'primevue/overlaypanel';
 import {loadLanguageAsync} from "laravel-vue-i18n";
 
@@ -117,6 +117,7 @@ const form = useForm({
     phone_number: '',
     password: '',
     password_confirmation: '',
+    kyc_verification: '',
     referral_code: props.referral_code ? props.referral_code : '',
 });
 
@@ -152,6 +153,31 @@ const changeLanguage = async (langVal) => {
     } catch (error) {
         console.error('Error changing locale:', error);
     }
+};
+
+const selectedKycVerification = ref(null);
+const selectedKycVerificationName = ref(null);
+const handleKycVerification = (event) => {
+    const kycVerificationInput = event.target;
+    const file = kycVerificationInput.files[0];
+
+    if (file) {
+        // Display the selected image
+        const reader = new FileReader();
+        reader.onload = () => {
+            selectedKycVerification.value = reader.result;
+        };
+        reader.readAsDataURL(file);
+        selectedKycVerificationName.value = file.name;
+        form.kyc_verification = event.target.files[0];
+    } else {
+        selectedKycVerification.value = null;
+    }
+};
+
+const removeKycVerification = () => {
+    selectedKycVerification.value = null;
+    form.kyc_verification = '';
 };
 </script>
 
@@ -363,28 +389,44 @@ const changeLanguage = async (langVal) => {
                                         </div>
                                         <div class="flex flex-col gap-3 items-start self-stretch">
                                             <span class="text-xs text-gray-500">{{ $t('public.kyc_caption') }}</span>
-                                            <FileUpload
-                                                class="w-full"
-                                                name="kyc_verification"
-                                                url="/member/uploadKyc"
-                                                accept="image/*"
-                                                :maxFileSize="10485760"
-                                                auto
+                                            <div class="flex flex-col gap-3">
+                                                <input
+                                                    ref="kycVerificationInput"
+                                                    id="kyc_verification"
+                                                    type="file"
+                                                    class="hidden"
+                                                    accept="image/*"
+                                                    @change="handleKycVerification"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="primary-tonal"
+                                                    @click="$refs.kycVerificationInput.click()"
+                                                >
+                                                    {{ $t('public.browse') }}
+                                                </Button>
+                                                <InputError :message="form.errors.kyc_verification" />
+                                            </div>
+                                            <div
+                                                v-if="selectedKycVerification"
+                                                class="relative w-full py-3 pl-4 flex justify-between rounded-xl bg-gray-50"
                                             >
-                                                <template #header="{ chooseCallback }">
-                                                    <div class="flex flex-wrap justify-between items-center flex-1 gap-2">
-                                                        <div class="flex gap-2">
-                                                            <Button
-                                                                type="button"
-                                                                variant="primary-tonal"
-                                                                @click="chooseCallback()"
-                                                            >
-                                                                {{ $t('public.browse') }}
-                                                            </Button>
-                                                        </div>
+                                                <div class="inline-flex items-center gap-3">
+                                                    <img :src="selectedKycVerification" alt="Selected Image" class="max-w-full h-9 object-contain rounded" />
+                                                    <div class="text-sm text-gray-950">
+                                                        {{ selectedKycVerificationName }}
                                                     </div>
-                                                </template>
-                                            </FileUpload>
+                                                </div>
+                                                <Button
+                                                    type="button"
+                                                    variant="gray-text"
+                                                    @click="removeKycVerification"
+                                                    pill
+                                                    iconOnly
+                                                >
+                                                    <IconX class="text-gray-700 w-5 h-5" />
+                                                </Button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -89,7 +89,13 @@ watchEffect(() => {
                 </div>
 
                 <!-- overview data -->
-                <div class="grid grid-cols-2 gap-5 w-full">
+                <div
+                    class="grid gap-5 w-full"
+                    :class="{
+                        'grid-cols-2': user.role === 'agent',
+                        'grid-cols-2 xl:grid-cols-4': user.role === 'member'
+                    }"
+                >
                     <div
                         class="flex flex-col justify-center items-center gap-3 px-6 pt-6 pb-4 rounded-2xl border-b-8 w-full shadow-toast"
                         :class="item.borderColor"
@@ -107,7 +113,10 @@ watchEffect(() => {
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-5 items-center self-stretch w-full">
+            <div
+                v-if="user.role === 'agent'"
+                class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-5 items-center self-stretch w-full"
+            >
                 <!-- rebate earn -->
                 <div class="bg-white rounded-2xl p-4 md:px-10 md:py-8 flex flex-col gap-2 md:gap-7 items-center self-stretch shadow-toast w-full">
                     <span class="text-left w-full text-sm font-medium text-gray-500">{{ $t('public.total_rebate_earned') }}</span>

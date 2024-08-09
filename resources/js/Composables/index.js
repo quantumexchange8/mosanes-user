@@ -5,16 +5,16 @@ import { reactive } from 'vue'
 // export const toggleDarkMode = useToggle(isDark)
 
 export const sidebarState = reactive({
-    isOpen: window.innerWidth > 1024,
+    isOpen: window.innerWidth > 768,
     isHovered: false,
     handleHover(value) {
-        if (window.innerWidth < 1024) {
+        if (window.innerWidth < 768) {
             return
         }
         sidebarState.isHovered = value
     },
     handleWindowResize() {
-        sidebarState.isOpen = window.innerWidth > 1024;
+        sidebarState.isOpen = window.innerWidth > 768;
     },
 })
 

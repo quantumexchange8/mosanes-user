@@ -294,4 +294,12 @@ return [
     "current_password" => "目前使用的密碼",
     "toast_reset_password_success" => "密碼已重設.",
     "log_out" => "退出",
+    "cryptocurrency_wallet" => "加密貨幣錢包",
+    "cryptocurrency_wallet_caption" => "在此添加您的加密貨幣錢包資訊, 以便輕鬆且順暢地進行提款.",
+    "wallet" => "Wallet",
+    "wallet_name" => "錢包名稱",
+    "token_address" => "代幣地址",
+    "toast_update_crypto_wallet_success" => "您已成功更新您的加密貨幣錢包資訊！",
+    "toast_update_profile_success" => "您已成功更新您的帳戶資訊!",
+    "toast_update_profile_photo_success" => "您已成功更新您的個人資料!",
 ];

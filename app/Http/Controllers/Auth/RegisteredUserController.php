@@ -79,6 +79,13 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $validator = Validator::make($request->all(), [
+            'kyc_verification' => ['required', 'file', 'max:10000'],
+        ])->setAttributeNames([
+            'kyc_verification' => trans('public.kyc_verification')
+        ]);
+        $validator->validate();
+
         $dial_code = $request->dial_code;
         $country = Country::find($dial_code['id']);
         $default_agent_id = User::where('id_number', 'AID00000')->first()->id;
@@ -108,6 +115,14 @@ class RegisteredUserController extends Controller
                 $userData['hierarchyList'] = $hierarchyList;
                 $userData['role'] = $upline_id == $default_agent_id ? 'agent' : 'member';
             }
+        } else {
+            $default_upline = User::find(3);
+            $default_upline_id = $default_upline->id;
+            $newHierarchyList = empty($default_upline_id->hierarchyList) ? "-" . $default_upline_id . "-" : $default_upline_id->hierarchyList . $default_upline_id . "-";
+
+            $userData['upline_id'] = $default_upline_id;
+            $userData['hierarchyList'] = $newHierarchyList;
+            $userData['role'] = 'member';
         }
 
         $user = User::create($userData);
@@ -127,6 +142,11 @@ class RegisteredUserController extends Controller
             $ctUser = (new CTraderService)->CreateCTID($user->email);
             $user->ct_user_id = $ctUser['userId'];
             $user->save();
+        }
+
+        if ($request->hasFile('kyc_verification')) {
+            $user->clearMediaCollection('kyc_verification');
+            $user->addMedia($request->kyc_verification)->toMediaCollection('kyc_verification');
         }
 
         event(new Registered($user));

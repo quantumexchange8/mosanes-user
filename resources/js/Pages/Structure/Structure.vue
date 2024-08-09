@@ -11,6 +11,9 @@ import { wTrans } from 'laravel-vue-i18n';
 const props = defineProps({
     tab: Number,
 })
+
+const user = usePage().props.auth.user;
+
 const tabs = ref([
         {
             title: wTrans('public.network'),
@@ -27,7 +30,8 @@ const activeIndex = ref(props.tab);
 
 <template>
     <AuthenticatedLayout :title="$t('public.structure')">
-        <TabView 
+        <TabView
+            v-if="user.role === 'agent'"
             v-model:activeIndex="activeIndex"
             class="flex flex-col gap-5 self-stretch"
         >
@@ -35,5 +39,9 @@ const activeIndex = ref(props.tab);
                 <component :is="tab.component" />
             </TabPanel>
         </TabView>
+
+        <Network
+            v-else
+        />
     </AuthenticatedLayout>
 </template>
