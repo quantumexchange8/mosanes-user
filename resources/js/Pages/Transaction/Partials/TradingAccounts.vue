@@ -9,6 +9,7 @@ import {
     IconCircleXFilled,
     IconAdjustments,
     IconCloudDownload,
+    IconX,
 } from '@tabler/icons-vue';
 import {transactionFormat} from "@/Composables/index.js";
 import {computed, onMounted, ref, watch, watchEffect} from "vue";
@@ -21,7 +22,8 @@ import StatusBadge from "@/Components/StatusBadge.vue";
 import RadioButton from 'primevue/radiobutton';
 import Calendar from 'primevue/calendar';
 import Dialog from 'primevue/dialog';
-import TradingAccountDetails from '@/Pages/Transaction/Partials/TradingAccountDetails.vue';
+import TradingAccountDetails from '@/Pages/Transaction/Partials/TransactionDetails.vue';
+import Slider from 'primevue/slider';
 
 const { formatDateTime, formatAmount } = transactionFormat();
 
@@ -29,6 +31,8 @@ const loading = ref(false);
 const dt = ref();
 const paginator_caption = wTrans('public.paginator_caption');
 const transactions = ref();
+const selectedDate = ref();
+const amountRange = ref([]);
 
 const getResults = async () => {
     loading.value = true;
@@ -74,9 +78,33 @@ const filters = ref({
     name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     upline_id: { value: null, matchMode: FilterMatchMode.EQUALS },
     level: { value: null, matchMode: FilterMatchMode.EQUALS },
-    role: { value: null, matchMode: FilterMatchMode.EQUALS },
+    transaction_type: { value: null, matchMode: FilterMatchMode.EQUALS },
     status: { value: null, matchMode: FilterMatchMode.EQUALS },
 });
+
+watch(selectedDate, (newDateRange) => {
+    if (Array.isArray(newDateRange)) {
+        const [startDate, endDate] = newDateRange;
+
+        if (startDate && endDate) {
+            // getAccountReport([startDate, endDate], selectedOption.value);
+        } else if (startDate || endDate) {
+            // getAccountReport([startDate || endDate, endDate || startDate], selectedOption.value);
+        } else {
+            // getAccountReport([], selectedOption.value);
+        }
+    } else {
+        console.warn('Invalid date range format:', newDateRange);
+    }
+});
+
+// watch(selectedOption, (newOption) => {
+//     getAccountReport(selectedDate.value, newOption);
+// });
+
+const clearDate = () => {
+    selectedDate.value = null;
+};
 
 // overlay panel
 const op = ref();
@@ -112,7 +140,7 @@ const clearFilter = () => {
         name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
         upline_id: { value: null, matchMode: FilterMatchMode.EQUALS },
         level: { value: null, matchMode: FilterMatchMode.EQUALS },
-        role: { value: null, matchMode: FilterMatchMode.EQUALS },
+        transaction_type: { value: null, matchMode: FilterMatchMode.EQUALS },
         status: { value: null, matchMode: FilterMatchMode.EQUALS },
     };
 
@@ -128,7 +156,6 @@ const clearFilterGlobal = () => {
 const visible = ref(false);
 const selectedRow = ref();
 const rowClicked = (data) => {
-    console.log(data);
     selectedRow.value = data;
     visible.value = true;
 }
@@ -200,13 +227,14 @@ const rowClicked = (data) => {
             <template #loading>
                 <div class="flex flex-col gap-2 items-center justify-center">
                     <Loader />
-                    <span class="text-sm text-gray-700">{{ $t('public.loading_transactions_caption') }}</span>
+                    <span class="text-sm text-gray-700">{{ $t('public.loading_caption') }}</span>
                 </div>
             </template>
             <Column
                 field="created_at"
                 sortable
                 :header="$t('public.date')"
+                class="w-1/6"
             >
                 <template #body="slotProps">
                     {{ formatDateTime(slotProps.data.created_at) }}
@@ -247,7 +275,12 @@ const rowClicked = (data) => {
                 :header="`${$t('public.amount')} ($)`"
             >
                 <template #body="slotProps">
-                    {{ formatAmount(slotProps.data.transaction_type === 'deposit' ? slotProps.data.transaction_amount : slotProps.data.amount) }}
+                    <template v-if="slotProps.data.transaction_amount">
+                        $ {{ formatAmount(slotProps.data.transaction_type === 'withdrawal' ? slotProps.data.amount : slotProps.data.transaction_amount) }}
+                    </template>
+                    <template v-else>
+                        -
+                    </template>
                 </template>
             </Column>
             <Column
@@ -267,101 +300,62 @@ const rowClicked = (data) => {
 
     <OverlayPanel ref="op">
         <div class="flex flex-col gap-8 w-60 py-5 px-4">
-            <!-- Filter Role-->
+            <!-- Filter type-->
             <div class="flex flex-col gap-2 items-center self-stretch">
                 <div class="flex self-stretch text-xs text-gray-950 font-semibold">
-                    {{ $t('public.filter_role_header') }}
+                    {{ $t('public.filter_type_header') }}
                 </div>
                 <div class="flex flex-col gap-1 self-stretch">
                     <div class="flex items-center gap-2 text-sm text-gray-950">
-                        <RadioButton v-model="filters['role'].value" inputId="role_member" value="member" />
-                        <label for="role_member">{{ $t('public.member') }}</label>
+                        <RadioButton v-model="filters['transaction_type'].value" inputId="type_deposit" value="deposit" />
+                        <label for="type_deposit">{{ $t('public.deposit') }}</label>
                     </div>
                     <div class="flex items-center gap-2 text-sm text-gray-950">
-                        <RadioButton v-model="filters['role'].value" inputId="role_agent" value="agent" />
-                        <label for="role_agent">{{ $t('public.agent') }}</label>
+                        <RadioButton v-model="filters['transaction_type'].value" inputId="type_withdrawal" value="withdrawal" />
+                        <label for="type_withdrawal">{{ $t('public.withdrawal') }}</label>
                     </div>
                 </div>
             </div>
 
-            <!-- Filter Level-->
+            <!-- Filter Date-->
             <div class="flex flex-col gap-2 items-center self-stretch">
                 <div class="flex self-stretch text-xs text-gray-950 font-semibold">
-                    {{ $t('public.filter_level_header') }}
+                    {{ $t('public.filter_date_header') }}
                 </div>
-                <!-- <Dropdown
-                    v-model="level"
-                    :options="levels"
-                    filter
-                    :filterFields="['name']"
-                    optionLabel="name"
-                    :placeholder="$t('public.select_level_placeholder')"
-                    class="w-full"
-                    scroll-height="236px"
-                >
-                    <template #value="slotProps">
-                        <div v-if="slotProps.value" class="flex items-center gap-3">
-                            <div class="flex items-center gap-2">
-                                <div class="w-4 h-4 rounded-full overflow-hidden grow-0 shrink-0"></div>
-                                <div>{{ slotProps.value.name }}</div>
-                            </div>
-                        </div>
-                        <span v-else class="text-gray-400">{{ slotProps.placeholder }}</span>
-                    </template>
-                    <template #option="slotProps">
-                        <div class="flex items-center gap-2">
-                            <div class="w-4 h-4 rounded-full overflow-hidden grow-0 shrink-0"></div>
-                            <div>{{ slotProps.option.name }}</div>
-                        </div>
-                    </template>
-                </Dropdown> -->
+            <!-- date picker -->
             </div>
 
-            <!-- Filter Upline-->
+            <!-- Filter Amount-->
             <div class="flex flex-col gap-2 items-center self-stretch">
                 <div class="flex self-stretch text-xs text-gray-950 font-semibold">
-                    {{ $t('public.filter_upline_header') }}
+                    {{ $t('public.filter_amount_header') }}
                 </div>
-                <!-- <Dropdown
-                    v-model="upline_id"
-                    :options="uplines"
-                    filter
-                    :filterFields="['name']"
-                    optionLabel="name"
-                    :placeholder="$t('public.select_upline_placeholder')"
-                    class="w-full"
-                    scroll-height="236px"
-                >
-                    <template #value="slotProps">
-                        <div v-if="slotProps.value" class="flex items-center gap-3">
-                            <div class="flex items-center gap-2">
-                                <div class="w-5 h-5 rounded-full overflow-hidden">
-                                    <template v-if="slotProps.value.profile_photo">
-                                        <img :src="slotProps.value.profile_photo" alt="profile_picture" />
-                                    </template>
-                                    <template v-else>
-                                        <DefaultProfilePhoto />
-                                    </template>
-                                </div>
-                                <div>{{ slotProps.value.name }}</div>
-                            </div>
-                        </div>
-                        <span v-else class="text-gray-400">{{ slotProps.placeholder }}</span>
-                    </template>
-                    <template #option="slotProps">
-                        <div class="flex items-center gap-2">
-                            <div class="w-5 h-5 rounded-full overflow-hidden">
-                                <template v-if="slotProps.option.profile_photo">
-                                    <img :src="slotProps.option.profile_photo" alt="profile_picture" />
-                                </template>
-                                <template v-else>
-                                    <DefaultProfilePhoto />
-                                </template>
-                            </div>
-                            <div>{{ slotProps.option.name }}</div>
-                        </div>
-                    </template>
-                </Dropdown> -->
+                <!-- slider -->
+            </div>
+
+            <!-- Filter type-->
+            <div class="flex flex-col gap-2 items-center self-stretch">
+                <div class="flex self-stretch text-xs text-gray-950 font-semibold">
+                    {{ $t('public.filter_status_header') }}
+                </div>
+                <div class="flex flex-col gap-1 self-stretch">
+                    <div class="flex items-center gap-2 text-sm text-gray-950">
+                        <RadioButton v-model="filters['status'].value" inputId="status_successful" value="successful" />
+                        <label for="status_successful">{{ $t('public.successful') }}</label>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-950">
+                        <RadioButton v-model="filters['status'].value" inputId="status_processing" value="processing" />
+                        <label for="status_processing">{{ $t('public.processing') }}</label>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-950">
+                        <RadioButton v-model="filters['status'].value" inputId="status_failed" value="failed" />
+                        <label for="status_failed">{{ $t('public.failed') }}</label>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-950">
+                        <RadioButton v-model="filters['status'].value" inputId="status_rejected" value="rejected" />
+                        <label for="status_rejected">{{ $t('public.rejected') }}</label>
+                    </div>
+                </div>
             </div>
 
             <div class="flex w-full">
@@ -381,8 +375,8 @@ const rowClicked = (data) => {
         v-model:visible="visible"
         modal
         :header="$t('public.details')"
-        class="md:dialog-sm"
+        class="dialog-xs md:dialog-sm"
     >
-        <TradingAccountDetails :details="selectedRow" />
+        <TradingAccountDetails :data="selectedRow" />
     </Dialog>
 </template>

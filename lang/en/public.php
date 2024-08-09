@@ -296,4 +296,10 @@ return [
     "current_password" => "Current Password",
     "toast_reset_password_success" => "Password has been reset.",
     "log_out" => "Log Out",
+    "sent_address" => "Sent Address",
+    "wallet_name" => "Wallet Name",
+    "rebate_wallet" => "Rebate Wallet",
+    "filter_type_header" => "Filter by type",
+    "filter_date_header" => "Filter by date",
+    "filter_amount_header" => "Filter by amount",
 ];
