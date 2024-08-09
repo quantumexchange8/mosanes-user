@@ -10,7 +10,7 @@ return [
     'live' => [
         'paymentUrl' => 'https://securepay.ttpays.io',
         'appId' => 'mosanes',
-        'ttKey' => 'mosanes',
-        'merchantId' => '0'
+        'ttKey' => 'Lnst2SgtGb6CPdrPskByVXtvV63CvyTd226YWP2cwklQ2z0lVh',
+        'merchantId' => '3'
     ],
 ];
