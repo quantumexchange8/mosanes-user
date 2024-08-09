@@ -303,4 +303,11 @@ return [
     "filter_date_header" => "Filter by date",
     "filter_amount_header" => "Filter by amount",
     "transfer_to_account" => "Transfer to Account",
+    "cryptocurrency_wallet" => "Cryptocurrency Wallet",
+    "cryptocurrency_wallet_caption" => "Add your cryptocurrency wallet details here for easy and seamless withdrawals.",
+    "wallet" => "Wallet",
+    "token_address" => "Token Address",
+    "toast_update_crypto_wallet_success" => "You’ve successfully updated your crypto wallet details!",
+    "toast_update_profile_success" => "You’ve successfully updated your account details!",
+    "toast_update_profile_photo_success" => "You’ve successfully updated your profile!",
 ];

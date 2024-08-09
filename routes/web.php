@@ -123,7 +123,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [ProfileController::class, 'index'])->name('profile');
         Route::get('/getFilterData', [ProfileController::class, 'getFilterData'])->name('profile.getFilterData');
 
-        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/updateProfilePhoto', [ProfileController::class, 'updateProfilePhoto'])->name('profile.updateProfilePhoto');
+        Route::post('/updateCryptoWalletInfo', [ProfileController::class, 'updateCryptoWalletInfo'])->name('profile.updateCryptoWalletInfo');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 });

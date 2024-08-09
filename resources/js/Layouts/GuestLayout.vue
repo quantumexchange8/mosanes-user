@@ -5,6 +5,7 @@ import {Head, usePage} from "@inertiajs/vue3";
 // import {loadLanguageAsync} from "laravel-vue-i18n";
 import OverlayPanel from 'primevue/overlaypanel';
 import ToastList from "@/Components/ToastList.vue";
+import {loadLanguageAsync} from "laravel-vue-i18n";
 
 defineProps({
     title: String

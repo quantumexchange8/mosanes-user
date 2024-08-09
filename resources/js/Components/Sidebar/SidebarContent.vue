@@ -46,15 +46,15 @@ import {
         </SidebarLink>
 
         <!-- Asset Master -->
-        <SidebarLink
-            :title="$t('public.asset_master')"
-            :href="route('asset_master')"
-            :active="route().current('asset_master')"
-        >
-            <template #icon>
-                <IconCoinMonero :size="20" stroke-width="1.25" />
-            </template>
-        </SidebarLink>
+<!--        <SidebarLink-->
+<!--            :title="$t('public.asset_master')"-->
+<!--            :href="route('asset_master')"-->
+<!--            :active="route().current('asset_master')"-->
+<!--        >-->
+<!--            <template #icon>-->
+<!--                <IconCoinMonero :size="20" stroke-width="1.25" />-->
+<!--            </template>-->
+<!--        </SidebarLink>-->
 
         <!-- Structure -->
         <SidebarLink
@@ -79,15 +79,15 @@ import {
         </SidebarLink>
 
         <!-- Rebate allocate -->
-        <SidebarLink
-            :title="$t('public.rebate_allocate')"
-            :href="route('rebate_allocate')"
-            :active="route().current('rebate_allocate')"
-        >
-            <template #icon>
-                <IconBusinessplan :size="20" stroke-width="1.25" />
-            </template>
-        </SidebarLink>
+<!--        <SidebarLink-->
+<!--            :title="$t('public.rebate_allocate')"-->
+<!--            :href="route('rebate_allocate')"-->
+<!--            :active="route().current('rebate_allocate')"-->
+<!--        >-->
+<!--            <template #icon>-->
+<!--                <IconBusinessplan :size="20" stroke-width="1.25" />-->
+<!--            </template>-->
+<!--        </SidebarLink>-->
 
         <div class="py-6 w-full">
             <SidebarLink
