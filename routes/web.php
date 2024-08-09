@@ -110,6 +110,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [TransactionController::class, 'index'])->name('transaction');
         Route::get('/getTotal', [TransactionController::class, 'getTotal'])->name('transaction.getTotal');
         Route::get('/getTransactions', [TransactionController::class, 'getTransactions'])->name('transaction.getTransactions');
+        Route::get('/getRebateTransactions', [TransactionController::class, 'getRebateTransactions'])->name('transaction.getRebateTransactions');
+
     });
 
     /**

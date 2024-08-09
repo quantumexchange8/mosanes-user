@@ -302,4 +302,5 @@ return [
     "filter_type_header" => "Filter by type",
     "filter_date_header" => "Filter by date",
     "filter_amount_header" => "Filter by amount",
+    "transfer_to_account" => "Transfer to Account",
 ];

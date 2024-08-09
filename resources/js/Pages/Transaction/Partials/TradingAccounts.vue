@@ -22,8 +22,9 @@ import StatusBadge from "@/Components/StatusBadge.vue";
 import RadioButton from 'primevue/radiobutton';
 import Calendar from 'primevue/calendar';
 import Dialog from 'primevue/dialog';
-import TradingAccountDetails from '@/Pages/Transaction/Partials/TransactionDetails.vue';
+import TransactionDetails from '@/Pages/Transaction/Partials/TransactionDetails.vue';
 import Slider from 'primevue/slider';
+import dayjs from 'dayjs'
 
 const { formatDateTime, formatAmount } = transactionFormat();
 
@@ -32,14 +33,24 @@ const dt = ref();
 const paginator_caption = wTrans('public.paginator_caption');
 const transactions = ref();
 const selectedDate = ref();
-const amountRange = ref([]);
+const minFilterAmount = ref(0);
+const maxFilterAmount = ref(0);
 
-const getResults = async () => {
+const getResults = async (filterDate = null) => {
+    if (loading.value) return;
     loading.value = true;
 
     try {
-        const response = await axios.get('/transaction/getTransactions');
+        let url = '/transaction/getTransactions';
+
+        if (filterDate) {
+            const [startDate, endDate] = filterDate;
+            url += `?startDate=${dayjs(startDate).format('YYYY-MM-DD')}&endDate=${dayjs(endDate).format('YYYY-MM-DD')}`;
+        }
+
+        const response = await axios.get(url);
         transactions.value = response.data.transactions;
+        maxFilterAmount.value = transactions.value?.length ? Math.max(...transactions.value.map(item => parseFloat(item.transaction_amount || 0))) : 0;
     } catch (error) {
         console.error('Error get transactions:', error);
     } finally {
@@ -55,20 +66,6 @@ watchEffect(() => {
     }
 });
 
-const getFilterData = async () => {
-    try {
-        const uplineResponse = await axios.get('/');
-        uplines.value = uplineResponse.data.uplines;
-        maxLevel.value = uplineResponse.data.maxLevel;
-    } catch (error) {
-        console.error('Error filter data:', error);
-    } finally {
-        loading.value = false;
-    }
-};
-
-getFilterData();
-
 const exportCSV = () => {
     dt.value.exportCSV();
 };
@@ -76,10 +73,14 @@ const exportCSV = () => {
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    upline_id: { value: null, matchMode: FilterMatchMode.EQUALS },
-    level: { value: null, matchMode: FilterMatchMode.EQUALS },
     transaction_type: { value: null, matchMode: FilterMatchMode.EQUALS },
+    amount: { value: [minFilterAmount.value, maxFilterAmount.value], matchMode: FilterMatchMode.BETWEEN },
     status: { value: null, matchMode: FilterMatchMode.EQUALS },
+});
+
+// Watch minFilterAmount and maxAmount to update the amount filter
+watch([minFilterAmount, maxFilterAmount], ([newMin, newMax]) => {
+    filters.value.amount.value = [newMin, newMax];
 });
 
 watch(selectedDate, (newDateRange) => {
@@ -87,20 +88,16 @@ watch(selectedDate, (newDateRange) => {
         const [startDate, endDate] = newDateRange;
 
         if (startDate && endDate) {
-            // getAccountReport([startDate, endDate], selectedOption.value);
+            getResults([startDate, endDate]);
         } else if (startDate || endDate) {
-            // getAccountReport([startDate || endDate, endDate || startDate], selectedOption.value);
+            getResults([startDate || endDate, endDate || startDate]);
         } else {
-            // getAccountReport([], selectedOption.value);
+            getResults([]);
         }
     } else {
         console.warn('Invalid date range format:', newDateRange);
     }
 });
-
-// watch(selectedOption, (newOption) => {
-//     getAccountReport(selectedDate.value, newOption);
-// });
 
 const clearDate = () => {
     selectedDate.value = null;
@@ -108,44 +105,34 @@ const clearDate = () => {
 
 // overlay panel
 const op = ref();
-const uplines = ref()
-const maxLevel = ref(0)
-const levels = ref([])
-const upline_id = ref(null)
-const level = ref(null)
 const filterCount = ref(0);
 
 const toggle = (event) => {
     op.value.toggle(event);
 }
 
-watch([upline_id, level], ([newUplineId, newLevel]) => {
-    if (upline_id.value !== null) {
-        filters.value['upline_id'].value = newUplineId.value
-    }
-
-    if (level.value !== null) {
-        filters.value['level'].value = newLevel.value
-    }
-})
-
 watch(filters, () => {
+    // Check if amount filter covers the entire range (considering full range as minFilterAmount and maxFilterAmount)
+    const amountFilterIsActive = filters.value.amount.value[0] !== minFilterAmount.value || filters.value.amount.value[1] !== maxFilterAmount.value;
+
     // Count active filters
-    filterCount.value = Object.values(filters.value).filter(filter => filter.value !== null).length;
+    filterCount.value = Object.entries(filters.value).filter(([key, filter]) => {
+        // Exclude amount filter if it covers the entire range
+        if (filter === filters.value.amount) {
+            return amountFilterIsActive;
+        }
+        return filter.value !== null;
+    }).length;
 }, { deep: true });
 
 const clearFilter = () => {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-        upline_id: { value: null, matchMode: FilterMatchMode.EQUALS },
-        level: { value: null, matchMode: FilterMatchMode.EQUALS },
         transaction_type: { value: null, matchMode: FilterMatchMode.EQUALS },
+        amount: { value: [minFilterAmount.value, maxFilterAmount.value], matchMode: FilterMatchMode.BETWEEN },
         status: { value: null, matchMode: FilterMatchMode.EQUALS },
     };
-
-    upline_id.value = null;
-    level.value = null;
 };
 
 const clearFilterGlobal = () => {
@@ -322,7 +309,23 @@ const rowClicked = (data) => {
                 <div class="flex self-stretch text-xs text-gray-950 font-semibold">
                     {{ $t('public.filter_date_header') }}
                 </div>
-            <!-- date picker -->
+                <div class="relative w-full">
+                    <Calendar
+                        v-model="selectedDate"
+                        selectionMode="range"
+                        dateFormat="yy/mm/dd"
+                        iconDisplay="input"
+                        :placeholder="$t('public.date_placeholder')"
+                        class="w-full font-normal"
+                    />
+                    <div
+                        v-if="selectedDate && selectedDate.length > 0"
+                        class="absolute top-2/4 -mt-2.5 right-4 text-gray-400 select-none cursor-pointer bg-white"
+                        @click="clearDate"
+                    >
+                        <IconX size="20" />
+                    </div>
+                </div>
             </div>
 
             <!-- Filter Amount-->
@@ -330,7 +333,15 @@ const rowClicked = (data) => {
                 <div class="flex self-stretch text-xs text-gray-950 font-semibold">
                     {{ $t('public.filter_amount_header') }}
                 </div>
-                <!-- slider -->
+                <div class="flex flex-col items-center gap-1 self-stretch">
+                    <div class="h-4 self-stretch">
+                        <Slider v-model="filters['amount'].value" :min="minFilterAmount" :max="maxFilterAmount" range />
+                    </div>
+                    <div class="flex justify-between items-center self-stretch">
+                        <span class="text-gray-950 text-sm">${{ minFilterAmount }}</span>
+                        <span class="text-gray-950 text-sm">${{ maxFilterAmount }}</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Filter type-->
@@ -377,6 +388,6 @@ const rowClicked = (data) => {
         :header="$t('public.details')"
         class="dialog-xs md:dialog-sm"
     >
-        <TradingAccountDetails :data="selectedRow" />
+        <TransactionDetails :data="selectedRow" />
     </Dialog>
 </template>
