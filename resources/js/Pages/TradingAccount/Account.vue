@@ -163,6 +163,7 @@ const buttonSize = computed(() => {
                                 class="w-[142px] md:w-full"
                                 :size="buttonSize"
                                 @click="openDialog('live', liveAccountForm)"
+                                :disabled="!accountOptions.length"
                             >
                                 {{ $t('public.live_account') }}
                             </Button>
@@ -202,7 +203,7 @@ const buttonSize = computed(() => {
                             v-for="(account, index) in accountOptions"
                             :key="account.account_group"
                             @click="selectAccount(account.account_group)"
-                            class="group flex flex-col items-start py-3 px-4 gap-1 self-stretch rounded-lg border shadow-input transition-colors duration-300"
+                            class="group flex flex-col items-start py-3 px-4 gap-1 self-stretch rounded-lg border shadow-input transition-colors duration-300 select-none cursor-pointer"
                             :class="{
                                 'bg-primary-50 border-primary-500': selectedAccountType === account.account_group,
                                 'bg-white border-gray-300 hover:bg-primary-50 hover:border-primary-500': selectedAccountType !== account.account_group,
@@ -217,7 +218,7 @@ const buttonSize = computed(() => {
                                         'text-gray-950': selectedAccountType !== account.account_group
                                     }"
                                 >
-                                    {{ account.name }}
+                                    {{ $t(`public.${account.slug}`) }}
                                 </span>
                                 <IconCircleCheckFilled v-if="selectedAccountType === account.account_group" size="20" stroke-width="1.25" color="#2970FF" />
                             </div>

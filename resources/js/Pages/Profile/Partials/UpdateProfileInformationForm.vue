@@ -1,9 +1,11 @@
 <script setup>
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Link, useForm, usePage } from '@inertiajs/vue3';
+import Button from "@/Components/Button.vue"
+import { useForm, usePage } from '@inertiajs/vue3';
+import InputText from 'primevue/inputtext';
+import Dropdown from 'primevue/dropdown';
+import {ref, watch} from "vue";
 
 defineProps({
     mustVerifyEmail: {
@@ -15,88 +17,134 @@ defineProps({
 });
 
 const user = usePage().props.auth.user;
+const countries = ref()
+const selectedCountry = ref();
 
 const form = useForm({
     name: user.name,
     email: user.email,
+    phone: user.phone,
 });
+
+watch(countries, () => {
+    selectedCountry.value = countries.value.find(country => country.phone_code === user.dial_code);
+});
+
+const getResults = async () => {
+    try {
+        const response = await axios.get('/profile/getFilterData');
+        countries.value = response.data.countries;
+    } catch (error) {
+        console.error('Error changing locale:', error);
+    }
+};
+
+getResults();
 </script>
 
 <template>
-    <section>
-        <header>
-            <h2 class="text-lg font-medium text-gray-900">Profile Information</h2>
-
-            <p class="mt-1 text-sm text-gray-600">
-                Update your account's profile information and email address.
-            </p>
-        </header>
-
-        <form @submit.prevent="form.patch(route('profile.update'))" class="mt-6 space-y-6">
-            <div>
-                <InputLabel for="name" value="Name" />
-
-                <TextInput
-                    id="name"
-                    type="text"
-                    class="mt-1 block w-full"
-                    v-model="form.name"
-                    required
-                    autofocus
-                    autocomplete="name"
-                />
-
-                <InputError class="mt-2" :message="form.errors.name" />
+    <form class="p-4 md:py-6 md:px-8 flex flex-col gap-8 md:gap-0 md:justify-between items-center self-stretch rounded-2xl shadow-toast w-full">
+        <div class="flex flex-col gap-8 items-center self-stretch">
+            <div class="flex flex-col gap-1 items-start justify-center w-full">
+                <span class="text-gray-950 font-bold">{{ $t('public.account_details') }}</span>
+                <span class="text-gray-500 text-xs">{{ $t('public.account_details_caption') }}</span>
             </div>
 
-            <div>
-                <InputLabel for="email" value="Email" />
+            <div class="flex flex-col gap-5 items-center self-stretch w-full">
+                <div class="flex flex-col gap-1 w-full">
+                    <InputLabel for="name">
+                        {{ $t('public.your_name') }}
+                    </InputLabel>
+                    <InputText
+                        id="name"
+                        type="text"
+                        class="block w-full"
+                        v-model="form.name"
+                        :placeholder="$t('public.enter_name')"
+                        :invalid="!!form.errors.name"
+                        autocomplete="name"
+                        disabled
+                    />
+                    <InputError :message="form.errors.name" />
+                </div>
 
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autocomplete="username"
-                />
+                <div class="flex flex-col gap-1 w-full">
+                    <InputLabel for="email">
+                        {{ $t('public.email') }}
+                    </InputLabel>
+                    <InputText
+                        id="email"
+                        type="email"
+                        class="block w-full"
+                        v-model="form.email"
+                        :placeholder="$t('public.enter_email')"
+                        :invalid="!!form.errors.email"
+                        autocomplete="email"
+                        disabled
+                    />
+                    <InputError :message="form.errors.email" />
+                </div>
 
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
+                <div class="flex flex-col gap-1 items-start self-stretch">
+                    <InputLabel for="phone">
+                        {{ $t('public.phone_number') }}
+                    </InputLabel>
+                    <div class="flex gap-2 items-center self-stretch relative">
+                        <Dropdown
+                            v-model="selectedCountry"
+                            :options="countries"
+                            filter
+                            :filterFields="['name', 'phone_code']"
+                            optionLabel="name"
+                            :placeholder="$t('public.phone_code')"
+                            class="w-[100px] xl:w-[180px]"
+                            scroll-height="236px"
+                            :invalid="!!form.errors.phone"
+                        >
+                            <template #value="slotProps">
+                                <div v-if="slotProps.value" class="flex items-center">
+                                    <div>{{ slotProps.value.phone_code }}</div>
+                                </div>
+                                <span v-else>
+                                            {{ slotProps.placeholder }}
+                                        </span>
+                            </template>
+                            <template #option="slotProps">
+                                <div class="flex items-center w-[262px] md:max-w-[236px]">
+                                    <div>{{ slotProps.option.name }} <span class="text-gray-500">{{ slotProps.option.phone_code }}</span></div>
+                                </div>
+                            </template>
+                        </Dropdown>
 
-            <div v-if="mustVerifyEmail && user.email_verified_at === null">
-                <p class="text-sm mt-2 text-gray-800">
-                    Your email address is unverified.
-                    <Link
-                        :href="route('verification.send')"
-                        method="post"
-                        as="button"
-                        class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                        Click here to re-send the verification email.
-                    </Link>
-                </p>
-
-                <div
-                    v-show="status === 'verification-link-sent'"
-                    class="mt-2 font-medium text-sm text-green-600"
-                >
-                    A new verification link has been sent to your email address.
+                        <InputText
+                            id="phone"
+                            type="text"
+                            class="block w-full"
+                            v-model="form.phone"
+                            :placeholder="$t('public.phone_number')"
+                            :invalid="!!form.errors.phone"
+                        />
+                    </div>
+                    <InputError :message="form.errors.phone" />
                 </div>
             </div>
+        </div>
 
-            <div class="flex items-center gap-4">
-                <PrimaryButton :disabled="form.processing">Save</PrimaryButton>
 
-                <Transition
-                    enter-active-class="transition ease-in-out"
-                    enter-from-class="opacity-0"
-                    leave-active-class="transition ease-in-out"
-                    leave-to-class="opacity-0"
-                >
-                    <p v-if="form.recentlySuccessful" class="text-sm text-gray-600">Saved.</p>
-                </Transition>
-            </div>
-        </form>
-    </section>
+        <div class="flex justify-end items-center pt-10 md:pt-7 gap-4 self-stretch">
+            <Button
+                type="button"
+                variant="gray-tonal"
+                :disabled="form.processing"
+            >
+                {{ $t('public.cancel') }}
+            </Button>
+            <Button
+                variant="primary-flat"
+                :disabled="form.processing"
+            >
+                {{ $t('public.save_changes') }}
+            </Button>
+        </div>
+    </form>
 </template>

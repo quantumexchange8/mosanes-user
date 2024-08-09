@@ -5,6 +5,7 @@ import { sidebarState } from '@/Composables'
 import SidebarHeader from '@/Components/Sidebar/SidebarHeader.vue'
 import SidebarContent from '@/Components/Sidebar/SidebarContent.vue'
 import SidebarFooter from '@/Components/Sidebar/SidebarFooter.vue'
+import SidebarProfile from "@/Components/Sidebar/SidebarProfile.vue";
 
 onMounted(() => {
     window.addEventListener('resize', sidebarState.handleWindowResize)
@@ -51,6 +52,8 @@ onMounted(() => {
         @mouseleave="sidebarState.handleHover(false)"
     >
         <SidebarHeader />
+
+        <SidebarProfile />
 
         <SidebarContent />
 
