@@ -5,7 +5,7 @@ import { Link } from '@inertiajs/vue3'
 import {sidebarState} from "@/Composables/index.js";
 
 const user = usePage().props.auth.user;
-const profile_photo = usePage().props.auth.profile_photo;
+const $page = usePage();
 </script>
 
 <template>
@@ -23,8 +23,8 @@ const profile_photo = usePage().props.auth.profile_photo;
         ]"
         >
             <div class="w-8 h-8 rounded-full overflow-hidden shrink-0 grow-0">
-                <div v-if="profile_photo">
-                    <img :src="profile_photo" alt="Profile Photo" />
+                <div v-if="$page.props.auth.profile_photo">
+                    <img :src="$page.props.auth.profile_photo" alt="Profile Photo" />
                 </div>
                 <div v-else>
                     <DefaultProfilePhoto />

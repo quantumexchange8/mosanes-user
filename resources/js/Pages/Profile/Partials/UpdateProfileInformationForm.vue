@@ -23,7 +23,9 @@ const selectedCountry = ref();
 const form = useForm({
     name: user.name,
     email: user.email,
+    dial_code: '',
     phone: user.phone,
+    phone_number: '',
 });
 
 watch(countries, () => {
@@ -40,6 +42,49 @@ const getResults = async () => {
 };
 
 getResults();
+
+const dirtyFields = ref({
+    dial_code: false,
+    phone: false,
+});
+
+const handleInputChange = (field) => {
+    dirtyFields.value[field] = true;
+    console.log(field);
+};
+
+const resetForm = () => {
+    // Only reset fields that are marked as dirty
+    if (dirtyFields.value.dial_code) {
+        selectedCountry.value = countries.value.find(country => country.phone_code === user.dial_code) || null;
+        form.dial_code = user.dial_code || '';
+    }
+
+    if (dirtyFields.value.phone) {
+        form.phone = user.phone || '';
+    }
+
+    // Reset dirty fields tracking
+    dirtyFields.value = {
+        dial_code: false,
+        phone: false,
+    };
+};
+
+const submitForm = () => {
+    form.dial_code = selectedCountry.value;
+
+    if (selectedCountry.value) {
+        form.phone_number = selectedCountry.value.phone_code + form.phone;
+    }
+
+    form.post(route('profile.update'), {
+        onSuccess: () => {
+            visible.value = false;
+            form.reset();
+        },
+    });
+}
 </script>
 
 <template>
@@ -100,6 +145,8 @@ getResults();
                             class="w-[100px] xl:w-[180px]"
                             scroll-height="236px"
                             :invalid="!!form.errors.phone"
+                            :disabled="!countries"
+                            @change="handleInputChange('dial_code')"
                         >
                             <template #value="slotProps">
                                 <div v-if="slotProps.value" class="flex items-center">
@@ -123,6 +170,7 @@ getResults();
                             v-model="form.phone"
                             :placeholder="$t('public.phone_number')"
                             :invalid="!!form.errors.phone"
+                            @input="handleInputChange('phone')"
                         />
                     </div>
                     <InputError :message="form.errors.phone" />
@@ -136,12 +184,14 @@ getResults();
                 type="button"
                 variant="gray-tonal"
                 :disabled="form.processing"
+                @click="resetForm"
             >
                 {{ $t('public.cancel') }}
             </Button>
             <Button
                 variant="primary-flat"
                 :disabled="form.processing"
+                @click="submitForm"
             >
                 {{ $t('public.save_changes') }}
             </Button>

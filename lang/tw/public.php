@@ -102,7 +102,7 @@ return [
     "rebate_to_account" => "返傭錢包至交易賬戶",
     "transaction_id" => "交易序號",
     "transaction_date" => "日期",
-    "account" => "帳戶號碼",
+    "account" => "交易帳戶",
     "status" => "狀態",
     "receiving_address" => "收款地址",
     "remarks" => "備註",

@@ -6,6 +6,7 @@ import UpdateProfileInformationForm from './Partials/UpdateProfileInformationFor
 import { Head } from '@inertiajs/vue3';
 import ChangeProfilePhoto from "@/Pages/Profile/Partials/ChangeProfilePhoto.vue";
 import KycVerfication from "@/Pages/Profile/Partials/KycVerfication.vue";
+import CryptoWallet from "@/Pages/Profile/Partials/CryptoWallet.vue";
 
 defineProps({
     mustVerifyEmail: {
@@ -28,6 +29,10 @@ defineProps({
             <div class="flex flex-col md:flex-row justify-center items-center gap-5 self-stretch">
                 <UpdateProfileInformationForm />
                 <UpdatePasswordForm />
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-center items-center gap-5 self-stretch">
+                <CryptoWallet />
             </div>
         </div>
     </AuthenticatedLayout>

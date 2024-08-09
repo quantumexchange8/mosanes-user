@@ -1,9 +1,24 @@
 <script setup>
 import DefaultProfilePhoto from "@/Components/DefaultProfilePhoto.vue";
-import {usePage} from "@inertiajs/vue3";
+import {useForm, usePage} from "@inertiajs/vue3";
 import Button from "@/Components/Button.vue"
+import AvatarInput from "@/Pages/Profile/Partials/AvatarInput.vue";
+import {ref} from "vue";
 
 const profile_photo = usePage().props.auth.profile_photo;
+const removeImg = ref(false);
+
+const form = useForm({
+    profile_photo: null
+})
+
+const submitForm = () => {
+    form.post(route('profile.updateProfilePhoto'))
+}
+
+const removeProfilePhoto = () => {
+    removeImg.value = true
+};
 </script>
 
 <template>
@@ -15,12 +30,13 @@ const profile_photo = usePage().props.auth.profile_photo;
 
         <div class="flex flex-col gap-5 md:gap-8 items-center self-stretch">
             <div class="w-[100px] h-[100px] rounded-full overflow-hidden shrink-0 grow-0">
-                <div v-if="profile_photo">
-                    <img :src="profile_photo" alt="Profile Photo" />
-                </div>
-                <div v-else>
-                    <DefaultProfilePhoto />
-                </div>
+                <AvatarInput
+                    class="h-24 w-24 rounded-full"
+                    v-model="form.profile_photo"
+                    :default-src="profile_photo ? profile_photo : ''"
+                    :removeImg="removeImg"
+                    @update:profile_pic="form.profile_photo = $event"
+                />
             </div>
 
             <div class="flex items-center gap-4">
@@ -28,6 +44,8 @@ const profile_photo = usePage().props.auth.profile_photo;
                     type="button"
                     variant="primary-flat"
                     size="sm"
+                    :disabled="form.processing"
+                    @click="submitForm"
                 >
                     {{ $t('public.upload') }}
                 </Button>
@@ -35,6 +53,8 @@ const profile_photo = usePage().props.auth.profile_photo;
                     type="button"
                     variant="error-outlined"
                     size="sm"
+                    :disabled="form.processing"
+                    @click="removeProfilePhoto"
                 >
                     {{ $t('public.remove') }}
                 </Button>

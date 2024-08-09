@@ -294,4 +294,12 @@ return [
     "current_password" => "Current Password",
     "toast_reset_password_success" => "Password has been reset.",
     "log_out" => "Log Out",
+    "cryptocurrency_wallet" => "Cryptocurrency Wallet",
+    "cryptocurrency_wallet_caption" => "Add your cryptocurrency wallet details here for easy and seamless withdrawals.",
+    "wallet" => "Wallet",
+    "wallet_name" => "Wallet Name",
+    "token_address" => "Token Address",
+    "toast_update_crypto_wallet_success" => "You’ve successfully updated your crypto wallet details!",
+    "toast_update_profile_success" => "You’ve successfully updated your account details!",
+    "toast_update_profile_photo_success" => "You’ve successfully updated your profile!",
 ];

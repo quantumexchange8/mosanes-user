@@ -31,6 +31,10 @@ const updatePassword = () => {
         },
     });
 };
+
+const resetForm = () => {
+    form.reset();
+}
 </script>
 
 <template>
@@ -80,6 +84,7 @@ const updatePassword = () => {
                     type="button"
                     variant="gray-tonal"
                     :disabled="form.processing"
+                    @click="resetForm"
                 >
                     {{ $t('public.cancel') }}
                 </Button>
