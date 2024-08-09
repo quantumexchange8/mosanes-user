@@ -6,6 +6,7 @@ import { sidebarState } from '@/Composables'
 import ToastList from "@/Components/ToastList.vue";
 import ConfirmationDialog from "@/Components/ConfirmationDialog.vue";
 import NotificationDialog from '@/Components/NotificationDialog.vue';
+import PageFooter from "@/Components/PageFooter.vue";
 
 defineProps({
     title: String
@@ -43,6 +44,8 @@ defineProps({
                     <slot />
                 </div>
             </main>
+
+            <PageFooter />
         </div>
     </div>
 </template>

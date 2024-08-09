@@ -302,4 +302,6 @@ return [
     "toast_update_crypto_wallet_success" => "You’ve successfully updated your crypto wallet details!",
     "toast_update_profile_success" => "You’ve successfully updated your account details!",
     "toast_update_profile_photo_success" => "You’ve successfully updated your profile!",
+    "risk_warning" => "Risk Warning: ",
+    "risk_warning_desc" => "Our products are traded on margin and carry a high level of risk and it is possible to lose all your capital. These products may not be suitable for everyone and you should ensure that you understand the risks involved. High Risk Trading Warning: Trading foreign exchange on margin carries a high level of risk, and may not be suitable for all investors. The high degree of leverage can work against you as well as for you. Before deciding to trade foreign exchange, you should carefully consider your investment objectives, level of experience, and risk appetite. The possibility exists that you could sustain a loss of some or all of your initial investment and therefore you should not invest money that you cannot afford to lose. You should be aware of all the risks associated with foreign exchange trading, and seek advice from an independent financial advisor if you have any doubts.",
 ];
