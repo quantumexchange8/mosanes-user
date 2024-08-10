@@ -156,7 +156,7 @@ return [
     "collapse_all" => "關閉全閉",
     "level" => "階級",
     "keyword_search" => "搜索關鍵字",
-    "filter" => "Filter",
+    "filter" => "篩選",
     "export" => "導出",
     "filter_level_header" => "過濾階級",
     "select_level_placeholder" => "選擇階級",
@@ -306,4 +306,6 @@ return [
     "risk_warning_desc" => "我們的產品以保證金進行交易，具有很高的風險，您可能會損失所有資金。這些產品可能不適合所有人，您應該確保您了解所涉及的風險。高風險交易警告：保證金交易外匯具有高風險，可能不適用於所有投資者。高槓桿作用可能對您不利，也可能對您有利。在決定進行外匯交易之前，您應該仔細考慮您的投資目標、經驗程度和風險偏好。您可能會損失部分或全部初始投資，因此您不應投資您無法承受損失的資金。您應該了解與外匯交易相關的所有風險，如果您有任何疑問，請尋求獨立財務顧問的建議。",
     "joined_date" => "註冊日期",
     "rebate_wallet" => "返傭錢包",
+    "image" => "文件",
+    "paginator_caption" => "顯示 {first} 至 {last} 的 {totalRecords} 條目",
 ];
