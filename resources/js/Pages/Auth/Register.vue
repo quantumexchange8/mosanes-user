@@ -41,11 +41,19 @@ const formSteps = ref([
         state: 'inactive',
         selected: false
     },
+    // {
+    //     step: 3,
+    //     title: 'kyc_verification',
+    //     caption_1: 'register_step_3_desc',
+    //     caption_2: 'register_step_3_desc_2',
+    //     state: 'inactive',
+    //     selected: false
+    // }
     {
         step: 3,
-        title: 'kyc_verification',
-        caption_1: 'register_step_3_desc',
-        caption_2: 'register_step_3_desc_2',
+        title: 'last_step_3',
+        caption_1: 'last_step_3_desc',
+        caption_2: 'last_step_3_desc_2',
         state: 'inactive',
         selected: false
     }
@@ -372,7 +380,7 @@ const removeKycVerification = () => {
                             </template>
 
                             <!-- kyc verification -->
-                            <template v-if="selectedStep.step === 3">
+                            <!-- <template v-if="selectedStep.step === 3">
                                 <div class="flex flex-col items-center gap-5 self-stretch pb-6">
                                     <div class="flex items-center gap-5 self-stretch">
                                         <div class="flex justify-center bg-primary-600 w-full pt-2.5">
@@ -430,7 +438,7 @@ const removeKycVerification = () => {
                                         </div>
                                     </div>
                                 </div>
-                            </template>
+                            </template> -->
 
                             <Button
                                 type="button"

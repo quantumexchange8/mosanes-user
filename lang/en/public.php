@@ -11,6 +11,9 @@ return [
     "kyc_verification" => "KYC verification",
     "register_step_3_desc" => "We need to verify your identity",
     "register_step_3_desc_2" => "Take a photo of your face with your identity card. Make sure your photo is clear. Sample photo as following:",
+    "last_step_3" => "Complete Registration",
+    "last_step_3_desc" => "Final step for registration",
+    "last_step_3_desc_2" => "Click continue to complete registration",
     "continue" => "Continue",
     "already_have_an_account" => "Already have an account?",
     "password_desc" => "Must be at least 8 characters containing uppercase letters, lowercase letters, numbers, and symbols.",
@@ -308,4 +311,9 @@ return [
     "rebate_wallet" => "Rebate Wallet",
     "image" => "image",
     "paginator_caption" => "Showing {first} to {last} of {totalRecords} entries",
+    "dont_have_an_account" => "Don't have an account?",
+    "register" => "Register",
+    "trading_account_agreement" => "Trading Account Agreement",
+    "amount_placeholder" => "Amount",
+
 ];

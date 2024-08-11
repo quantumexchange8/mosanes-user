@@ -79,12 +79,12 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $validator = Validator::make($request->all(), [
-            'kyc_verification' => ['required', 'file', 'max:10000'],
-        ])->setAttributeNames([
-            'kyc_verification' => trans('public.kyc_verification')
-        ]);
-        $validator->validate();
+        // $validator = Validator::make($request->all(), [
+        //     'kyc_verification' => ['required', 'file', 'max:10000'],
+        // ])->setAttributeNames([
+        //     'kyc_verification' => trans('public.kyc_verification')
+        // ]);
+        // $validator->validate();
 
         $dial_code = $request->dial_code;
         $country = Country::find($dial_code['id']);
@@ -144,10 +144,10 @@ class RegisteredUserController extends Controller
             $user->save();
         }
 
-        if ($request->hasFile('kyc_verification')) {
-            $user->clearMediaCollection('kyc_verification');
-            $user->addMedia($request->kyc_verification)->toMediaCollection('kyc_verification');
-        }
+        // if ($request->hasFile('kyc_verification')) {
+        //     $user->clearMediaCollection('kyc_verification');
+        //     $user->addMedia($request->kyc_verification)->toMediaCollection('kyc_verification');
+        // }
 
         event(new Registered($user));
 
