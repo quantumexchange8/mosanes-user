@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -76,6 +77,31 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    public function updateKyc(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'kyc_verification' => ['required', 'file', 'max:10000'],
+        ])->setAttributeNames([
+            'kyc_verification' => trans('public.kyc_verification')
+        ]);
+        $validator->validate();
+
+        $user = $request->user();
+
+        if ($request->hasFile('kyc_verification')) {
+            $user->clearMediaCollection('kyc_verification');
+            $user->addMedia($request->kyc_verification)->toMediaCollection('kyc_verification');
+
+            $user->kyc_approved_at = now();
+            $user->save();
+        }
+
+        return redirect()->back()->with('toast', [
+            'title' => trans("public.toast_update_kyc_success"),
+            'type' => 'success',
+        ]);
     }
 
     public function updateProfilePhoto(Request $request)
@@ -172,6 +198,13 @@ class ProfileController extends Controller
     {
         return response()->json([
             'countries' => (new DropdownOptionService())->getCountries(),
+        ]);
+    }
+
+    public function getKycVerification()
+    {
+        return response()->json([
+            'kycVerification' => Auth::user()->getFirstMedia('kyc_verification'),
         ]);
     }
 }

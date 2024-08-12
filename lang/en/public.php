@@ -312,8 +312,12 @@ return [
     "image" => "image",
     "paginator_caption" => "Showing {first} to {last} of {totalRecords} entries",
     "dont_have_an_account" => "Don't have an account?",
-    "register" => "Register",
     "trading_account_agreement" => "Trading Account Agreement",
     "amount_placeholder" => "Amount",
-
+    "view_kyc" => "View KYC",
+    "submit" => "Submit",
+    "submit_kyc" => "Submit KYC",
+    "kyc_guideline" => "KYC Guideline",
+    "kyc_guideline_desc" => "Take a photo of your face with your identity card. Make sure your photo is clear. Sample photo as following:",
+    "toast_update_kyc_success" => "You’ve successfully submitted your KYC!",
 ];
