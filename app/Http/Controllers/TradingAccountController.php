@@ -256,7 +256,7 @@ class TradingAccountController extends Controller
         $payoutSetting = config('payment-gateway');
         $domain = $_SERVER['HTTP_HOST'];
 
-        if ($domain === 'mosanes-live.pro') {
+        if ($domain === 'user.mosanes.com') {
             $selectedPayout = $payoutSetting['live'];
         } else {
             $selectedPayout = $payoutSetting['staging'];
@@ -626,12 +626,11 @@ class TradingAccountController extends Controller
         $payoutSetting = config('payment-gateway');
         $domain = $_SERVER['HTTP_HOST'];
 
-//        if ($domain === 'local4.currenttech.pro') {
-//            $selectedPayout = $payoutSetting['live'];
-//        } else {
-//            $selectedPayout = $payoutSetting['staging'];
-//        }
-        $selectedPayout = $payoutSetting['staging'];
+        if ($domain === 'user.mosanes.com') {
+            $selectedPayout = $payoutSetting['live'];
+        } else {
+            $selectedPayout = $payoutSetting['staging'];
+        }
 
         $dataToHash = md5($transaction->transaction_number . $selectedPayout['appId'] . $selectedPayout['merchantId']);
         $status = $result['status'] == 'success' ? 'successful' : 'failed';
