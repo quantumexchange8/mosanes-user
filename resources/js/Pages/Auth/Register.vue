@@ -41,22 +41,6 @@ const formSteps = ref([
         state: 'inactive',
         selected: false
     },
-    // {
-    //     step: 3,
-    //     title: 'kyc_verification',
-    //     caption_1: 'register_step_3_desc',
-    //     caption_2: 'register_step_3_desc_2',
-    //     state: 'inactive',
-    //     selected: false
-    // }
-    {
-        step: 3,
-        title: 'last_step_3',
-        caption_1: 'last_step_3_desc',
-        caption_2: 'last_step_3_desc_2',
-        state: 'inactive',
-        selected: false
-    }
 ]);
 
 const getIconComponent = (step) => {
@@ -92,7 +76,7 @@ const handleContinue = () => {
         form.phone_number = selectedCountry.value.phone_code + form.phone;
     }
 
-    if (selectedStep.value.step < 3) {
+    if (selectedStep.value.step < 2) {
         form.step = selectedStep.value.step;
         form.post(route('register.validateStep'), {
             onSuccess: () => {
@@ -441,10 +425,9 @@ const removeKycVerification = () => {
                             </template> -->
 
                             <Button
-                                type="button"
                                 variant="primary-flat"
                                 class="w-full"
-                                @click="handleContinue"
+                                @click.prevent="handleContinue"
                             >
                                 {{ $t('public.continue') }}
                             </Button>
