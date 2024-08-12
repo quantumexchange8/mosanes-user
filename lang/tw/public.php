@@ -312,8 +312,12 @@ return [
     "image" => "文件",
     "paginator_caption" => "顯示 {first} 至 {last} 的 {totalRecords} 條目",
     "dont_have_an_account" => "沒有帳戶？",
-    "register" => "註冊",
     "trading_account_agreement" => "條款與條件",
     "amount_placeholder" => "數額",
-
+    "view_kyc" => "顯示驗證資料",
+    "submit" => "提交",
+    "submit_kyc" => "身分驗證",
+    "kyc_guideline" => "身分驗證指引",
+    "kyc_guideline_desc" => "請拍一張持身份證的正面照, 確保照片清晰. 範例照片如下:",
+    "toast_update_kyc_success" => "您已成功提交身分驗證資料!",
 ];
