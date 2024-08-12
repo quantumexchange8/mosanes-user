@@ -2,22 +2,40 @@
 import DefaultProfilePhoto from "@/Components/DefaultProfilePhoto.vue";
 import {useForm, usePage} from "@inertiajs/vue3";
 import Button from "@/Components/Button.vue"
-import AvatarInput from "@/Pages/Profile/Partials/AvatarInput.vue";
 import {ref} from "vue";
-
-const profile_photo = usePage().props.auth.profile_photo;
-const removeImg = ref(false);
+import Avatar from 'primevue/avatar';
 
 const form = useForm({
-    profile_photo: null
+    profile_photo: null,
+    action: ''
 })
 
-const submitForm = () => {
-    form.post(route('profile.updateProfilePhoto'))
-}
-
 const removeProfilePhoto = () => {
-    removeImg.value = true
+    selectedProfilePhoto.value = null;
+    form.profile_photo = null;
+
+    form.action = 'remove';
+    form.post(route('profile.updateProfilePhoto'))
+};
+
+const selectedProfilePhoto = ref(usePage().props.auth.profile_photo);
+const handleUploadProfilePhoto = (event) => {
+    const profilePhotoInput = event.target;
+    const file = profilePhotoInput.files[0];
+
+    if (file) {
+        // Display the selected image
+        const reader = new FileReader();
+        reader.onload = () => {
+            selectedProfilePhoto.value = reader.result;
+        };
+        reader.readAsDataURL(file);
+        form.profile_photo = event.target.files[0];
+        form.action = 'upload';
+        form.post(route('profile.updateProfilePhoto'))
+    } else {
+        selectedProfilePhoto.value = null;
+    }
 };
 </script>
 
@@ -29,23 +47,31 @@ const removeProfilePhoto = () => {
         </div>
 
         <div class="flex flex-col gap-5 md:gap-8 items-center self-stretch">
-            <div class="w-[100px] h-[100px] rounded-full overflow-hidden shrink-0 grow-0">
-                <AvatarInput
-                    class="h-24 w-24 rounded-full"
-                    v-model="form.profile_photo"
-                    :default-src="profile_photo ? profile_photo : ''"
-                    :removeImg="removeImg"
-                    @update:profile_pic="form.profile_photo = $event"
-                />
+            <Avatar
+                v-if="selectedProfilePhoto"
+                :image="selectedProfilePhoto"
+                size="xlarge"
+                shape="circle"
+            />
+            <div v-else class="w-[100px] h-[100px] rounded-full overflow-hidden shrink-0 grow-0">
+                <DefaultProfilePhoto />
             </div>
 
             <div class="flex items-center gap-4">
+                <input
+                    ref="profilePhotoInput"
+                    id="kyc_verification"
+                    type="file"
+                    class="hidden"
+                    accept="image/*"
+                    @change="handleUploadProfilePhoto"
+                />
                 <Button
                     type="button"
                     variant="primary-flat"
                     size="sm"
                     :disabled="form.processing"
-                    @click="submitForm"
+                    @click="$refs.profilePhotoInput.click()"
                 >
                     {{ $t('public.upload') }}
                 </Button>

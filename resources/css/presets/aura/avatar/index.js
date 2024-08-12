@@ -15,7 +15,7 @@ export default {
             {
                 'h-8 w-8': props.size == null || props.size == 'normal',
                 'w-12 h-12': props.size == 'large',
-                'w-16 h-16': props.size == 'xlarge'
+                'w-[100px] h-[100px]': props.size == 'xlarge'
             },
             { '-ml-4': parent.instance.$style?.name == 'avatargroup' },
 
@@ -27,7 +27,7 @@ export default {
             { 'border-2': parent.instance.$style?.name == 'avatargroup' },
 
             // Colors
-            'bg-surface-300 dark:bg-surface-700',
+            'bg-primary-50',
             { 'border-white dark:border-surface-800': parent.instance.$style?.name == 'avatargroup' }
         ]
     }),

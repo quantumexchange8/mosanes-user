@@ -108,10 +108,13 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-
-        if ($request->hasFile('profile_photo')) {
+        if ($request->action == 'upload' && $request->hasFile('profile_photo')) {
             $user->clearMediaCollection('profile_photo');
             $user->addMedia($request->profile_photo)->toMediaCollection('profile_photo');
+        }
+
+        if ($request->action == 'remove') {
+            $user->clearMediaCollection('profile_photo');
         }
 
         return redirect()->back()->with('toast', [
