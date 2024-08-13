@@ -26,7 +26,7 @@ import {
 const menu = ref();
 const items = ref([
     {
-        label: 'desktop',
+        label: 'windows',
         icon: h(IconBrandWindows),
         command: () => {
             window.location.href = 'https://getctrader.com/mosanes/ctrader-mosanes-setup.exe';
@@ -51,19 +51,19 @@ const toggle = (event) => {
     <AuthenticatedLayout :title="$t('public.download_center')">
         <div class="flex flex-col items-center">
             <div class="flex flex-col items-center gap-[41px] self-stretch md:gap-0">
-                <div class="flex flex-col items-center gap-[-24px] self-stretch md:gap-0 md:flex-row md:items-start md:px-[60px]">
-                    <div class="flex flex-col items-start gap-5 self-stretch md:gap-8 md:pt-[60px]">
+                <div class="flex flex-col items-center gap-[-24px] self-stretch md:gap-5 md:flex-row md:items-start md:px-10">
+                    <div class="flex flex-col items-start gap-5 self-stretch md:gap-8 md:pt-10 md:pb-16">
                         <img src="/img/ctrader-logo.svg" alt="logo">
                         <div class="flex flex-col items-start gap-4 self-stretch">
                             <span class="self-stretch text-gray-950 text-xl font-bold md:text-xxl">{{ $t('public.download_center_header_title') }}</span>
                             <span class="self-stretch text-gray-700 text-sm md:text-base">{{ $t('public.download_center_header_message') }}</span>
                         </div>
                     </div>
-                    <div class="w-[300px] flex flex-col justify-end items-center px-[50px] pt-[50px]">
-                        <Mobile />
+                    <div class="relative w-[300px] h-[380px] flex flex-col justify-end items-center px-[50px] pt-[50px] md:h-full">
+                        <Mobile class="absolute inset-y-10 md:inset-y-8 xl:inset-y-2" />
                     </div>
                 </div>
-                <div class="flex flex-col items-center py-24 gap-10 self-stretch md:px-[60px]">
+                <div class="flex flex-col items-center py-24 gap-10 self-stretch md:px-10">
                     <div class="flex flex-col items-center gap-2 self-stretch">
                         <span class="self-stretch text-gray-950 text-center text-xl font-bold md:text-xxl">{{ $t('public.download_section_header') }}</span>
                         <span class="self-stretch text-gray-700 text-center text-sm md:text-base">{{ $t('public.download_section_message') }}</span>
