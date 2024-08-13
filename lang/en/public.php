@@ -340,5 +340,8 @@ return [
     "web" => "Web",
     "download" => "Download",
     "web_trader" => "Web Trader",
+    "windows" => "Windows",
     "mac" => "Mac",
+    "structure_listing" => "Structure Listing",
+    "view_downline_info" => "View Downline Info",
 ];

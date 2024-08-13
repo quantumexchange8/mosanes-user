@@ -154,7 +154,7 @@ const requireAccountConfirmation = (accountType) => {
             cancelButton: trans('public.later'),
             acceptButton: trans('public.add_Wallet'),
             action: () => {
-                window.location.href = route('profile.edit');
+                window.location.href = route('profile');
             }
         }
     };

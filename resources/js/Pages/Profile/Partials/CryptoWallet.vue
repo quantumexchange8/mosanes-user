@@ -45,7 +45,7 @@ const submitForm = () => {
         account && account.token_address ? account.token_address : form.token_address[index]
     );
 
-    form.user_id = user.id;
+    form.user_id = user.value.id;
 
     form.post(route('profile.updateCryptoWalletInfo'), {
         preserveScroll: true,

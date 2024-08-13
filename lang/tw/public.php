@@ -340,5 +340,8 @@ return [
     "web" => "Web",
     "download" => "下載",
     "web_trader" => "網頁交易版",
+    "windows" => "Windows",
     "mac" => "Mac",
+    "structure_listing" => "組織列表明細",
+    "view_downline_info" => "顯示下線成員明細",
 ];
