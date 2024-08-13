@@ -12,8 +12,8 @@ import {
     IconX,
 } from '@tabler/icons-vue';
 import {transactionFormat} from "@/Composables/index.js";
-import {computed, onMounted, ref, watch, watchEffect} from "vue";
-import { trans, wTrans } from 'laravel-vue-i18n';
+import {ref, watch, watchEffect} from "vue";
+import { wTrans } from 'laravel-vue-i18n';
 import Button from '@/Components/Button.vue';
 import Badge from '@/Components/Badge.vue';
 import InputText from 'primevue/inputtext';
@@ -160,7 +160,7 @@ const rowClicked = (data) => {
             tableStyle="min-width: 50rem"
             paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
             :currentPageReportTemplate="paginator_caption"
-            :globalFilterFields="['name']"
+            :globalFilterFields="['transaction_number', 'to_meta_login', 'from_meta_login']"
             ref="dt"
             :loading="loading"
             table-style="min-width:fit-content"
@@ -266,7 +266,7 @@ const rowClicked = (data) => {
                 :header="$t('public.status')"
             >
                 <template #body="slotProps">
-                    <div class="flex py-3 items-center flex-1">
+                    <div class="flex py-1.5 items-center flex-1">
                         <StatusBadge
                             v-if="slotProps.data.status"
                             :value="slotProps.data.status"
@@ -289,16 +289,31 @@ const rowClicked = (data) => {
                 </div>
                 <div class="flex flex-col gap-1 self-stretch">
                     <div class="flex items-center gap-2 text-sm text-gray-950">
-                        <RadioButton v-model="filters['transaction_type'].value" inputId="type_deposit" value="apply_rebate" />
+                        <RadioButton
+                            v-model="filters['transaction_type'].value"
+                            inputId="type_deposit"
+                            value="apply_rebate"
+                            class="w-4 h-4"
+                        />
                         <label for="type_deposit">{{ $t('public.apply_rebate') }}</label>
                     </div>
                     <div class="flex items-center gap-2 text-sm text-gray-950">
-                        <RadioButton v-model="filters['transaction_type'].value" inputId="type_withdrawal" value="withdrawal" />
+                        <RadioButton
+                            v-model="filters['transaction_type'].value"
+                            inputId="type_withdrawal"
+                            value="withdrawal"
+                            class="w-4 h-4"
+                        />
                         <label for="type_withdrawal">{{ $t('public.withdrawal') }}</label>
                     </div>
                     <div class="flex items-center gap-2 text-sm text-gray-950">
-                        <RadioButton v-model="filters['transaction_type'].value" inputId="type_withdrawal" value="transfer_to_account" />
-                        <label for="type_withdrawal">{{ $t('public.transfer_to_account') }}</label>
+                        <RadioButton
+                            v-model="filters['transaction_type'].value"
+                            inputId="type_transfer_to_account"
+                            value="transfer_to_account"
+                            class="w-4 h-4"
+                        />
+                        <label for="type_transfer_to_account">{{ $t('public.transfer_to_account') }}</label>
                     </div>
                 </div>
             </div>
@@ -350,15 +365,30 @@ const rowClicked = (data) => {
                 </div>
                 <div class="flex flex-col gap-1 self-stretch">
                     <div class="flex items-center gap-2 text-sm text-gray-950">
-                        <RadioButton v-model="filters['status'].value" inputId="status_successful" value="successful" />
+                        <RadioButton
+                            v-model="filters['status'].value"
+                            inputId="status_successful"
+                            value="successful"
+                            class="w-4 h-4"
+                        />
                         <label for="status_successful">{{ $t('public.successful') }}</label>
                     </div>
                     <div class="flex items-center gap-2 text-sm text-gray-950">
-                        <RadioButton v-model="filters['status'].value" inputId="status_processing" value="processing" />
+                        <RadioButton
+                            v-model="filters['status'].value"
+                            inputId="status_processing"
+                            value="processing"
+                            class="w-4 h-4"
+                        />
                         <label for="status_processing">{{ $t('public.processing') }}</label>
                     </div>
                     <div class="flex items-center gap-2 text-sm text-gray-950">
-                        <RadioButton v-model="filters['status'].value" inputId="status_rejected" value="rejected" />
+                        <RadioButton
+                            v-model="filters['status'].value"
+                            inputId="status_rejected"
+                            value="rejected"
+                            class="w-4 h-4"
+                        />
                         <label for="status_rejected">{{ $t('public.rejected') }}</label>
                     </div>
                 </div>

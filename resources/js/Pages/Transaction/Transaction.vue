@@ -44,6 +44,8 @@ watchEffect(() => {
         getResults();
     }
 });
+
+const user = usePage().props.auth.user;
 </script>
 
 <template>
@@ -86,13 +88,18 @@ watchEffect(() => {
                 </div>
             </div>
 
-            <TabView 
+            <TabView
+                v-if="user.role === 'agent'"
                 class="flex flex-col gap-5 self-stretch"
             >
                 <TabPanel v-for="(tab, index) in tabs" :key="index" :header="tab.title">
                     <component :is="tab.component" />
                 </TabPanel>
             </TabView>
+
+            <TradingAccounts
+                v-else
+            />
         </div>
     </AuthenticatedLayout>
 </template>

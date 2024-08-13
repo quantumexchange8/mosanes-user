@@ -6,6 +6,8 @@ import {Head, usePage} from "@inertiajs/vue3";
 import OverlayPanel from 'primevue/overlaypanel';
 import ToastList from "@/Components/ToastList.vue";
 import {loadLanguageAsync} from "laravel-vue-i18n";
+import dayjs from "dayjs";
+import ConfirmationDialog from "@/Components/ConfirmationDialog.vue";
 
 defineProps({
     title: String
@@ -52,10 +54,11 @@ const changeLanguage = async (langVal) => {
                 <div class="w-full flex sm:flex-1 justify-center">
                     <div class="w-full max-w-xs sm:max-w-none sm:w-[360px] flex flex-col justify-center items-center mx-5">
                         <ToastList />
+                        <ConfirmationDialog />
                         <slot />
                     </div>
                 </div>
-                <div class="text-center text-gray-500 text-xs mt-auto">© 2024 mosanes. All rights reserved.</div>
+                <div class="text-center text-gray-500 text-xs mt-auto">© {{ dayjs().year() }} mosanes. All rights reserved.</div>
             </div>
         </div>
     </div>

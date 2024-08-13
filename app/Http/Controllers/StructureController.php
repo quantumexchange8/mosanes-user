@@ -97,13 +97,17 @@ class StructureController extends Controller
     {
         $children_ids = User::find(Auth::id())->getChildrenIds();
         $query = User::whereIn('id', $children_ids)
-            ->get()->map(function ($user) {
+            ->latest()
+            ->get()
+            ->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'profile_photo' => $user->getFirstMediaUrl('profile_photo'),
                     'upline_id' => $user->upline_id,
                     'upline_name' => $user->upline->name,
+                    'upline_profile_photo' => $user->upline->getFirstMediaUrl('profile_photo'),
                     'role' => $user->role,
                     'id_number' => $user->id_number,
                     'joined_date' => $user->created_at,
@@ -163,7 +167,8 @@ class StructureController extends Controller
             'name' => $user->name,
             'id_number' => $user->id_number,
             'email' => $user->email,
-            'phone_number' => $user->phone_number,
+            'dial_code' => $user->dial_code,
+            'phone' => $user->phone,
             'role' => $user->role,
             'upline_profile_photo' => $user->upline->getFirstMediaUrl('profile_photo'),
             'upline_name' => $user->upline->name,
@@ -186,12 +191,28 @@ class StructureController extends Controller
                 'balance' => $trading_account->balance,
                 'credit' => $trading_account->credit,
                 'equity' => $trading_account->equity,
+                'account_type_color' => $trading_account->account_type->color,
             ];
         });
+
+        $deposit_amount = $user->transactions()
+            ->where('category', 'trading_account')
+            ->where('transaction_type', 'deposit')
+            ->where('status', 'successful')
+            ->sum('transaction_amount');
+
+        $withdrawal_amount = $user->transactions()
+            ->where('transaction_type', 'withdrawal')
+            ->where('status', 'successful')
+            ->sum('transaction_amount');
 
         return response()->json([
             'userDetail' => $user_data,
             'tradingAccounts' => $trading_accounts,
+            'depositAmount' => floatval($deposit_amount),
+            'withdrawalAmount' => floatval($withdrawal_amount),
+            'memberAmount' => $user->directChildren()->where('role', 'member')->count(),
+            'agentAmount' => $user->directChildren()->where('role', 'agent')->count(),
         ]);
     }
 }

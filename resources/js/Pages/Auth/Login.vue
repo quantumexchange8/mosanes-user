@@ -5,9 +5,13 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
-import { Link, useForm } from '@inertiajs/vue3';
+import {Link, useForm, usePage} from '@inertiajs/vue3';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Button from '@/Components/Button.vue';
+import {watchEffect} from "vue";
+import {useConfirm} from "primevue/useconfirm";
+import {trans} from "laravel-vue-i18n";
+import {Inertia} from "@inertiajs/inertia";
 
 defineProps({
     canResetPassword: {
@@ -29,6 +33,21 @@ const submit = () => {
         onFinish: () => form.reset('password'),
     });
 };
+
+const confirm = useConfirm();
+
+watchEffect(() => {
+    if (usePage().props.user_status !== null) {
+        confirm.require({
+            group: 'headless-gray',
+            header: trans('public.account_deactivated'),
+            message: {
+                text: trans('public.account_deactivated_desc'),
+            },
+            acceptButton: trans('public.alright'),
+        });
+    }
+});
 </script>
 
 <template>
@@ -114,7 +133,7 @@ const submit = () => {
                     >
                     {{ $t('public.register') }}
                     </Link></p>
-                 
+
             </form>
         </div>
     </GuestLayout>

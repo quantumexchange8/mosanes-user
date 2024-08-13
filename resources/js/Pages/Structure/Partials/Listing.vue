@@ -53,8 +53,6 @@ const getFilterData = async () => {
         createLevelOptions();
     } catch (error) {
         console.error('Error filter data:', error);
-    } finally {
-        loading.value = false;
     }
 };
 
@@ -85,7 +83,7 @@ const levels = ref([])
 const upline_id = ref(null)
 const level = ref(null)
 const filterCount = ref(0);
-const lvl = trans('public.level_shortname');
+const lvl = trans('public.level');
 
 const toggle = (event) => {
     op.value.toggle(event);
@@ -230,8 +228,13 @@ watchEffect(() => {
             <Column field="name" sortable :header="$t('public.name')" headerClass="hidden md:table-cell" class="w-auto">
                 <template #body="slotProps">
                     <div class="flex items-center gap-3">
-                        <div class="w-7 h-7 rounded-full overflow-hidden">
-                            <DefaultProfilePhoto />
+                        <div class="w-7 h-7 rounded-full overflow-hidden grow-0 shrink-0">
+                            <div v-if="slotProps.data.profile_photo">
+                                <img :src="slotProps.data.profile_photo" alt="">
+                            </div>
+                            <div v-else>
+                                <DefaultProfilePhoto />
+                            </div>
                         </div>
                         <div class="flex flex-col items-start">
                             <div class="w-20 truncate font-medium xl:w-36">
@@ -249,7 +252,7 @@ watchEffect(() => {
                     <span>{{ $t('public.role') }}</span>
                 </template>
                 <template #body="slotProps">
-                    <div class="flex py-3 items-center flex-1">
+                    <div class="flex py-1.5 items-center flex-1">
                         <StatusBadge :value="slotProps.data.role">
                             {{ $t(`public.${slotProps.data.role}`) }}
                         </StatusBadge>
@@ -259,8 +262,13 @@ watchEffect(() => {
             <Column field="upline" sortable :header="$t('public.upline')" style="width: 35%" class="hidden md:table-cell">
                 <template #body="slotProps">
                     <div class="flex items-center gap-3">
-                        <div class="w-7 h-7 rounded-full overflow-hidden">
-                            <DefaultProfilePhoto />
+                        <div class="w-7 h-7 rounded-full overflow-hidden grow-0 shrink-0">
+                            <div v-if="slotProps.data.upline_profile_photo">
+                                <img :src="slotProps.data.upline_profile_photo" alt="">
+                            </div>
+                            <div v-else>
+                                <DefaultProfilePhoto />
+                            </div>
                         </div>
                         <div class="w-20 truncate font-medium xl:w-36">
                             {{ slotProps.data.upline_name }}
@@ -316,7 +324,6 @@ watchEffect(() => {
                     </template>
                     <template #option="slotProps">
                         <div class="flex items-center gap-2">
-                            <div class="w-4 h-4 rounded-full overflow-hidden grow-0 shrink-0"></div>
                             <div>{{ slotProps.option.name }}</div>
                         </div>
                     </template>

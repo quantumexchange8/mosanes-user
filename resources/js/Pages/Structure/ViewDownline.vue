@@ -6,7 +6,7 @@ import DefaultProfilePhoto from "@/Components/DefaultProfilePhoto.vue";
 import StatusBadge from '@/Components/StatusBadge.vue';
 import { DepositIcon, WithdrawalIcon, RebateIcon, MemberIcon, AgentIcon } from '@/Components/Icons/solid';
 import { computed, ref, watchEffect } from 'vue';
-import {transactionFormat} from "@/Composables/index.js";
+import {generalFormat, transactionFormat} from "@/Composables/index.js";
 import Empty from "@/Components/Empty.vue";
 import { usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
@@ -17,14 +17,15 @@ const props = defineProps({
 })
 
 const { formatAmount } = transactionFormat();
+const { formatRgbaColor } = generalFormat()
 
 const tradingAccounts = ref();
 const tradingAccountsLength = ref(0);
 const userDetail = ref();
-const counterDuration = ref(5);
+const counterDuration = ref(8);
 const depositAmount = ref(9999999);
 const withdrawalAmount = ref(9999999);
-const rebateAmount = ref(9999999);
+const rebateAmount = ref(0);
 const memberAmount = ref(999);
 const agentAmount = ref(999);
 
@@ -34,6 +35,11 @@ const getUserData = async () => {
 
         userDetail.value = response.data.userDetail;
         tradingAccounts.value = response.data.tradingAccounts;
+        depositAmount.value = response.data.depositAmount;
+        withdrawalAmount.value = response.data.withdrawalAmount;
+        memberAmount.value = response.data.memberAmount;
+        agentAmount.value = response.data.agentAmount;
+
         tradingAccountsLength.value = tradingAccounts.value.length;
         counterDuration.value = 1;
     } catch (error) {
@@ -178,11 +184,11 @@ const filteredDataOverviews = computed(() => {
                             {{ $t('public.phone_number') }}
                         </div>
                         <div class="w-32 md:w-52 truncate flex-1 text-gray-950 text-sm font-medium">
-                            {{ userDetail.phone_number }}
+                            {{ userDetail.dial_code }} {{ userDetail.phone }}
                         </div>
                     </div>
                     <!-- loading right top -->
-                    <div 
+                    <div
                         v-else
                         class="grid grid-cols-2 grid-flow-row gap-y-3 gap-x-2 items-center self-stretch md:grid-rows-2 md:grid-flow-col md:gap-y-2 md:gap-x-5"
                     >
@@ -196,7 +202,7 @@ const filteredDataOverviews = computed(() => {
                         <div class="h-2 bg-gray-200 rounded-full md:w-48 my-1.5"></div>
                     </div>
 
-                    <div 
+                    <div
                         v-if="userDetail"
                         class="grid grid-cols-2 grid-flow-row gap-y-3 gap-x-2 items-center self-stretch md:grid-rows-2 md:grid-flow-col md:gap-y-2 md:gap-x-5"
                     >
@@ -226,7 +232,7 @@ const filteredDataOverviews = computed(() => {
                         </div>
                     </div>
                     <!-- loading right bottom -->
-                    <div 
+                    <div
                         v-else
                         class="grid grid-cols-2 grid-flow-row gap-y-3 gap-x-2 items-center self-stretch md:grid-rows-2 md:grid-flow-col md:gap-y-2 md:gap-x-5"
                     >
@@ -282,33 +288,27 @@ const filteredDataOverviews = computed(() => {
                             v-for="(tradingAccount, index) in tradingAccounts"
                             :key="index"
                             class="min-w-[300px] py-4 pl-6 pr-3 flex flex-col justify-center gap-3 md:gap-5 rounded-2xl border-l-8 bg-white shadow-toast"
-                            :class="[
-                                {'border-success-500': tradingAccount.account_type === 'Standard Account'},
-                                {'border-warning-500': tradingAccount.account_type === 'Premium Account'},
-                            ]"
+                            :style="{'borderColor': `#${tradingAccount.account_type_color}`}"
                         >
                             <div class="flex items-start gap-4">
                                 <span class="text-gray-950 font-semibold md:text-lg self-stretch">
                                     # {{ tradingAccount.meta_login }}
                                 </span>
-                                <StatusBadge 
-                                    v-if="tradingAccount.account_type === 'Standard Account'"
-                                    value="success"
+                                <div
+                                    class="flex px-2 py-1 justify-center items-center text-xs font-semibold hover:-translate-y-1 transition-all duration-300 ease-in-out rounded"
+                                    :style="{
+                                        backgroundColor: formatRgbaColor(tradingAccount.account_type_color, 0.15),
+                                        color: `#${tradingAccount.account_type_color}`,
+                                    }"
                                 >
                                     {{ tradingAccount.account_type }}
-                                </StatusBadge>
-                                <StatusBadge 
-                                    v-if="tradingAccount.account_type === 'Premium Account'"
-                                    value="warning"
-                                >
-                                    {{ tradingAccount.account_type }}
-                                </StatusBadge>
+                                </div>
                             </div>
 
                             <div class="flex justify-between content-center gap-2 self-stretch">
                                 <div class="flex flex-col md:flex-row md:gap-2 justify-start items-center w-full">
                                     <div class="text-gray-500 text-xs">
-                                        {{ $t('public.balance_shortname') }}
+                                        {{ $t('public.balance_shortname') }}:
                                     </div>
                                     <div class="text-gray-950 text-xs font-medium">
                                         $ {{ formatAmount(tradingAccount.balance) }}
@@ -316,18 +316,18 @@ const filteredDataOverviews = computed(() => {
                                 </div>
                                 <div class="flex flex-col md:flex-row md:gap-2 justify-start items-center w-full">
                                     <div class="text-gray-500 text-xs">
-                                        {{ $t('public.equity_shortname') }}
+                                        {{ $t('public.equity_shortname') }}:
                                     </div>
                                     <div class="text-gray-950 text-xs font-medium">
                                         $ {{ formatAmount(tradingAccount.equity) }}
                                     </div>
                                 </div>
-                                <div 
+                                <div
                                     v-if="tradingAccount.account_type !== 'Premium Account'"
                                     class="flex flex-col md:flex-row md:gap-2 justify-start items-center w-full"
                                 >
                                     <div class="text-gray-500 text-xs">
-                                        {{ $t('public.credit_shortname') }}
+                                        {{ $t('public.credit_shortname') }}:
                                     </div>
                                     <div class="text-gray-950 text-xs font-medium">
                                         $ {{ formatAmount(tradingAccount.credit) }}

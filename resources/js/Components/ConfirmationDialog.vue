@@ -79,6 +79,7 @@ import { SecurityIcon, BulbIcon, DeleteIcon, WalletIcon, RevokeIcon, RebateIcon 
                     </div>
                     <div class="flex items-center gap-4 md:gap-5 self-stretch">
                         <Button
+                            v-if="message.cancelButton"
                             type="button"
                             variant="gray-tonal"
                             @click="rejectCallback"
