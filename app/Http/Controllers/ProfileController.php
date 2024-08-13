@@ -180,7 +180,6 @@ class ProfileController extends Controller
                 PaymentAccount::updateOrCreate(
                     $conditions,
                     [
-                        'user_id' => $request->user_id,
                         'status' => 'active',
                         'payment_account_name' => $wallet_name,
                         'payment_platform' => 'crypto',
