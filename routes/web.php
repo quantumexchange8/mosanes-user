@@ -99,6 +99,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [RebateController::class, 'index'])->name('rebate_allocate');
         Route::get('/getRebateAllocateData', [RebateController::class, 'getRebateAllocateData'])->name('rebate_allocate.getRebateAllocateData');
         Route::get('/getAgents', [RebateController::class, 'getAgents'])->name('rebate_allocate.getAgents');
+        Route::get('/changeAgents', [RebateController::class, 'changeAgents'])->name('rebate_allocate.changeAgents');
     });
 
     /**
@@ -110,6 +111,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [TransactionController::class, 'index'])->name('transaction');
         Route::get('/getTotal', [TransactionController::class, 'getTotal'])->name('transaction.getTotal');
         Route::get('/getTransactions', [TransactionController::class, 'getTransactions'])->name('transaction.getTransactions');
+        Route::get('/getRebateTransactions', [TransactionController::class, 'getRebateTransactions'])->name('transaction.getRebateTransactions');
+
     });
 
     /**

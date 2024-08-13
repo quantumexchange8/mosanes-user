@@ -24,7 +24,7 @@ const variantClasses = computed(() => {
         return 'bg-primary-50 text-primary-500'
     } else if (props.value === 'success' || props.value === 'successful' || props.value === 'active' || props.value === 'live') {
         return 'bg-success-50 text-success-500'
-    } else if (props.value === 'error' || props.value === 'failed') {
+    } else if (props.value === 'error' || props.value === 'failed' || props.value === 'rejected') {
         return 'bg-error-50 text-error-500'
     } else if (props.value === 'warning' || props.value === 'agent') {
         return 'bg-warning-50 text-warning-500'

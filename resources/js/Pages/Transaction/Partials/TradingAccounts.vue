@@ -9,6 +9,7 @@ import {
     IconCircleXFilled,
     IconAdjustments,
     IconCloudDownload,
+    IconX,
 } from '@tabler/icons-vue';
 import {transactionFormat} from "@/Composables/index.js";
 import {computed, onMounted, ref, watch, watchEffect} from "vue";
@@ -18,6 +19,12 @@ import Badge from '@/Components/Badge.vue';
 import InputText from 'primevue/inputtext';
 import { usePage } from '@inertiajs/vue3';
 import StatusBadge from "@/Components/StatusBadge.vue";
+import RadioButton from 'primevue/radiobutton';
+import Calendar from 'primevue/calendar';
+import Dialog from 'primevue/dialog';
+import TransactionDetails from '@/Pages/Transaction/Partials/TransactionDetails.vue';
+import Slider from 'primevue/slider';
+import dayjs from 'dayjs'
 
 const { formatDateTime, formatAmount } = transactionFormat();
 
@@ -25,13 +32,25 @@ const loading = ref(false);
 const dt = ref();
 const paginator_caption = wTrans('public.paginator_caption');
 const transactions = ref();
+const selectedDate = ref();
+const minFilterAmount = ref(0);
+const maxFilterAmount = ref(0);
 
-const getResults = async () => {
+const getResults = async (filterDate = null) => {
+    if (loading.value) return;
     loading.value = true;
 
     try {
-        const response = await axios.get('/transaction/getTransactions');
+        let url = '/transaction/getTransactions';
+
+        if (filterDate) {
+            const [startDate, endDate] = filterDate;
+            url += `?startDate=${dayjs(startDate).format('YYYY-MM-DD')}&endDate=${dayjs(endDate).format('YYYY-MM-DD')}`;
+        }
+
+        const response = await axios.get(url);
         transactions.value = response.data.transactions;
+        maxFilterAmount.value = transactions.value?.length ? Math.max(...transactions.value.map(item => parseFloat(item.transaction_amount || 0))) : 0;
     } catch (error) {
         console.error('Error get transactions:', error);
     } finally {
@@ -47,20 +66,6 @@ watchEffect(() => {
     }
 });
 
-const getFilterData = async () => {
-    try {
-        const uplineResponse = await axios.get('/');
-        uplines.value = uplineResponse.data.uplines;
-        maxLevel.value = uplineResponse.data.maxLevel;
-    } catch (error) {
-        console.error('Error filter data:', error);
-    } finally {
-        loading.value = false;
-    }
-};
-
-getFilterData();
-
 const exportCSV = () => {
     dt.value.exportCSV();
 };
@@ -68,61 +73,78 @@ const exportCSV = () => {
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    upline_id: { value: null, matchMode: FilterMatchMode.EQUALS },
-    level: { value: null, matchMode: FilterMatchMode.EQUALS },
-    role: { value: null, matchMode: FilterMatchMode.EQUALS },
+    transaction_type: { value: null, matchMode: FilterMatchMode.EQUALS },
+    amount: { value: [minFilterAmount.value, maxFilterAmount.value], matchMode: FilterMatchMode.BETWEEN },
     status: { value: null, matchMode: FilterMatchMode.EQUALS },
 });
 
-const rowClicked = (id_number) => {
-    window.open(route('', id_number), '_self')
-}
+// Watch minFilterAmount and maxAmount to update the amount filter
+watch([minFilterAmount, maxFilterAmount], ([newMin, newMax]) => {
+    filters.value.amount.value = [newMin, newMax];
+});
+
+watch(selectedDate, (newDateRange) => {
+    if (Array.isArray(newDateRange)) {
+        const [startDate, endDate] = newDateRange;
+
+        if (startDate && endDate) {
+            getResults([startDate, endDate]);
+        } else if (startDate || endDate) {
+            getResults([startDate || endDate, endDate || startDate]);
+        } else {
+            getResults([]);
+        }
+    } else {
+        console.warn('Invalid date range format:', newDateRange);
+    }
+});
+
+const clearDate = () => {
+    selectedDate.value = null;
+};
 
 // overlay panel
 const op = ref();
-const uplines = ref()
-const maxLevel = ref(0)
-const levels = ref([])
-const upline_id = ref(null)
-const level = ref(null)
 const filterCount = ref(0);
-const lvl = trans('public.level_shortname');
 
 const toggle = (event) => {
     op.value.toggle(event);
 }
 
-watch([upline_id, level], ([newUplineId, newLevel]) => {
-    if (upline_id.value !== null) {
-        filters.value['upline_id'].value = newUplineId.value
-    }
-
-    if (level.value !== null) {
-        filters.value['level'].value = newLevel.value
-    }
-})
-
 watch(filters, () => {
+    // Check if amount filter covers the entire range (considering full range as minFilterAmount and maxFilterAmount)
+    const amountFilterIsActive = filters.value.amount.value[0] !== minFilterAmount.value || filters.value.amount.value[1] !== maxFilterAmount.value;
+
     // Count active filters
-    filterCount.value = Object.values(filters.value).filter(filter => filter.value !== null).length;
+    filterCount.value = Object.entries(filters.value).filter(([key, filter]) => {
+        // Exclude amount filter if it covers the entire range
+        if (filter === filters.value.amount) {
+            return amountFilterIsActive;
+        }
+        return filter.value !== null;
+    }).length;
 }, { deep: true });
 
 const clearFilter = () => {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-        upline_id: { value: null, matchMode: FilterMatchMode.EQUALS },
-        level: { value: null, matchMode: FilterMatchMode.EQUALS },
-        role: { value: null, matchMode: FilterMatchMode.EQUALS },
+        transaction_type: { value: null, matchMode: FilterMatchMode.EQUALS },
+        amount: { value: [minFilterAmount.value, maxFilterAmount.value], matchMode: FilterMatchMode.BETWEEN },
         status: { value: null, matchMode: FilterMatchMode.EQUALS },
     };
-
-    upline_id.value = null;
-    level.value = null;
 };
 
 const clearFilterGlobal = () => {
     filters.value['global'].value = null;
+}
+
+// dialog
+const visible = ref(false);
+const selectedRow = ref();
+const rowClicked = (data) => {
+    selectedRow.value = data;
+    visible.value = true;
 }
 </script>
 
@@ -143,7 +165,7 @@ const clearFilterGlobal = () => {
             :loading="loading"
             table-style="min-width:fit-content"
             selectionMode="single"
-            @row-click="rowClicked($event.data.id)"
+            @row-click="rowClicked($event.data)"
         >
             <template #header>
                 <div class="flex flex-col md:flex-row gap-3 items-center self-stretch">
@@ -192,67 +214,180 @@ const clearFilterGlobal = () => {
             <template #loading>
                 <div class="flex flex-col gap-2 items-center justify-center">
                     <Loader />
-                    <span class="text-sm text-gray-700">{{ $t('public.loading_transactions_caption') }}</span>
+                    <span class="text-sm text-gray-700">{{ $t('public.loading_caption') }}</span>
                 </div>
             </template>
-            <Column field="date" sortable style="width: 15%" class="hidden md:table-cell">
-                <template #header>
-                    <span>{{ $t('public.date') }}</span>
-                </template>
+            <Column
+                field="created_at"
+                sortable
+                :header="$t('public.date')"
+                class="w-1/6"
+            >
                 <template #body="slotProps">
                     {{ formatDateTime(slotProps.data.created_at) }}
                 </template>
             </Column>
-            <Column field="level" sortable headerClass="hidden md:table-cell" class="w-1/5 md:w-auto">
-                <template #header>
-                    <span>{{ $t('public.level') }}</span>
-                </template>
+            <Column
+                field="transaction_number"
+                sortable
+                class="w-auto"
+                :header="$t('public.id')"
+            >
                 <template #body="slotProps">
-                    <span class="md:hidden">Lvl </span>
-                    {{ slotProps.data.level }}
+                    {{ slotProps.data.transaction_number }}
                 </template>
             </Column>
-            <Column field="name" sortable :header="$t('public.name')" headerClass="hidden md:table-cell" class="w-auto">
+            <Column
+                field="description"
+                class="w-auto"
+                :header="$t('public.description')"
+            >
                 <template #body="slotProps">
-                    <div class="flex items-center gap-3">
-                        <div class="w-7 h-7 rounded-full overflow-hidden">
-                            <!-- <DefaultProfilePhoto /> -->
-                        </div>
-                        <div class="flex flex-col items-start">
-                            <div class="w-20 truncate font-medium xl:w-36">
-                                {{ slotProps.data.name }}
-                            </div>
-                            <div class="w-20 truncate text-gray-500 text-xs xl:w-36">
-                                {{ slotProps.data.email }}
-                            </div>
-                        </div>
-                    </div>
+                    {{ $t(`public.${slotProps.data.transaction_type}`) }}
                 </template>
             </Column>
-            <Column field="role" headerClass="hidden md:table-cell">
-                <template #header>
-                    <span>{{ $t('public.role') }}</span>
+            <Column
+                field="account"
+                class="w-auto"
+                :header="$t('public.account')"
+            >
+                <template #body="slotProps">
+                    {{ slotProps.data.transaction_type === 'deposit' ? slotProps.data.to_meta_login : slotProps.data.from_meta_login }}
                 </template>
+            </Column>
+            <Column
+                field="amount"
+                sortable
+                class="w-auto"
+                :header="`${$t('public.amount')} ($)`"
+            >
+                <template #body="slotProps">
+                    <template v-if="slotProps.data.transaction_amount">
+                        $ {{ formatAmount(slotProps.data.transaction_type === 'withdrawal' ? slotProps.data.amount : slotProps.data.transaction_amount) }}
+                    </template>
+                    <template v-else>
+                        -
+                    </template>
+                </template>
+            </Column>
+            <Column
+                field="status"
+                :header="$t('public.status')"
+            >
                 <template #body="slotProps">
                     <div class="flex py-3 items-center flex-1">
-                        <!-- <StatusBadge :value="slotProps.data.role">
-                            {{ $t(`public.${slotProps.data.role}`) }}
-                        </StatusBadge> -->
-                    </div>
-                </template>
-            </Column>
-            <Column field="upline" sortable :header="$t('public.upline')" style="width: 35%" class="hidden md:table-cell">
-                <template #body="slotProps">
-                    <div class="flex items-center gap-3">
-                        <div class="w-7 h-7 rounded-full overflow-hidden">
-                            <!-- <DefaultProfilePhoto /> -->
-                        </div>
-                        <div class="w-20 truncate font-medium xl:w-36">
-                            {{ slotProps.data.upline_name }}
-                        </div>
+                        <StatusBadge :value="slotProps.data.status">
+                            {{ $t(`public.${slotProps.data.status}`) }}
+                        </StatusBadge>
                     </div>
                 </template>
             </Column>
         </DataTable>
     </div>
+
+    <OverlayPanel ref="op">
+        <div class="flex flex-col gap-8 w-60 py-5 px-4">
+            <!-- Filter type-->
+            <div class="flex flex-col gap-2 items-center self-stretch">
+                <div class="flex self-stretch text-xs text-gray-950 font-semibold">
+                    {{ $t('public.filter_type_header') }}
+                </div>
+                <div class="flex flex-col gap-1 self-stretch">
+                    <div class="flex items-center gap-2 text-sm text-gray-950">
+                        <RadioButton v-model="filters['transaction_type'].value" inputId="type_deposit" value="deposit" />
+                        <label for="type_deposit">{{ $t('public.deposit') }}</label>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-950">
+                        <RadioButton v-model="filters['transaction_type'].value" inputId="type_withdrawal" value="withdrawal" />
+                        <label for="type_withdrawal">{{ $t('public.withdrawal') }}</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Date-->
+            <div class="flex flex-col gap-2 items-center self-stretch">
+                <div class="flex self-stretch text-xs text-gray-950 font-semibold">
+                    {{ $t('public.filter_date_header') }}
+                </div>
+                <div class="relative w-full">
+                    <Calendar
+                        v-model="selectedDate"
+                        selectionMode="range"
+                        dateFormat="yy/mm/dd"
+                        iconDisplay="input"
+                        :placeholder="$t('public.date_placeholder')"
+                        class="w-full font-normal"
+                    />
+                    <div
+                        v-if="selectedDate && selectedDate.length > 0"
+                        class="absolute top-2/4 -mt-2.5 right-4 text-gray-400 select-none cursor-pointer bg-white"
+                        @click="clearDate"
+                    >
+                        <IconX size="20" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Amount-->
+            <div class="flex flex-col gap-2 items-center self-stretch">
+                <div class="flex self-stretch text-xs text-gray-950 font-semibold">
+                    {{ $t('public.filter_amount_header') }}
+                </div>
+                <div class="flex flex-col items-center gap-1 self-stretch">
+                    <div class="h-4 self-stretch">
+                        <Slider v-model="filters['amount'].value" :min="minFilterAmount" :max="maxFilterAmount" range />
+                    </div>
+                    <div class="flex justify-between items-center self-stretch">
+                        <span class="text-gray-950 text-sm">${{ minFilterAmount }}</span>
+                        <span class="text-gray-950 text-sm">${{ maxFilterAmount }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter type-->
+            <div class="flex flex-col gap-2 items-center self-stretch">
+                <div class="flex self-stretch text-xs text-gray-950 font-semibold">
+                    {{ $t('public.filter_status_header') }}
+                </div>
+                <div class="flex flex-col gap-1 self-stretch">
+                    <div class="flex items-center gap-2 text-sm text-gray-950">
+                        <RadioButton v-model="filters['status'].value" inputId="status_successful" value="successful" />
+                        <label for="status_successful">{{ $t('public.successful') }}</label>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-950">
+                        <RadioButton v-model="filters['status'].value" inputId="status_processing" value="processing" />
+                        <label for="status_processing">{{ $t('public.processing') }}</label>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-950">
+                        <RadioButton v-model="filters['status'].value" inputId="status_failed" value="failed" />
+                        <label for="status_failed">{{ $t('public.failed') }}</label>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-950">
+                        <RadioButton v-model="filters['status'].value" inputId="status_rejected" value="rejected" />
+                        <label for="status_rejected">{{ $t('public.rejected') }}</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex w-full">
+                <Button
+                    type="button"
+                    variant="primary-outlined"
+                    class="flex justify-center w-full"
+                    @click="clearFilter()"
+                >
+                    {{ $t('public.clear_all') }}
+                </Button>
+            </div>
+        </div>
+    </OverlayPanel>
+
+    <Dialog
+        v-model:visible="visible"
+        modal
+        :header="$t('public.details')"
+        class="dialog-xs md:dialog-sm"
+    >
+        <TransactionDetails :data="selectedRow" />
+    </Dialog>
 </template>
