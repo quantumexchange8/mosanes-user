@@ -12,7 +12,8 @@ import {
     IconCoinMonero,
     IconBusinessplan,
     IconReceipt2,
-    IconLogout
+    IconLogout,
+    IconDownload,
 } from '@tabler/icons-vue';
 
 </script>
@@ -88,6 +89,17 @@ import {
 <!--                <IconBusinessplan :size="20" stroke-width="1.25" />-->
 <!--            </template>-->
 <!--        </SidebarLink>-->
+
+        <!-- Download Center -->
+       <SidebarLink
+           :title="$t('public.download_center')"
+           :href="route('download_center')"
+           :active="route().current('download_center')"
+       >
+           <template #icon>
+               <IconDownload :size="20" stroke-width="1.25" />
+           </template>
+       </SidebarLink>
 
         <div class="py-6 w-full">
             <SidebarLink

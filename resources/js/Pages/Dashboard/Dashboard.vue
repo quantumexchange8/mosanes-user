@@ -27,25 +27,25 @@ const dataOverviews = computed(() => [
     {
         icon: DepositIcon,
         total: groupTotalDeposit.value,
-        label: trans('public.group_total_deposit'),
+        label: user.role === 'member' ? trans('public.dashboard_total_deposit') : trans('public.group_total_deposit'),
         borderColor: 'border-green',
     },
     {
         icon: WithdrawalIcon,
         total: groupTotalWithdrawal.value,
-        label: trans('public.group_total_withdrawal'),
+        label: user.role === 'member' ? trans('public.total_withdrawal') : trans('public.group_total_withdrawal'),
         borderColor: 'border-pink',
     },
     {
         icon: NetBalanceIcon,
         total: totalGroupNetBalance.value,
-        label: trans('public.total_group_net_balance'),
+        label: user.role === 'member' ? trans('public.total_net_balance') : trans('public.group_total_net_balance'),
         borderColor: 'border-[#FEDC32]',
     },
     {
         icon: NetAssetIcon,
         total: total_group_net_asset.value,
-        label: trans('public.total_group_net_asset'),
+        label: user.role === 'member' ? trans('public.total_net_asset') : trans('public.group_total_net_asset'),
         borderColor: 'border-indigo',
     },
 ]);

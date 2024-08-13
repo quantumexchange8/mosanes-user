@@ -170,3 +170,13 @@ export const SwitchHorizontal01Icon = defineComponent({
         )
     },
 })
+
+export const Link01Icon = defineComponent({
+    setup() {
+        return () => (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8.47203 12.2442L7.52922 13.1871C6.22748 14.4888 4.11693 14.4888 2.81518 13.1871C1.51343 11.8853 1.51343 9.77476 2.81518 8.47301L3.75799 7.5302M12.2433 8.47301L13.1861 7.5302C14.4878 6.22845 14.4878 4.1179 13.1861 2.81615C11.8843 1.51441 9.77378 1.51441 8.47203 2.81615L7.52922 3.75896M5.66729 10.3349L10.334 5.66826" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        )
+    },
+})

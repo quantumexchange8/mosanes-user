@@ -1,16 +1,17 @@
 <?php
 
-use App\Http\Controllers\AssetMasterController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RebateController;
-use App\Http\Controllers\StructureController;
-use App\Http\Controllers\TradingAccountController;
-use App\Http\Controllers\TransactionController;
+use Inertia\Inertia;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
-use Inertia\Inertia;
+use App\Http\Controllers\RebateController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\StructureController;
+use App\Http\Controllers\AssetMasterController;
+use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\DownloadCenterController;
+use App\Http\Controllers\TradingAccountController;
 
 Route::get('locale/{locale}', function ($locale) {
     App::setLocale($locale);
@@ -109,6 +110,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [TransactionController::class, 'index'])->name('transaction');
         Route::get('/getTotal', [TransactionController::class, 'getTotal'])->name('transaction.getTotal');
         Route::get('/getTransactions', [TransactionController::class, 'getTransactions'])->name('transaction.getTransactions');
+    });
+
+    /**
+     * ==============================
+     *        Download Center
+     * ==============================
+     */
+    Route::prefix('download_center')->group(function () {
+        Route::get('/', [DownloadCenterController::class, 'index'])->name('download_center');
     });
 
     /**

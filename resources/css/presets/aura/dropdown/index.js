@@ -50,7 +50,7 @@ export default {
             // Color and Background
             'bg-transparent',
             'border-0',
-            { 'text-gray-950': props.modelValue != undefined, 'text-gray-400': props.modelValue == undefined },
+            { 'text-gray-950': props.modelValue || props.modelValue === 0, 'text-gray-400': !props.modelValue && props.modelValue !== 0 },
             'placeholder:text-gray-400',
 
             // Sizing and Spacing
