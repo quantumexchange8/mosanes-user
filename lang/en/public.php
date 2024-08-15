@@ -355,4 +355,9 @@ return [
     "balance_shortname" => "BL",
     "equity_shortname" => "EQ",
     "credit_shortname" => "CR",
+    "not_receive_email" => "Didn't receive the email?",
+    "resend_in" => "Resend in",
+    "resend" => "Resend",
+    "email_verification" => "Email Verification",
+    "email_verification_message" => "Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you?",
 ];

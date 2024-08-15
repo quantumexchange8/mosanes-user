@@ -151,10 +151,9 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        return redirect()->route('login')->with('toast', [
-            'title' => trans("public.success_register"),
-            'type' => 'success',
-        ]);
+        Auth::login($user);
+
+        return redirect(route('dashboard', absolute: false));
     }
 
     public function getFilterData()

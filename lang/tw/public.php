@@ -355,4 +355,9 @@ return [
     "balance_shortname" => "餘額",
     "equity_shortname" => "淨值",
     "credit_shortname" => "信用",
+    "not_receive_email" => "並未收到重置密碼郵件?",
+    "resend_in" => "再次發送",
+    "resend" => "再次發送",
+    "email_verification" => "電子郵件驗證",
+    "email_verification_message" => "感謝您的註冊！在開始之前，請點擊我們剛剛發送給您的鏈接以驗證您的電子郵件地址。",
 ];

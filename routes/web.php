@@ -26,7 +26,7 @@ Route::get('/', function () {
 
 Route::post('deposit_callback', [TradingAccountController::class, 'depositCallback'])->name('depositCallback');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth','verified'])->group(function () {
     Route::get('deposit_return', [TradingAccountController::class, 'depositReturn']);
 
     /**
