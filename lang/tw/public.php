@@ -202,7 +202,7 @@ return [
     "minimum_amount" => "最低提款額",
     "receiving_wallet" => "收款錢包",
     "receiving_wallet_placeholder" => "我的錢包",
-    "leverages" => "Leverages",
+    "leverages" => "槓桿",
     "leverages_placeholder" => "選擇",
     "deposit_info_header" => "數字貨幣存款資訊",
     "deposit_info_message" => "在存款時, 您的數字錢包會收取費用 (Gas Fee), 因此您的帳戶會收到略低於存款數額的金額. 為了確保有足夠的資金, 建議存入略高於您計劃的金額.",
