@@ -127,13 +127,15 @@ watchEffect(() => {
                 >
                     {{ $t('public.sign_in') }}
                 </Button>
-                <p class="text-sm text-gray-600 font-medium">{{ $t('public.dont_have_an_account') }}  <Link
+                <div class="text-sm text-gray-700">
+                    {{ $t('public.dont_have_an_account') }}
+                    <Link
                         :href="route('register')"
                         class="text-right text-sm text-primary-500 font-semibold"
                     >
-                    {{ $t('public.register') }}
-                    </Link></p>
-
+                        {{ $t('public.register') }}
+                    </Link>
+                </div>
             </form>
         </div>
     </GuestLayout>

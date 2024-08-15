@@ -272,6 +272,7 @@ class TradingAccountController extends Controller
             'merchantId' => $selectedPayout['merchantId'],
             'vCode' => $vCode,
             'token' => $token,
+            'locale' => app()->getLocale(),
         ];
 
         // Send response
