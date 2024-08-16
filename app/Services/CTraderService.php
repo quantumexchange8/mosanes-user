@@ -136,7 +136,7 @@ class CTraderService
 
     public function deleteTrader($meta_login): void
     {
-        Http::delete($this->baseURL . "/v2/webserv/traders/$meta_login");
+        Http::delete($this->baseURL . "/v2/webserv/traders/$meta_login?token=$this->token");
     }
 }
 
