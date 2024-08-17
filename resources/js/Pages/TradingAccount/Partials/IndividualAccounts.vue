@@ -89,7 +89,7 @@ watchEffect(() => {
                             color: `#${account.account_type_color}`,
                         }"
                     >
-                        {{ account.account_type }}
+                        {{ $t(`public.${account.account_type}`) }}
                     </div>
                 </div>
                 <Action :account="account" :type="accountType" />

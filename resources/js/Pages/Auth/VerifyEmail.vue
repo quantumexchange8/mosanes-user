@@ -30,7 +30,7 @@ const startCountdown = () => {
         }
     }, 1000);
 };
-    
+
 const submit = () => {
     form.post(route('verification.send'), {
         onSuccess: () => {
@@ -57,20 +57,20 @@ const verificationLinkSent = computed(() => props.status === 'verification-link-
                 <div class="flex flex-col self-stretch text-center text-gray-500 gap-1">{{ $t('public.email_verification_message') }}
                     <span class="text-gray-900 font-medium">
                         {{ user.email }}
-                    </span> 
+                    </span>
                 </div>
             </div>
             <div class="flex flex-col items-center justify-center gap-6 self-stretch">
                 <Button size="base" variant="primary-flat" class="w-full" :disabled="form.processing" @click.prevent="logout">{{ $t('public.log_out') }}</Button>
                 <div class="flex justify-between items-center self-stretch">
                     <div class="text-gray-700 text-sm font-medium">{{ $t('public.not_receive_email') }}</div>
-                    <div 
-                        v-if="!submitted" 
-                        class="text-right text-sm text-primary-500 font-semibold" 
+                    <div
+                        v-if="!submitted"
+                        class="text-right text-sm text-primary-500 font-semibold"
                         :class="{
                             'opacity-25 pointer-events-none cursor-not-allowed': form.processing,
                             'cursor-pointer': !form.processing
-                        }" 
+                        }"
                         @click.prevent="submit"
                     >
                         {{ $t('public.resend') }}
@@ -79,30 +79,5 @@ const verificationLinkSent = computed(() => props.status === 'verification-link-
                 </div>
             </div>
         </div>
-
-        <!-- <div class="mb-4 text-sm text-gray-600">
-            Thanks for signing up! Before getting started, could you verify your email address by clicking on the link
-            we just emailed to you? If you didn't receive the email, we will gladly send you another.
-        </div>
-
-        <div class="mb-4 font-medium text-sm text-green-600" v-if="verificationLinkSent">
-            A new verification link has been sent to the email address you provided during registration.
-        </div>
- -->
-        <!-- <form @submit.prevent="submit">
-            <div class="mt-4 flex items-center justify-between">
-                <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Resend Verification Email
-                </PrimaryButton>
-
-                <Link
-                    :href="route('logout')"
-                    method="post"
-                    as="button"
-                    class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >Log Out</Link
-                >
-            </div>
-        </form> -->
     </GuestLayout>
 </template>

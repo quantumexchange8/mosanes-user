@@ -18,7 +18,7 @@ const { formatAmount } = transactionFormat();
 
 const sortingDropdownOptions = [
     {
-        name: wTrans('public.lastest'),
+        name: wTrans('public.latest'),
         value: 'created_at'
     },
     {
@@ -60,6 +60,7 @@ getResults();
 watchEffect(() => {
     if (usePage().props.toast !== null) {
         getResults();
+        getAvailableAccounts();
     }
 });
 
@@ -93,13 +94,29 @@ const clearFilterGlobal = () => {
     filters.value['global'].value = null;
 }
 
+const accounts = ref([]);
+const isLoading = ref(false);
+
+const getAvailableAccounts = async () => {
+    isLoading.value = true;
+    try {
+        const response = await axios.get('/asset_master/getAvailableAccounts');
+        accounts.value = response.data.accounts;
+    } catch (error) {
+        console.error('Error get masters:', error);
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+getAvailableAccounts();
 </script>
 
 <template>
     <AuthenticatedLayout :title="$t('public.asset_master')">
         <div class="flex flex-col items-center gap-5 self-stretch">
             <div class="flex flex-col items-stretch rounded-2xl shadow-toast w-full">
-                <img src="/img/banner-pamm.svg"  alt="">
+                <img src="/img/banner-pamm.png"  alt="">
             </div>
 
             <div class="flex justify-between items-center self-stretch">
@@ -139,6 +156,7 @@ const clearFilterGlobal = () => {
                     optionLabel="name"
                     option-value="value"
                     class="w-40"
+                    scrollHeight="236px"
                 />
             </div>
 
@@ -164,7 +182,7 @@ const clearFilterGlobal = () => {
                             </div>
                         </div>
                         <div class="flex flex-col items-start">
-                            <div class="self-stretch truncate w-40 text-gray-950 font-bold">
+                            <div class="self-stretch truncate w-44 md:w-full md:max-w-[240px] xl:max-w-full 2xl:max-w-[200px] 3xl:max-w-[240px] text-gray-950 font-bold">
                                 {{ master.asset_name }}
                             </div>
                             <div class="self-stretch truncate w-36 text-gray-500 text-sm">
@@ -178,7 +196,7 @@ const clearFilterGlobal = () => {
                             $ {{ formatAmount(master.minimum_investment) }}
                         </StatusBadge>
                         <StatusBadge value="gray">
-                            <div v-if="master.minimum_investment_period != 0">
+                            <div v-if="master.minimum_investment_period !== 0">
                                 {{ master.minimum_investment_period }} {{ $t('public.months') }}
                             </div>
                             <div v-else>
@@ -186,7 +204,7 @@ const clearFilterGlobal = () => {
                             </div>
                         </StatusBadge>
                         <StatusBadge value="gray">
-                            {{ master.performance_fee || master.performance_fee > 0 ? formatAmount(master.performance_fee, 0)+'%' : $t('public.zero_fee') }}
+                            {{ master.performance_fee > 0 ? formatAmount(master.performance_fee, 0) + '% ' + $t('public.fee') : $t('public.zero_fee') }}
                         </StatusBadge>
                     </div>
 
@@ -210,10 +228,10 @@ const clearFilterGlobal = () => {
                         <div class="w-full flex flex-col items-center">
                             <div class="self-stretch text-center font-semibold">
                                 <div
-                                    v-if="master.latest_profit != 0"
+                                    v-if="master.latest_profit !== 0"
                                     :class="(master.latest_profit < 0) ? 'text-error-500' : 'text-success-500'"
                                 >
-                                    {{ master.latest_profit }}
+                                    {{ master.latest_profit }}%
                                 </div>
                                 <div
                                     v-else
@@ -223,7 +241,7 @@ const clearFilterGlobal = () => {
                                 </div>
                             </div>
                             <div class="self-stretch text-gray-500 text-center text-xs">
-                                {{ $t('public.lastest') }}
+                                {{ $t('public.latest') }}
                             </div>
                         </div>
                     </div>
@@ -246,6 +264,8 @@ const clearFilterGlobal = () => {
 
                     <AssetMasterAction
                         :master="master"
+                        :accounts="accounts"
+                        :isLoading="isLoading"
                     />
                 </div>
             </div>

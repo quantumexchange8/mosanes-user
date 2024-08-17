@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -40,5 +41,11 @@ class AssetMaster extends Model implements HasMedia
         return [
             'started_at' => 'datetime',
         ];
+    }
+
+    // Relations
+    public function asset_subscriptions(): HasMany
+    {
+        return $this->hasMany(AssetSubscription::class, 'asset_master_id', 'id');
     }
 }

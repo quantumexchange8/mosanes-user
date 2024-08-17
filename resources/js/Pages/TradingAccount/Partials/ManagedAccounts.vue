@@ -4,7 +4,7 @@ import Action from "@/Pages/TradingAccount/Partials/Action.vue";
 import ActionButton from "@/Pages/TradingAccount/Partials/ActionButton.vue";
 import Empty from '@/Components/Empty.vue';
 import {generalFormat, transactionFormat} from "@/Composables/index.js";
-import {usePage} from "@inertiajs/vue3";
+import {usePage, Link} from "@inertiajs/vue3";
 
 const isLoading = ref(false);
 const accounts = ref([]);
@@ -88,7 +88,7 @@ watchEffect(() => {
                             color: `#${account.account_type_color}`,
                         }"
                     >
-                        {{ account.account_type }}
+                        {{ $t(`public.${account.account_type}`) }}
                     </div>
                 </div>
                 <Action :account="account" :type="accountType" />
@@ -104,11 +104,18 @@ watchEffect(() => {
                 </div>
                 <div class="w-full flex items-center gap-1 flex-grow">
                     <span class="w-16 text-gray-500 text-xs">{{ $t('public.pamm') }}:</span>
-                    <span class="text-gray-950 text-xs font-medium">{{ account.pamm ?? '-' }}</span>
+                    <Link
+                        v-if="account.asset_master_id"
+                        :href="route('asset_master.showPammInfo', account.asset_master_id)"
+                        class="text-primary-500 text-xs font-semibold underline hover:text-primary-600"
+                    >
+                        {{ account.asset_master_name ?? '-' }}
+                    </Link>
+                    <span v-else class="text-gray-950 text-xs font-medium">-</span>
                 </div>
                 <div class="w-full flex items-center gap-1 flex-grow">
                     <span class="w-16 text-gray-500 text-xs">{{ $t('public.mature_in') }}:</span>
-                    <span class="text-gray-950 text-xs font-medium">{{ account.mature_in ?? '-' }}</span>
+                    <span class="text-gray-950 text-xs font-medium">{{ account.asset_master_name ? account.remaining_days + ' ' + $t('public.days') : '-' }}</span>
                 </div>
             </div>
             <div class="flex justify-end items-center gap-3 self-stretch">

@@ -56,7 +56,7 @@ const items = ref([
                 });
             }
         },
-        account_type: 'Standard Account'
+        account_type: 'standard_account'
     },
     {
         label: 'revoke_pamm',
@@ -65,7 +65,7 @@ const items = ref([
             visible.value = true;
             dialogType.value = 'revoke_pamm';
         },
-        account_type: 'Premium Account'
+        account_type: 'premium_account'
     },
     {
         label: 'account_report',
@@ -89,6 +89,10 @@ const items = ref([
 
 const filteredItems = computed(() => {
     return items.value.filter(item => {
+        if (props.account.asset_master_id) {
+            return !(item.label === 'withdrawal' || item.label === 'change_leverage' || item.label === 'delete_account' || item.separator);
+        }
+
         if (item.account_type) {
             return item.account_type === props.account.account_type;
         }

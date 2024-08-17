@@ -1,6 +1,6 @@
 <script setup>
 import Button from "@/Components/Button.vue";
-import {ref} from "vue";
+import {ref, watch} from "vue";
 import Dialog from "primevue/dialog";
 import DefaultProfilePhoto from "@/Components/DefaultProfilePhoto.vue";
 import {transactionFormat} from "@/Composables/index.js";
@@ -10,33 +10,46 @@ import {useForm} from "@inertiajs/vue3";
 import InputError from "@/Components/InputError.vue";
 import InputText from "primevue/inputtext";
 import IconField from "primevue/iconfield";
+import InputNumber from "primevue/inputnumber";
 
 const props = defineProps({
-    master: Object
+    master: Object,
+    accounts: Array,
+    isLoading: Boolean,
 })
 
 const visible = ref(false);
 const { formatAmount } = transactionFormat();
-const accounts = ref();
+const selectedAccount = ref();
+const loading = ref(false);
 
-const getAvailableAccounts = async () => {
-    try {
-        const response = await axios.get('/asset_master/getAvailableAccounts');
-        accounts.value = response.data.accounts;
-    } catch (error) {
-        console.error('Error get masters:', error);
-    }
-};
+watch([() => props.accounts, () => props.isLoading], ([newAccounts, newLoading]) => {
+    selectedAccount.value = newAccounts[0];
+    loading.value = newLoading;
+})
 
-getAvailableAccounts();
+watch(selectedAccount, (newAccount) => {
+    selectedAccount.value = newAccount;
+    form.investment_amount = Number(newAccount.balance)
+})
 
 const form = useForm({
+    asset_master_id: '',
     meta_login: '',
-    investment_amount: '',
+    investment_amount: null,
 })
 
 const submitForm = () => {
+    if (selectedAccount.value) {
+        form.meta_login = selectedAccount.value.meta_login;
+    }
+    form.asset_master_id = props.master.id;
 
+    form.post(route('asset_master.joinPamm'), {
+        onSuccess: () => {
+            visible.value = false;
+        }
+    });
 }
 </script>
 
@@ -109,27 +122,34 @@ const submitForm = () => {
                     <div class="flex flex-col items-start gap-1 self-stretch w-full">
                         <InputLabel for="meta_login" :value="$t('public.managed_account')" />
                         <Dropdown
-                            v-model="form.meta_login"
+                            v-model="selectedAccount"
                             :options="accounts"
                             optionLabel="meta_login"
                             class="w-full"
+                            :loading="loading"
                             scroll-height="236px"
                             :invalid="!!form.errors.meta_login"
+                            :placeholder="loading ? $t('public.loading_caption') : (accounts.length > 0 ? $t('public.select') : $t('public.no_available_accounts'))"
+                            :disabled="!accounts.length"
                         />
                         <InputError :message="form.errors.meta_login" />
                     </div>
                     <div class="flex flex-col items-start gap-1 self-stretch w-full">
                         <InputLabel for="investment_amount" :value="$t('public.investment_amount') + ' ($)'" />
-                        <IconField iconPosition="left" class="w-full">
-                            <div class="text-gray-950 text-sm">$</div>
-                            <InputText
-                                id="investment_amount"
-                                type="number"
-                                class="block w-full"
-                                v-model="form.investment_amount"
-                                :placeholder="formatAmount(1000)"
-                            />
-                        </IconField>
+                        <InputNumber
+                            v-model="form.investment_amount"
+                            inputId="investment_amount"
+                            prefix="$ "
+                            class="w-full"
+                            inputClass="py-3 px-4"
+                            :min="0"
+                            :step="100"
+                            :minFractionDigits="2"
+                            :placeholder="'$ ' + formatAmount(master.minimum_investment)"
+                            fluid
+                            readonly
+                            :invalid="!!form.errors.investment_amount"
+                        />
                         <InputError :message="form.errors.investment_amount" />
                     </div>
                 </div>

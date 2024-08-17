@@ -153,6 +153,8 @@ export default {
                 'md': '768px',
                 'lg': '1024px',
                 'xl': '1280px',
+                '2xl': '1536px',
+                '3xl': '1792px',
             },
             chip: 'inline-flex items-center justify-center px-3 py-1.5 rounded-lg border border-gray-300 bg-white shadow-input hover:bg-gray-50 focus:border-primary-300 focus:bg-primary-50 opacity-50 cursor-not-allowed',
         },

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssetSubscription;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
@@ -134,7 +135,12 @@ class TradingAccountController extends Controller
                 ]);
         }
 
-        $trading_accounts = $user->tradingAccounts;
+        $trading_accounts = $user->tradingAccounts()
+            ->whereHas('account_type', function($q) use ($accountType) {
+                $q->where('category', $accountType);
+            })
+            ->get();
+
         try {
             foreach ($trading_accounts as $trading_account) {
                 (new CTraderService)->getUserInfo($trading_account->meta_login);
@@ -152,6 +158,19 @@ class TradingAccountController extends Controller
             })
             ->get()
             ->map(function ($account) {
+
+                $following_master = AssetSubscription::with('asset_master:id,asset_name')
+                    ->where('meta_login', $account->meta_login)
+                    ->where('status', 'ongoing')
+                    ->first();
+
+                $remaining_days = null;
+
+                if ($following_master && $following_master->matured_at) {
+                    $matured_at = Carbon::parse($following_master->matured_at);
+                    $remaining_days = Carbon::now()->diffInDays($matured_at);
+                }
+
                 return [
                     'id' => $account->id,
                     'user_id' => $account->user_id,
@@ -160,9 +179,12 @@ class TradingAccountController extends Controller
                     'credit' => $account->credit,
                     'leverage' => $account->margin_leverage,
                     'equity' => $account->equity,
-                    'account_type' => $account->account_type->name,
+                    'account_type' => $account->account_type->slug,
                     'account_type_leverage' => $account->account_type->leverage,
                     'account_type_color' => $account->account_type->color,
+                    'asset_master_id' => $following_master->asset_master->id ?? null,
+                    'asset_master_name' => $following_master->asset_master->asset_name ?? null,
+                    'remaining_days' => intval($remaining_days),
                 ];
             });
 

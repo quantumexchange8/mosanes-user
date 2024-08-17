@@ -173,13 +173,13 @@ export default {
     emptymessage: {
         class: [
             // Font
-            'leading-none',
+            'text-sm',
 
             // Spacing
             'py-2 px-3',
 
             // Color
-            'text-surface-800 dark:text-white/80',
+            'text-gray-500',
             'bg-transparent'
         ]
     },
