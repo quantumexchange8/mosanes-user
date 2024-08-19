@@ -368,4 +368,17 @@ return [
     "my_joining" => "我已加入",
     "no_available_accounts" => "沒有可用帳戶",
     "days" => "天",
+    "report" => "返傭報表",
+    "group_transaction" => "組織帳目交易",
+    "rebate_date" => "日期",
+    "rebate_percentage_breakdown" => "返傭百分比明細",
+    "percentage" => "百分比",
+    "no_data" => "暫無资料",
+    "loading_rebate_record_caption" => "載入返傭記錄資料。請稍等。",
+    "loading_transactions_caption" => "正在加載交易數據。請稍候。",
+    "empty_rebate_record_title" => "尚未有返傭紀錄",
+    "empty_rebate_record_message" => "推廣交易以賺取返傭並增加您的收益！",
+    "empty_group_transaction_title" => "未找到組織交易紀錄",
+    "empty_group_transaction_deposit_message" => "看起來您的下線成員尚未有存款紀錄。",
+    "empty_group_transaction_withdrawal_message" => "看起來您的下線成員尚未有提款紀錄。"
 ];
