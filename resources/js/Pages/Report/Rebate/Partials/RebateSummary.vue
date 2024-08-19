@@ -1,24 +1,8 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { transactionFormat } from "@/Composables/index.js";
-import {
-    ForexIcon,
-    StocksIcon,
-    IndicesIcon,
-    CommoditiesIcon,
-    CryptocurrencyIcon,
-} from '@/Components/Icons/solid';
 
 const { formatAmount } = transactionFormat();
-
-// Define the icons mapping
-const icons = {
-    forex: ForexIcon,
-    stocks: StocksIcon,
-    indices: IndicesIcon,
-    commodities: CommoditiesIcon,
-    cryptocurrency: CryptocurrencyIcon,
-};
 
 // Define reactive variables with default values
 const rebateSummary = ref([]);
@@ -68,11 +52,11 @@ watch(() => props.totalRebate, (newRebate) => {
                     {{ formatAmount(totalRebate) }}
                 </span>
             </div>
-        </div> 
+        </div>
         <div class="flex flex-col justify-center items-center self-stretch">
             <!-- Loop through rebateSummary -->
             <div v-for="(item, index) in rebateSummary" :key="index" class="flex items-center py-3 gap-4 self-stretch md:gap-5">
-                <component :is="icons[item.symbol_group] || 'DefaultIcon'" class="w-9 h-9 flex-shrink-0 md:w-10 md:h-10" />
+                <img :src="`/img/rebate/3d-${item.symbol_group}.svg`"  alt=""  class="w-9 h-9 flex-shrink-0 md:w-10 md:h-10">
                 <!-- sm -->
                 <div class="w-full flex flex-col items-start md:hidden">
                     <span class="self-stretch truncate text-gray-950 text-sm font-semibold">
