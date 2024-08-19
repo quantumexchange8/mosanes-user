@@ -48,4 +48,9 @@ class AssetMaster extends Model implements HasMedia
     {
         return $this->hasMany(AssetSubscription::class, 'asset_master_id', 'id');
     }
+
+    public function asset_user_favourites(): HasMany
+    {
+        return $this->hasMany(AssetMasterUserFavourite::class, 'asset_master_id', 'id');
+    }
 }

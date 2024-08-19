@@ -370,4 +370,8 @@ return [
     "my_joining" => "My Joining",
     "no_available_accounts" => "No available accounts",
     "days" => "day(s)",
+    "monthly_pnl_performance" => "Monthly P&L Performance",
+    "profit" => "Profit",
+    "no_asset_master_available" => "No Asset Master Available",
+    "no_asset_master_available_desc" => "Looks like we don’t have any Asset Masters available yet. Check back soon for new opportunities!",
 ];

@@ -8,6 +8,7 @@ import AssetMasterAction from "@/Pages/AssetMaster/Partials/AssetMasterAction.vu
 import { IconCoin, IconFee, IconPeriod } from '@/Components/Icons/solid';
 import {transactionFormat} from "@/Composables/index.js";
 import { usePage } from '@inertiajs/vue3';
+import PammPerformance from "@/Pages/AssetMaster/Partials/PammPerformance.vue";
 
 const { formatAmount } = transactionFormat();
 
@@ -20,7 +21,7 @@ const getResults = async () => {
     try {
         const response = await axios.get(`/asset_master/getMasterDetail?id=${props.master.id}`);
         masterDetail.value = response.data.masterDetail;
-        
+
     } catch (error) {
         console.error('Error get master detail:', error);
     }
@@ -34,6 +35,22 @@ watchEffect(() => {
     }
 });
 
+const accounts = ref([]);
+const isLoading = ref(false);
+
+const getAvailableAccounts = async () => {
+    isLoading.value = true;
+    try {
+        const response = await axios.get('/asset_master/getAvailableAccounts');
+        accounts.value = response.data.accounts;
+    } catch (error) {
+        console.error('Error get masters:', error);
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+getAvailableAccounts();
 </script>
 
 <template>
@@ -79,7 +96,11 @@ watchEffect(() => {
                                 {{ masterDetail.trader_name }}
                             </div>
                         </div>
-                        <AssetMasterAction :master="masterDetail" />
+                        <AssetMasterAction
+                            :master="masterDetail"
+                            :accounts="accounts"
+                            :isLoading="isLoading"
+                        />
                     </div>
 
                     <!-- loading -->
@@ -123,7 +144,7 @@ watchEffect(() => {
                             </div>
                             <div class="self-stretch text-center text-lg font-semibold">
                                 <div
-                                    v-if="masterDetail.latest_profit != 0"
+                                    v-if="masterDetail.latest_profit !== 0"
                                     :class="(masterDetail.latest_profit < 0) ? 'text-error-500' : 'text-success-500'"
                                 >
                                     {{ masterDetail.latest_profit }} %
@@ -211,7 +232,7 @@ watchEffect(() => {
                                     class="self-stretch text-gray-950 text-center text-lg font-semibold"
                                 >
                                     <div v-if="masterDetail.performance_fee">
-                                        {{ formatAmount(master.performance_fee, 0)+'%' }}
+                                        {{ formatAmount(masterDetail.performance_fee, 0)+'%' }}
                                     </div>
                                     <div v-else>
                                         0 %
@@ -246,9 +267,12 @@ watchEffect(() => {
                         </div>
                     </div>
                 </div>
-
-                <!-- graph -->
             </div>
+
+            <!-- graph -->
+            <PammPerformance
+                :masterDetail="masterDetail"
+            />
         </div>
     </AuthenticatedLayout>
 </template>

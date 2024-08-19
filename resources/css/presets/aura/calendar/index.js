@@ -360,7 +360,8 @@ export default {
     monthpicker: {
         class: [
             // Spacing
-            'mt-2'
+            'mt-2',
+            'text-sm'
         ]
     },
     month: ({ context }) => ({

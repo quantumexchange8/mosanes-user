@@ -47,15 +47,15 @@ import {
         </SidebarLink>
 
         <!-- Asset Master -->
-<!--        <SidebarLink-->
-<!--            :title="$t('public.asset_master')"-->
-<!--            :href="route('asset_master')"-->
-<!--            :active="route().current('asset_master')"-->
-<!--        >-->
-<!--            <template #icon>-->
-<!--                <IconCoinMonero :size="20" stroke-width="1.25" />-->
-<!--            </template>-->
-<!--        </SidebarLink>-->
+        <SidebarLink
+            :title="$t('public.asset_master')"
+            :href="route('asset_master')"
+            :active="route().current('asset_master')"
+        >
+            <template #icon>
+                <IconCoinMonero :size="20" stroke-width="1.25" />
+            </template>
+        </SidebarLink>
 
         <!-- Structure -->
         <SidebarLink

@@ -88,8 +88,10 @@ Route::middleware(['auth','verified'])->group(function () {
         Route::get('/getAvailableAccounts', [AssetMasterController::class, 'getAvailableAccounts'])->name('asset_master.getAvailableAccounts');
         Route::get('/info/{id}', [AssetMasterController::class, 'showPammInfo'])->name('asset_master.showPammInfo');
         Route::get('/getMasterDetail', [AssetMasterController::class, 'getMasterDetail'])->name('asset_master.getMasterDetail');
+        Route::get('/getMasterMonthlyProfit', [AssetMasterController::class, 'getMasterMonthlyProfit'])->name('asset_master.getMasterMonthlyProfit');
 
         Route::post('joinPamm', [AssetMasterController::class, 'joinPamm'])->name('asset_master.joinPamm');
+        Route::post('addToFavourites', [AssetMasterController::class, 'addToFavourites'])->name('asset_master.addToFavourites');
     });
 
     /**

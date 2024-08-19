@@ -8,9 +8,8 @@ import InputLabel from "@/Components/InputLabel.vue";
 import Dropdown from "primevue/dropdown";
 import {useForm} from "@inertiajs/vue3";
 import InputError from "@/Components/InputError.vue";
-import InputText from "primevue/inputtext";
-import IconField from "primevue/iconfield";
 import InputNumber from "primevue/inputnumber";
+import {IconHeartFilled, IconHeart} from '@tabler/icons-vue';
 
 const props = defineProps({
     master: Object,
@@ -51,6 +50,45 @@ const submitForm = () => {
         }
     });
 }
+
+const likeCounts = ref({});
+const isUserLike = ref(props.master ? props.master.isFavourite : false);
+const isAnimating = ref(false);
+
+const handleClick = () => {
+    if (isAnimating.value) return;
+
+    isAnimating.value = true;
+
+    // Wait for the animation to finish before making the POST request
+    setTimeout(() => {
+        addToFavourites(props.master.id);
+    }, 500);
+};
+
+const addToFavourites = async (masterId) => {
+    try {
+        const response = await axios.post(route('asset_master.addToFavourites'), {
+            master_id: masterId,
+        });
+
+        isUserLike.value = response.data.isLike;
+
+        if (!likeCounts.value[masterId]) {
+            likeCounts.value[masterId] = 0;
+        }
+
+        if (isUserLike.value) {
+            likeCounts.value[masterId] += 1;
+        } else {
+            likeCounts.value[masterId] -= 1;
+        }
+    } catch (error) {
+        console.error('Error updating favourites:', error);
+    } finally {
+        isAnimating.value = false;
+    }
+};
 </script>
 
 <template>
@@ -66,10 +104,38 @@ const submitForm = () => {
             {{ $t('public.join_pamm') }}
         </Button>
 
-        <!-- <div class="flex items-center gap-3">
-            heart icon
-            <div class="text-gray-950 text-sm font-medium">{{ 'like number' }}</div>
-        </div> -->
+        <div class="flex items-center gap-3 w-full max-w-14">
+            <div
+                class="select-none transition ease-in-out duration-300 hover:scale-110"
+                @click="handleClick"
+                :class="{
+                  'icon-animation': isAnimating,
+                  'cursor-not-allowed': isAnimating,
+                  'cursor-pointer': !isAnimating
+                }"
+            >
+                <IconHeartFilled
+                    v-if="isUserLike"
+                    size="24"
+                    color="#FF2D58"
+                    :class="{'icon-spin': isAnimating}"
+                />
+                <IconHeart
+                    v-else
+                    size="24"
+                    color="#667085"
+                    stroke-width="1.25"
+                    :class="{'icon-spin': isAnimating}"
+                />
+            </div>
+
+            <div
+                v-if="master"
+                class="text-gray-950 text-sm font-medium"
+            >
+                {{ master.total_likes_count + (likeCounts[master.id] || 0) }}
+            </div>
+        </div>
     </div>
 
     <Dialog
@@ -174,3 +240,44 @@ const submitForm = () => {
         </form>
     </Dialog>
 </template>
+
+<style scoped>
+.icon-animation {
+    display: inline-block;
+    transition: transform 0.5s ease-in-out;
+}
+
+@keyframes customSpinAndScale {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+    20% {
+        transform: rotate(-30deg) scale(1);
+    }
+    40% {
+        transform: rotate(-30deg) scale(1);
+    }
+    100% {
+        transform: rotate(360deg) scale(1.2);
+    }
+}
+
+@keyframes scaleDownAndUp {
+    0% {
+        transform: scale(1.2);
+    }
+    50% {
+        transform: scale(0.1);
+    }
+    70% {
+        transform: scale(1.4);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.icon-spin {
+    animation: customSpinAndScale 0.6s ease-in-out, scaleDownAndUp 0.8s ease-in-out 0.6s;
+}
+</style>

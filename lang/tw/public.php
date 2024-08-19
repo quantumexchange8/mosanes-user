@@ -368,4 +368,8 @@ return [
     "my_joining" => "我已加入",
     "no_available_accounts" => "沒有可用帳戶",
     "days" => "天",
+    "monthly_pnl_performance" => "月份盈虧績效",
+    "profit" => "盈利",
+    "no_asset_master_available" => "未找到資產大師",
+    "no_asset_master_available_desc" => "看起來我們還沒有任何可用的資產大師。請稍後再來！",
 ];
