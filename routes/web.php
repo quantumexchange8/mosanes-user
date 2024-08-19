@@ -11,6 +11,7 @@ use App\Http\Controllers\StructureController;
 use App\Http\Controllers\AssetMasterController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\DownloadCenterController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TradingAccountController;
 
 Route::get('locale/{locale}', function ($locale) {
@@ -92,6 +93,18 @@ Route::middleware(['auth','verified'])->group(function () {
 
         Route::post('joinPamm', [AssetMasterController::class, 'joinPamm'])->name('asset_master.joinPamm');
         Route::post('addToFavourites', [AssetMasterController::class, 'addToFavourites'])->name('asset_master.addToFavourites');
+    });
+
+    /**
+     * ==============================
+     *          Report
+     * ==============================
+     */
+    Route::prefix('report')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('report');
+        Route::get('/getRebateSummary', [ReportController::class, 'getRebateSummary'])->name('report.getRebateSummary');
+        Route::get('/getRebateListing', [ReportController::class, 'getRebateListing'])->name('report.getRebateListing');
+        Route::get('/getGroupTransaction', [ReportController::class, 'getGroupTransaction'])->name('report.getGroupTransaction');
     });
 
     /**
