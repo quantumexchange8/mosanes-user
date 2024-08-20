@@ -9,7 +9,8 @@ import {useConfirm} from "primevue/useconfirm";
 import WalletTransfer from "@/Pages/Dashboard/Partials/WalletTransfer.vue";
 
 const props = defineProps({
-    rebateWallet: Object
+    rebateWallet: Object,
+    terms: Object,
 })
 
 const visible = ref(false);
@@ -97,6 +98,7 @@ const openDialog = (type) => {
         <template v-if="dialogType === 'withdrawal'">
             <WalletWithdrawal
                 :rebateWallet="rebateWallet"
+                :terms="terms"
                 @update:visible="visible = false"
             />
         </template>

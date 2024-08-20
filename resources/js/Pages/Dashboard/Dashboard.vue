@@ -14,6 +14,10 @@ import {trans} from "laravel-vue-i18n";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import RebateWalletAction from "@/Pages/Dashboard/RebateWalletAction.vue";
 
+const props = defineProps({
+    terms: Object
+})
+
 const user = usePage().props.auth.user;
 const { formatAmount } = transactionFormat();
 const groupTotalDeposit = ref(0);
@@ -153,6 +157,7 @@ watchEffect(() => {
                     </div>
                     <RebateWalletAction
                         :rebateWallet="rebateWallet"
+                        :terms="terms"
                     />
                 </div>
             </div>

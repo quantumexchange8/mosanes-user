@@ -16,6 +16,11 @@ import IconField from 'primevue/iconfield';
 import Dropdown from "primevue/dropdown";
 import { IconCircleCheckFilled } from '@tabler/icons-vue';
 import { trans, wTrans } from "laravel-vue-i18n";
+import TermsAndCondition from "@/Components/TermsAndCondition.vue";
+
+const props = defineProps({
+    terms: Object
+})
 
 // Initialize the form with user data
 const user = usePage().props.auth.user;
@@ -56,7 +61,6 @@ function updateType(event) {
 
 const showLiveAccountDialog = ref(false);
 const showDemoAccountDialog = ref(false);
-const showTradingAccountAgreementDialog = ref(false);
 
 // Functions to open and close the dialog
 const openDialog = (dialogRef, formRef = null) => {
@@ -66,8 +70,6 @@ const openDialog = (dialogRef, formRef = null) => {
         showLiveAccountDialog.value = true;
     } else if (dialogRef === 'demo') {
         showDemoAccountDialog.value = true;
-    } else if (dialogRef === 'tradingAccountAgreement') {
-        showTradingAccountAgreementDialog.value = true;
     }
 };
 
@@ -77,8 +79,6 @@ const closeDialog = (dialogName, formRef = null) => {
         showLiveAccountDialog.value = false;
     } else if (dialogName === 'demo') {
         showDemoAccountDialog.value = false;
-    } else if (dialogName === 'tradingAccountAgreement') {
-        showTradingAccountAgreementDialog.value = false;
     }
 };
 
@@ -257,7 +257,12 @@ const buttonSize = computed(() => {
                 </div>
             </div>
             <div class="self-stretch">
-                <span class="text-gray-500 text-xs">{{ $t('public.agreement_text') }} <span class="text-primary-500 text-xs font-medium" @click="openDialog('tradingAccountAgreement')">{{ $t('public.trading_account_agreement') }}</span>.</span>
+                <div class="text-gray-500 text-xs">{{ $t('public.agreement_text') }}
+                    <TermsAndCondition
+                        :termsLabel="$t('public.trading_account_agreement')"
+                        :terms="terms"
+                    />.
+                </div>
             </div>
         </div>
         <div class="flex justify-end items-center pt-5 gap-4 self-stretch md:pt-7">
@@ -305,21 +310,16 @@ const buttonSize = computed(() => {
                 </div>
             </div>
             <div class="self-stretch">
-                <span class="text-gray-500 text-xs">{{ $t('public.agreement_text') }} <span class="text-primary-500 text-xs font-medium" @click="openDialog('tradingAccountAgreement')">{{ $t('public.trading_account_agreement') }}</span>.</span>
+                <div class="text-gray-500 text-xs">{{ $t('public.agreement_text') }}
+                    <TermsAndCondition
+                        :termsLabel="$t('public.trading_account_agreement')"
+                        :terms="terms"
+                    />.
+                </div>
             </div>
         </div>
         <div class="flex justify-end items-center pt-5 gap-4 self-stretch md:pt-7">
             <Button variant="primary-flat" type="button" :class="{ 'opacity-25': demoAccountForm.processing }" :disabled="demoAccountForm.processing" @click.prevent="openDemoAccount">{{ $t('public.open_demo_account') }}</Button>
         </div>
     </Dialog>
-
-    <Dialog v-model:visible="showTradingAccountAgreementDialog" modal :header="$t('public.trading_account_agreement')" class="dialog-xs md:dialog-lg">
-        <div class="flex flex-col items-center pb-4 gap-8 self-stretch md:pb-7 md:gap-10">
-            <span class="self-stretch text-gray-950 text-sm"></span>
-            <div class="flex flex-col items-center gap-5 self-stretch">
-
-            </div>
-        </div>
-    </Dialog>
-
 </template>

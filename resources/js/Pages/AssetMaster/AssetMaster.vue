@@ -16,6 +16,10 @@ import debounce from "lodash/debounce.js";
 import Empty from "@/Components/Empty.vue";
 import {NoAssetMaster} from "@/Components/Icons/solid.jsx";
 
+const props = defineProps({
+    terms: Object,
+})
+
 const { formatAmount } = transactionFormat();
 
 const sortingDropdownOptions = [
@@ -340,6 +344,7 @@ getAvailableAccounts();
                         :master="master"
                         :accounts="accounts"
                         :isLoading="isLoading"
+                        :terms="terms"
                     />
                 </div>
             </div>

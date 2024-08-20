@@ -385,4 +385,12 @@ return [
     "profit" => "盈利",
     "no_asset_master_available" => "未找到資產大師",
     "no_asset_master_available_desc" => "看起來我們還沒有任何可用的資產大師。請稍後再來！",
+    "warning_1" => "淨值止損 = $ 50.00 將自動啟動在於您的交易帳戶.",
+    "warning_2" => "您的止損點可能與資產大師止損點不同.",
+    "warning_3_1" => "請記得您仍然受 cTrader ",
+    "warning_3_2" => "終端用戶許可協議",
+    "warning_3_3" => "約束, 您之前已經同意過該協議.",
+    "warning_4_1" => "繼續操作即表示我已閱讀並接受",
+    "warning_4_2" => "“有限授權書” (LPOA)",
+    "warning_4_3" => "的條款和條件.",
 ];

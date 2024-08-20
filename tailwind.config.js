@@ -1,5 +1,6 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
+import typography from '@tailwindcss/typography';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -157,8 +158,36 @@ export default {
                 '3xl': '1792px',
             },
             chip: 'inline-flex items-center justify-center px-3 py-1.5 rounded-lg border border-gray-300 bg-white shadow-input hover:bg-gray-50 focus:border-primary-300 focus:bg-primary-50 opacity-50 cursor-not-allowed',
+            typography: ({ theme }) => ({
+                DEFAULT: {
+                    css: {
+                        '--tw-prose-paragraphs': theme('colors.gray[700]'),
+                        '--tw-prose-headings': theme('colors.gray[950]'),
+                        '--tw-prose-counters': theme('colors.gray[300]'),
+                        '--tw-prose-bold': theme('colors.gray[950]'),
+                        '--tw-prose-bullets': theme('colors.gray[500]'),
+                        h1: {
+                            fontSize: '30px',
+                            lineHeight: '42px'
+                        },
+                        h2: {
+                            fontSize: '24px',
+                            lineHeight: '32px'
+                        },
+                        h3: {
+                            fontSize: '20px',
+                            lineHeight: '28px'
+                        },
+                        p: {
+                            fontSize: '14px',
+                            lineHeight: '20px'
+                        },
+                        maxWidth: '100ch',
+                    },
+                },
+            }),
         },
     },
 
-    plugins: [forms],
+    plugins: [forms, typography],
 };

@@ -387,4 +387,12 @@ return [
     "profit" => "Profit",
     "no_asset_master_available" => "No Asset Master Available",
     "no_asset_master_available_desc" => "Looks like we don’t have any Asset Masters available yet. Check back soon for new opportunities!",
+    "warning_1" => "Equity Stop Loss = $ 50.00 will be automatically applied to your trading account.",
+    "warning_2" => "Your Stop Out may differ from the Asset Master Stop Out.",
+    "warning_3_1" => "Please remember that you continue to be bound by the",
+    "warning_3_2" => "End-User License Agreement for cTrader",
+    "warning_3_3" => ", which you agreed to previously.",
+    "warning_4_1" => "By proceeding, I acknowledge that I have read and do hereby accept the",
+    "warning_4_2" => "Limited Power of Attorney (LPOA)",
+    "warning_4_3" => "terms and conditions.",
 ];

@@ -10,11 +10,13 @@ import {useForm} from "@inertiajs/vue3";
 import InputError from "@/Components/InputError.vue";
 import InputNumber from "primevue/inputnumber";
 import {IconHeartFilled, IconHeart} from '@tabler/icons-vue';
+import TermsAndCondition from "@/Components/TermsAndCondition.vue";
 
 const props = defineProps({
     master: Object,
     accounts: Array,
     isLoading: Boolean,
+    terms: Object,
 })
 
 const visible = ref(false);
@@ -223,6 +225,27 @@ const addToFavourites = async (masterId) => {
                 <!-- risk warning -->
                 <div class="flex flex-col items-start gap-3 self-stretch">
                     <span class="text-gray-950 text-sm font-bold">{{ $t('public.warning') }}</span>
+                    <div class="text-xs text-gray-500 prose">
+                        <ul>
+                            <li>
+                                {{ $t('public.warning_1') }}
+                            </li>
+                            <li>
+                                {{ $t('public.warning_2') }}
+                            </li>
+                            <li>
+                                {{ $t('public.warning_3_1') }} <a href="https://ctrader.com/eula/" target="_blank" class="text-primary font-medium no-underline hover:text-primary-600">{{ $t('public.warning_3_2') }}</a>{{ $t('public.warning_3_3') }}
+                            </li>
+                        </ul>
+                        <div>
+                            {{ $t('public.warning_4_1') }}
+                            <TermsAndCondition
+                                :termsLabel="$t('public.warning_4_2')"
+                                :terms="terms"
+                            />
+                            {{ $t('public.warning_4_3') }}
+                        </div>
+                    </div>
                 </div>
             </div>
 

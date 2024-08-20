@@ -6,6 +6,7 @@ use App\Models\AssetMaster;
 use App\Models\AssetMasterProfitDistribution;
 use App\Models\AssetMasterUserFavourite;
 use App\Models\AssetSubscription;
+use App\Models\Term;
 use App\Models\TradingAccount;
 use App\Services\CTraderService;
 use Carbon\Carbon;
@@ -22,7 +23,21 @@ class AssetMasterController extends Controller
 {
     public function index()
     {
-        return Inertia::render('AssetMaster/AssetMaster');
+        $terms = Term::where('slug', 'limited-power-of-attorney-lpoa')->get();
+
+        $structuredTerms = [];
+
+        foreach ($terms as $term) {
+            $locale = $term->locale;
+            $structuredTerms[$locale] = [
+                'title' => $term->title,
+                'contents' => $term->contents,
+            ];
+        }
+
+        return Inertia::render('AssetMaster/AssetMaster', [
+            'terms' => $structuredTerms
+        ]);
     }
 
     public function getMasters()

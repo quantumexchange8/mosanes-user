@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Term;
 use App\Models\Transaction;
 use App\Models\Wallet;
 use Auth;
@@ -11,7 +12,21 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Dashboard/Dashboard');
+        $terms = Term::where('slug', 'terms-and-conditions')->get();
+
+        $structuredTerms = [];
+
+        foreach ($terms as $term) {
+            $locale = $term->locale;
+            $structuredTerms[$locale] = [
+                'title' => $term->title,
+                'contents' => $term->contents,
+            ];
+        }
+
+        return Inertia::render('Dashboard/Dashboard', [
+            'terms' => $structuredTerms,
+        ]);
     }
 
     public function getDashboardData()

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AssetSubscription;
+use App\Models\Term;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
@@ -27,7 +28,21 @@ class TradingAccountController extends Controller
 {
     public function index()
     {
-        return Inertia::render('TradingAccount/Account');
+        $terms = Term::where('slug', 'trading-account-agreement')->get();
+
+        $structuredTerms = [];
+
+        foreach ($terms as $term) {
+            $locale = $term->locale;
+            $structuredTerms[$locale] = [
+                'title' => $term->title,
+                'contents' => $term->contents,
+            ];
+        }
+
+        return Inertia::render('TradingAccount/Account', [
+            'terms' => $structuredTerms
+        ]);
     }
 
     public function getOptions()
