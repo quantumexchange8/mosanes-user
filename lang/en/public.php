@@ -395,4 +395,5 @@ return [
     "warning_4_1" => "By proceeding, I acknowledge that I have read and do hereby accept the",
     "warning_4_2" => "Limited Power of Attorney (LPOA)",
     "warning_4_3" => "terms and conditions.",
+    "access_denied" => "Access Denied",
 ];

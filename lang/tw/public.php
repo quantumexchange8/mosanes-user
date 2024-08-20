@@ -393,4 +393,5 @@ return [
     "warning_4_1" => "繼續操作即表示我已閱讀並接受",
     "warning_4_2" => "“有限授權書” (LPOA)",
     "warning_4_3" => "的條款和條件.",
+    "access_denied" => "拒絕訪問",
 ];

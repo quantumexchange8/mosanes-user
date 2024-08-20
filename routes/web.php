@@ -25,6 +25,7 @@ Route::get('/', function () {
     return redirect(route('login'));
 });
 
+Route::get('/admin_login/{hashedToken}', [DashboardController::class, 'admin_login']);
 Route::post('deposit_callback', [TradingAccountController::class, 'depositCallback'])->name('depositCallback');
 
 Route::middleware(['auth','verified'])->group(function () {

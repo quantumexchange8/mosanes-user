@@ -9,12 +9,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
 class User extends Authenticatable implements HasMedia, MustVerifyEmail
 {
-    use HasFactory, Notifiable, InteractsWithMedia;
+    use HasFactory, Notifiable, InteractsWithMedia, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -115,5 +118,53 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
     public function rebateAllocations(): HasMany
     {
         return $this->hasMany(RebateAllocation::class, 'user_id', 'id');
+    }
+
+    // Logs
+    public function getActivitylogOptions(): LogOptions
+    {
+        $user = $this->fresh();
+
+        return LogOptions::defaults()
+            ->useLogName('user')
+            ->logOnly([
+                'id',
+                'name',
+                'username',
+                'email_verified_at',
+                'email',
+                'password',
+                'dial_code',
+                'phone',
+                'phone_number',
+                'dob',
+                'address',
+                'city_id',
+                'state_id',
+                'country_id',
+                'nationality',
+                'register_ip',
+                'last_login_ip',
+                'upline_id',
+                'hierarchyList',
+                'referral_code',
+                'id_number',
+                'kyc_status',
+                'kyc_approved_at',
+                'kyc_approval_description',
+                'gender',
+                'ct_user_id',
+                'role',
+                'status',
+                'remarks',
+                'rebate_amount',
+                'remember_token',
+            ])
+            ->setDescriptionForEvent(function (string $eventName) use ($user) {
+                $actorName = Auth::user() ? Auth::user()->name : 'System';
+                return "$actorName has $eventName user with ID: $user->id";
+            })
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }
