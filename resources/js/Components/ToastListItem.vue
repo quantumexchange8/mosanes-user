@@ -1,6 +1,12 @@
 <script setup>
 import {onMounted} from "vue";
-import { IconCircleCheckFilled, IconAlertTriangleFilled, IconX } from '@tabler/icons-vue';
+import {
+    IconCircleCheckFilled,
+    IconAlertTriangleFilled,
+    IconCircleXFilled,
+    IconInfoOctagonFilled,
+    IconX
+} from '@tabler/icons-vue';
 
 const props = defineProps({
     title: String,
@@ -22,8 +28,8 @@ const emit = defineEmits(['remove']);
 const iconComponent = {
     success: IconCircleCheckFilled,
     warning: IconAlertTriangleFilled,
-    error: IconCircleCheckFilled, // Change as needed
-    info: IconCircleCheckFilled // Change as needed
+    error: IconCircleXFilled,
+    info: IconInfoOctagonFilled
 }[props.type];
 
 const borderColor = {
@@ -44,7 +50,7 @@ const textColor = {
 </script>
 <template>
     <div
-        class="mx-4 sm:mx-0 py-3 px-4 flex justify-center self-stretch gap-4 border-t-8 shadow-toast bg-white"
+        class="mx-3 sm:mx-0 py-3 px-4 flex justify-center self-stretch gap-4 border-t-8 shadow-toast bg-white"
         :class="[
             message ? 'items-start' : 'items-center',
             borderColor

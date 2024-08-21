@@ -394,4 +394,10 @@ return [
     "warning_4_2" => "“有限授權書” (LPOA)",
     "warning_4_3" => "的條款和條件.",
     "access_denied" => "拒絕訪問",
+    "apply_rebate_desc" => "您確定要申請您的返傭? 這將轉移您的返傭至返傭錢包.",
+    "toast_apply_rebate_success" => "您已成功申請返傭!",
+    "unable_to_apply_rebate" => "無法申請返傭！",
+    "toast_apply_rebate_error" => "目前返傭金額為0，無法申請返傭，請檢查返傭詳情後重試.",
+    "inactive_account_notice" => "交易帳戶不活躍通知",
+    "inactive_account_notice_message" => "請注意: 90 天內沒有任何活動的交易帳戶將會自動被刪除. 請保持活躍以保持您的帳戶開放!",
 ];

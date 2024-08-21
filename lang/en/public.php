@@ -400,4 +400,6 @@ return [
     "toast_apply_rebate_success" => "You’ve successfully applied your rebate!",
     "unable_to_apply_rebate" => "Unable to Apply Rebate!",
     "toast_apply_rebate_error" => "Rebate cannot be applied as the current rebate amount is 0. Please check the rebate details and try again.",
+    "inactive_account_notice" => "Inactive Account Notice",
+    "inactive_account_notice_message" => "Please note: Trading accounts with no activity for 90 days will be deleted. Stay active to keep your account open!",
 ];

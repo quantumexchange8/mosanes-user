@@ -14,7 +14,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import InputText from 'primevue/inputtext';
 import IconField from 'primevue/iconfield';
 import Dropdown from "primevue/dropdown";
-import { IconCircleCheckFilled } from '@tabler/icons-vue';
+import {IconCircleCheckFilled, IconInfoOctagonFilled, IconX} from '@tabler/icons-vue';
 import { trans, wTrans } from "laravel-vue-i18n";
 import TermsAndCondition from "@/Components/TermsAndCondition.vue";
 
@@ -139,12 +139,47 @@ const openDemoAccount = () => {
 const buttonSize = computed(() => {
     return window.innerWidth < 768 ? 'sm' : 'base';
 })
+
+const noticeVisible = ref(true);
 </script>
 
 <template>
     <AuthenticatedLayout :title="$t('public.accounts')">
-        <div class="flex flex-col pt-3 gap-20 md:pt-5 md:gap-[100px]">
+        <div class="flex flex-col gap-20 md:gap-[100px]">
             <div class="flex flex-col items-start gap-5 self-stretch">
+                <!-- notice -->
+                <TransitionGroup
+                    tag="div"
+                    enter-from-class="-translate-y-full opacity-0"
+                    enter-active-class="duration-300"
+                    leave-active-class="duration-300"
+                    leave-to-class="-translate-y-full opacity-0"
+                    class="w-full"
+                >
+                    <div
+                        v-if="noticeVisible"
+                        class="py-3 px-4 flex justify-center self-stretch gap-4 border-t-8 border-info-500 shadow-toast bg-white items-start"
+                        role="alert"
+                    >
+                        <div class="text-info-500">
+                            <IconInfoOctagonFilled size="20" />
+                        </div>
+                        <div
+                            class="flex flex-col gap-1 items-start w-full text-sm"
+                        >
+                            <div class="text-gray-950 font-semibold">
+                                {{ $t('public.inactive_account_notice') }}
+                            </div>
+                            <div class="text-gray-700">
+                                {{ $t('public.inactive_account_notice_message') }}
+                            </div>
+                        </div>
+                        <div class="text-gray-400 hover:text-gray-600 hover:cursor-pointer select-none" @click="noticeVisible = false">
+                            <IconX size="16" stroke-width="1.25" />
+                        </div>
+                    </div>
+                </TransitionGroup>
+
                 <!-- banner -->
                 <div class="h-[260px] pl-5 pt-5 pr-3 pb-[26px] self-stretch rounded-2xl bg-white shadow-toast md:h-60 bg-[url('/img/background-account-banner.svg')] bg-no-repeat bg-right-bottom bg-contain
                     md:pl-8 md:pt-[30px] md:pb-[30px] md:pr-[246px]

@@ -384,8 +384,8 @@ class AssetMasterController extends Controller
         // Apply month and year filtering if provided
         $filteredQuery = AssetMasterProfitDistribution::where('asset_master_id', $request->master_id)
             ->when($request->filled('month'), function ($query) use ($month, $year) {
-                $query->whereYear('created_at', $year)
-                    ->whereMonth('created_at', $month)
+                $query->whereYear('profit_distribution_date', $year)
+                    ->whereMonth('profit_distribution_date', $month)
                     ->whereDate('profit_distribution_date', '<', today());
             });
 
