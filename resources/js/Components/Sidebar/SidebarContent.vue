@@ -51,7 +51,7 @@ import {
         <SidebarLink
             :title="$t('public.asset_master')"
             :href="route('asset_master')"
-            :active="route().current('asset_master')"
+            :active="route().current('asset_master') || route().current('asset_master.showPammInfo')"
         >
             <template #icon>
                 <IconCoinMonero :size="20" stroke-width="1.25" />

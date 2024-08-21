@@ -396,4 +396,8 @@ return [
     "warning_4_2" => "Limited Power of Attorney (LPOA)",
     "warning_4_3" => "terms and conditions.",
     "access_denied" => "Access Denied",
+    "apply_rebate_desc" => "Are you sure you want to apply your rebate? This will transfer your rebate instantly.",
+    "toast_apply_rebate_success" => "You’ve successfully applied your rebate!",
+    "unable_to_apply_rebate" => "Unable to Apply Rebate!",
+    "toast_apply_rebate_error" => "Rebate cannot be applied as the current rebate amount is 0. Please check the rebate details and try again.",
 ];

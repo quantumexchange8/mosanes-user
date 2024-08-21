@@ -127,7 +127,7 @@ getAvailableAccounts();
                                 {{ $t('public.total_gain') }}
                             </div>
                             <div class="self-stretch text-gray-950 text-center text-lg font-semibold">
-                                {{ masterDetail.total_gain }} %
+                                {{ formatAmount(masterDetail.total_gain) }} %
                             </div>
                         </div>
                         <div class="flex flex-col items-center gap-1">
@@ -135,7 +135,7 @@ getAvailableAccounts();
                                 {{ $t('public.monthly_gain') }}
                             </div>
                             <div class="self-stretch text-gray-950 text-center text-lg font-semibold">
-                                {{ masterDetail.monthly_gain }} %
+                                {{ formatAmount(masterDetail.monthly_gain) }} %
                             </div>
                         </div>
                         <div class="flex flex-col items-center gap-1">
@@ -147,7 +147,7 @@ getAvailableAccounts();
                                     v-if="masterDetail.latest_profit !== 0"
                                     :class="(masterDetail.latest_profit < 0) ? 'text-error-500' : 'text-success-500'"
                                 >
-                                    {{ masterDetail.latest_profit }} %
+                                    {{ formatAmount(masterDetail.latest_profit) }} %
                                 </div>
                                 <div
                                     v-else

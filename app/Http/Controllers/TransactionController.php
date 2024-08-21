@@ -249,4 +249,44 @@ class TransactionController extends Controller
             'transactions' => $transactions,
         ]);
     }
+
+    public function applyRebate()
+    {
+        $user = Auth::user();
+
+        if ($user->rebate_amount > 0) {
+            $rebate_wallet = $user->rebate_wallet;
+
+            Transaction::create([
+                'user_id' => $user->id,
+                'category' => 'rebate_wallet',
+                'transaction_type' => 'apply_rebate',
+                'to_wallet_id' => $rebate_wallet->id,
+                'transaction_number' => RunningNumberService::getID('transaction'),
+                'amount' => $user->rebate_amount,
+                'transaction_charges' => 0,
+                'transaction_amount' => $user->rebate_amount,
+                'old_wallet_amount' => $rebate_wallet->balance,
+                'new_wallet_amount' => $rebate_wallet->balance += $user->rebate_amount,
+                'status' => 'successful',
+                'approved_at' => now(),
+            ]);
+
+            $rebate_wallet->save();
+
+            $user->rebate_amount = 0;
+            $user->save();
+
+            return back()->with('toast', [
+                'title' => trans("public.toast_apply_rebate_success"),
+                'type' => 'success',
+            ]);
+        } else {
+            return back()->with('toast', [
+                'title' => trans("public.unable_to_apply_rebate"),
+                'message' => trans("public.toast_apply_rebate_error"),
+                'type' => 'error',
+            ]);
+        }
+    }
 }

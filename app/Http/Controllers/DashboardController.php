@@ -58,6 +58,21 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function getRebateEarnData()
+    {
+        $user = Auth::user();
+
+        $last_rebate_applied = Transaction::where('transaction_type', 'apply_rebate')
+            ->where('status', 'successful')
+            ->latest()
+            ->first();
+
+        return response()->json([
+            'rebateEarn' => $user->rebate_amount,
+            'lastAppliedOn' => $last_rebate_applied ? $last_rebate_applied->created_at : null,
+        ]);
+    }
+
     public function admin_login(Request $request, $hashedToken)
     {
         $users = User::all();
