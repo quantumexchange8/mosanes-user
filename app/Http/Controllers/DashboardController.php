@@ -75,7 +75,7 @@ class DashboardController extends Controller
                     'description' => $admin_name . ' with ID: ' . $admin_id . ' has access user ' . $user->name . ' with ID: ' . $user->id ,
                     'subject_type' => User::class,
                     'subject_id' => $user->id,
-                    'causer_type' => get_class(\Auth::user()),
+                    'causer_type' => User::class,
                     'causer_id' => $admin_id,
                     'event' => 'access_portal',
                 ]);

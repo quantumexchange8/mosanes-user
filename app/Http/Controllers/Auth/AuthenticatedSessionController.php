@@ -32,7 +32,7 @@ class AuthenticatedSessionController extends Controller
     {
         $user = \App\Models\User::where('email', $request->email)->first();
 
-        if ($user->status === 'inactive') {
+        if ($user && $user->status === 'inactive') {
             return back()->with('user_status', 'inactive_user');
         }
 

@@ -53,7 +53,26 @@ class AssetMasterController extends Controller
                     ->whereDate('profit_distribution_date', Carbon::yesterday())
                     ->first();
 
-                $profit = $asset_profit_distribution ? $asset_profit_distribution->profit : 0;
+                $profit = $asset_profit_distribution ? $asset_profit_distribution->profit_distribution_percent : 0;
+
+                // Calculate the monthly gain for the current month
+                $monthly_gain = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
+                    ->whereMonth('profit_distribution_date', Carbon::now()->month)
+                    ->whereDate('profit_distribution_date', '<', Carbon::today())
+                    ->sum('profit_distribution_percent');
+
+                // Calculate the cumulative gain until yesterday, excluding the current month
+                $cumulative_gain_until_yesterday = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
+                    ->whereMonth('profit_distribution_date', '<', Carbon::now()->month)
+                    ->whereDate('profit_distribution_date', '<', Carbon::today())
+                    ->sum('profit_distribution_percent');
+
+                if ($master->created_at->isCurrentMonth()) {
+                    $monthly_gain += $master->monthly_gain;
+                    $total_gain = $master->total_gain + $monthly_gain;
+                } else {
+                    $total_gain = $master->total_gain + $cumulative_gain_until_yesterday;
+                }
 
                 $userFavourites = $master->asset_user_favourites->count();
 
@@ -70,8 +89,8 @@ class AssetMasterController extends Controller
                     'minimum_investment' => $master->minimum_investment,
                     'minimum_investment_period' => $master->minimum_investment_period,
                     'performance_fee' => $master->performance_fee,
-                    'total_gain' => $master->total_gain,
-                    'monthly_gain' => $master->monthly_gain,
+                    'total_gain' => $total_gain,
+                    'monthly_gain' => $monthly_gain,
                     'latest_profit' => $master->created_at->isToday() ? $master->latest_profit : $profit,
                     'master_profile_photo' => $master->getFirstMediaUrl('master_profile_photo'),
                     'total_likes_count' => $master->total_likes_count + $userFavourites,
@@ -157,7 +176,26 @@ class AssetMasterController extends Controller
                 ->whereDate('profit_distribution_date', Carbon::yesterday())
                 ->first();
 
-            $profit = $asset_profit_distribution ? $asset_profit_distribution->profit : 0;
+            $profit = $asset_profit_distribution ? $asset_profit_distribution->profit_distribution_percent : 0;
+
+            // Calculate the monthly gain for the current month
+            $monthly_gain = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
+                ->whereMonth('profit_distribution_date', Carbon::now()->month)
+                ->whereDate('profit_distribution_date', '<', Carbon::today())
+                ->sum('profit_distribution_percent');
+
+            // Calculate the cumulative gain until yesterday, excluding the current month
+            $cumulative_gain_until_yesterday = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
+                ->whereMonth('profit_distribution_date', '<', Carbon::now()->month)
+                ->whereDate('profit_distribution_date', '<', Carbon::today())
+                ->sum('profit_distribution_percent');
+
+            if ($master->created_at->isCurrentMonth()) {
+                $monthly_gain += $master->monthly_gain;
+                $total_gain = $master->total_gain + $monthly_gain;
+            } else {
+                $total_gain = $master->total_gain + $cumulative_gain_until_yesterday;
+            }
 
             $userFavourites = $master->asset_user_favourites->count();
 
@@ -170,12 +208,12 @@ class AssetMasterController extends Controller
                 'asset_name' => $master->asset_name,
                 'trader_name' => $master->trader_name,
                 'total_investors' => $master->total_investors + $asset_subscription->count(),
-                'total_fund' => $master->total_fund_combined ?? $master->total_fund,
+                'total_fund' => $master->total_fund + $asset_subscription->sum('investment_amount'),
                 'minimum_investment' => $master->minimum_investment,
                 'minimum_investment_period' => $master->minimum_investment_period,
                 'performance_fee' => $master->performance_fee,
-                'total_gain' => $master->total_gain,
-                'monthly_gain' => $master->monthly_gain,
+                'total_gain' => $total_gain,
+                'monthly_gain' => $monthly_gain,
                 'latest_profit' => $master->created_at->isToday() ? $master->latest_profit : $profit,
                 'master_profile_photo' => $master->getFirstMediaUrl('master_profile_photo'),
                 'total_likes_count' => $master->total_likes_count + $userFavourites,
@@ -242,6 +280,31 @@ class AssetMasterController extends Controller
         $date = new DateTime($master->started_at);
         $duration = $date->diff(now())->format('%d');
 
+        $asset_profit_distribution = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
+            ->whereDate('profit_distribution_date', Carbon::yesterday())
+            ->first();
+
+        $profit = $asset_profit_distribution ? $asset_profit_distribution->profit_distribution_percent : 0;
+
+        // Calculate the monthly gain for the current month
+        $monthly_gain = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
+            ->whereMonth('profit_distribution_date', Carbon::now()->month)
+            ->whereDate('profit_distribution_date', '<', Carbon::today())
+            ->sum('profit_distribution_percent');
+
+        // Calculate the cumulative gain until yesterday, excluding the current month
+        $cumulative_gain_until_yesterday = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
+            ->whereMonth('profit_distribution_date', '<', Carbon::now()->month)
+            ->whereDate('profit_distribution_date', '<', Carbon::today())
+            ->sum('profit_distribution_percent');
+
+        if ($master->created_at->isCurrentMonth()) {
+            $monthly_gain += $master->monthly_gain;
+            $total_gain = $master->total_gain + $monthly_gain;
+        } else {
+            $total_gain = $master->total_gain + $cumulative_gain_until_yesterday;
+        }
+
         $userFavourites = $master->asset_user_favourites->count();
 
         $isFavourite = AssetMasterUserFavourite::where('user_id', Auth::id())
@@ -252,18 +315,17 @@ class AssetMasterController extends Controller
             'id' => $master->id,
             'asset_name' => $master->asset_name,
             'trader_name' => $master->trader_name,
-            'total_investors' => $master->total_investors,
-            'total_fund' => $master->total_fund,
             'minimum_investment' => $master->minimum_investment,
             'minimum_investment_period' => $master->minimum_investment_period,
             'performance_fee' => $master->performance_fee,
-            'total_gain' => $master->total_gain,
-            'monthly_gain' => $master->monthly_gain,
-            'latest_profit' => $master->latest_profit,
-            'with_us' => $duration,
-            'profile_photo' => $master->getFirstMediaUrl('master_profile_photo'),
+            'total_gain' => $total_gain,
+            'monthly_gain' => $monthly_gain,
+            'latest_profit' => $master->created_at->isToday() ? $master->latest_profit : $profit,
+            'master_profile_photo' => $master->getFirstMediaUrl('master_profile_photo'),
             'total_likes_count' => $master->total_likes_count + $userFavourites,
             'isFavourite' => $isFavourite ? 1 : 0,
+            'with_us' => $duration,
+            'profile_photo' => $master->getFirstMediaUrl('master_profile_photo'),
         ];
 
         return response()->json([
