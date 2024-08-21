@@ -14,6 +14,7 @@ export default {
 
             // Font
             'text-sm',
+            'font-normal',
 
             // Colors
             'text-gray-950',

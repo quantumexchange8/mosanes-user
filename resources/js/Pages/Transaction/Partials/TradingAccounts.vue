@@ -25,6 +25,7 @@ import Dialog from 'primevue/dialog';
 import TransactionDetails from '@/Pages/Transaction/Partials/TransactionDetails.vue';
 import Slider from 'primevue/slider';
 import dayjs from 'dayjs'
+import Empty from '@/Components/Empty.vue';
 
 const { formatDateTime, formatAmount } = transactionFormat();
 
@@ -210,7 +211,7 @@ const rowClicked = (data) => {
                     </div>
                 </div>
             </template>
-            <template #empty> {{ $t('public.no_transaction_header') }} </template>
+            <template #empty><Empty :title="$t('public.empty_transaction_title')" :message="$t('public.empty_transaction_message')"/></template>
             <template #loading>
                 <div class="flex flex-col gap-2 items-center justify-center">
                     <Loader />

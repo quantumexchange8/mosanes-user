@@ -246,7 +246,7 @@ getAvailableAccounts();
                     class="w-full p-6 flex flex-col items-center gap-4 rounded-2xl bg-white shadow-toast"
                 >
                     <div
-                        class="flex flex-col gap-4 items-center self-stretch hover:cursor-pointer hover:cursor-pointer"
+                        class="flex flex-col gap-4 items-center self-stretch hover:cursor-pointer"
                         @click="viewPammInfo(index)"
                     >
                         <div class="w-full flex items-center gap-4">
@@ -352,10 +352,13 @@ getAvailableAccounts();
             <!-- Empty Data -->
             <Empty
                 v-else-if="!masterLoading && masters.length === 0"
-                :componentName="h(NoAssetMaster)"
                 :title="$t('public.no_asset_master_available')"
                 :message="$t('public.no_asset_master_available_desc')"
-            />
+            >
+            <template #image>
+                <NoAssetMaster class="w-60 h-[180px]" />
+            </template>
+            </Empty>
 
         </div>
     </AuthenticatedLayout>

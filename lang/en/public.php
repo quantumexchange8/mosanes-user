@@ -270,7 +270,6 @@ return [
     "day_shortform" => "d",
     "copy" => "Copy",
     "copied" => "Copied!",
-    "no_transaction_header" => "No transaction found.",
     "standard_account" => "Standard Account",
     "premium_account" => "Premium Account",
     "referral_qr_code" => "Referral QR Code",
@@ -402,4 +401,8 @@ return [
     "toast_apply_rebate_error" => "Rebate cannot be applied as the current rebate amount is 0. Please check the rebate details and try again.",
     "inactive_account_notice" => "Inactive Account Notice",
     "inactive_account_notice_message" => "Please note: Trading accounts with no activity for 90 days will be deleted. Stay active to keep your account open!",
+    "empty_transaction_title" => "No Transactions Found",
+    "empty_transaction_message" => "It looks like there are no transactions yet. Check back soon to see your activity here!",
+    "total_volume" => "Total Volume",
+    "total_rebate" => "Total Rebate",
 ];

@@ -271,7 +271,6 @@ return [
     "copy" => "拷貝",
     "copied" => "已拷貝!",
     "paginator_caption" => "Showing {first} to {last} of {totalRecords} entries",
-    "no_transaction_header" => "未找到帳目數據。",
     "standard_account" => "標準交易賬戶",
     "premium_account" => "優投管理帳戶",
     "referral_qr_code" => "推薦二維碼",
@@ -400,4 +399,8 @@ return [
     "toast_apply_rebate_error" => "目前返傭金額為0，無法申請返傭，請檢查返傭詳情後重試.",
     "inactive_account_notice" => "交易帳戶不活躍通知",
     "inactive_account_notice_message" => "請注意: 90 天內沒有任何活動的交易帳戶將會自動被刪除. 請保持活躍以保持您的帳戶開放!",
+    "empty_transaction_title" => "未找到帳目數據",
+    "empty_transaction_message" => "看起來尚未有任何交易記錄。稍後再來查看您的活動吧！",
+    "total_volume" => "總交易量",
+    "total_rebate" => "總返傭",
 ];

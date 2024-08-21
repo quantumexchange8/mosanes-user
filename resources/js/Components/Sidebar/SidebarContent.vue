@@ -17,6 +17,8 @@ import {
     IconDownload,
 } from '@tabler/icons-vue';
 
+const user = usePage().props.auth.user;
+
 </script>
 
 <template>
@@ -81,15 +83,16 @@ import {
         </SidebarLink>
 
         <!-- Report -->
-<!--        <SidebarLink-->
-<!--            :title="$t('public.report')"-->
-<!--            :href="route('report')"-->
-<!--            :active="route().current('report')"-->
-<!--        >-->
-<!--            <template #icon>-->
-<!--                <IconFileAnalytics :size="20" stroke-width="1.25" />-->
-<!--            </template>-->
-<!--        </SidebarLink>-->
+       <SidebarLink
+            v-if="user.role == 'agent'"
+           :title="$t('public.report')"
+           :href="route('report')"
+           :active="route().current('report')"
+       >
+           <template #icon>
+               <IconFileAnalytics :size="20" stroke-width="1.25" />
+           </template>
+       </SidebarLink>
 
         <!-- Rebate allocate -->
 <!--        <SidebarLink-->

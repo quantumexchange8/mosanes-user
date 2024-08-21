@@ -1,9 +1,7 @@
 <script setup>
 import InputText from 'primevue/inputtext';
 import Button from '@/Components/Button.vue';
-import { CalendarIcon } from '@/Components/Icons/outline'
-import { ref, onMounted, watch, watchEffect, computed } from "vue";
-import {usePage} from '@inertiajs/vue3';
+import { ref, watch } from "vue";
 import Dialog from 'primevue/dialog';
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
@@ -12,7 +10,7 @@ import {FilterMatchMode} from "primevue/api";
 import { transactionFormat } from '@/Composables/index.js';
 import Empty from '@/Components/Empty.vue';
 import Loader from "@/Components/Loader.vue";
-import {IconSearch, IconCircleXFilled, IconAdjustments, IconX} from '@tabler/icons-vue';
+import {IconSearch, IconCircleXFilled, IconX} from '@tabler/icons-vue';
 import Calendar from 'primevue/calendar';
 
 const { formatDate, formatDateTime, formatAmount } = transactionFormat();
@@ -21,6 +19,7 @@ const visible = ref(false);
 const rebateListing = ref();
 const dt = ref();
 const loading = ref(false);
+const expandedRows = ref({});
 
 // Get current date
 const today = new Date();
@@ -125,6 +124,7 @@ const openDialog = (rowData) => {
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
             :globalFilterFields="['name']"
             ref="dt"
+            selectionMode="single"
             @row-click="(event) => openDialog(event.data)"
             :loading="loading"
             >
@@ -263,7 +263,7 @@ const openDialog = (rowData) => {
     <Dialog v-model:visible="visible" modal :header="$t('public.rebate_details')" class="dialog-xs md:dialog-md">
         <div class="flex flex-col justify-center items-start pb-4 gap-3 self-stretch border-b border-gray-200 md:flex-row md:pt-4 md:justify-between">
             <!-- below md -->
-            <span class="md:hidden self-stretch text-gray-950 text-xl font-semibold">$&nbsp;{{ data.rebate }}</span>
+            <span class="md:hidden self-stretch text-gray-950 text-xl font-semibold">$&nbsp;{{ formatAmount(data.rebate) }}</span>
             <div class="flex items-center gap-3 self-stretch">
                 <div class="w-9 h-9 rounded-full overflow-hidden grow-0 shrink-0">
                     <DefaultProfilePhoto />
@@ -274,17 +274,17 @@ const openDialog = (rowData) => {
                 </div>
             </div>
             <!-- above md -->
-            <span class="hidden md:block w-[180px] text-gray-950 text-right text-xl font-semibold">$&nbsp;{{ data.rebate }}</span>
+            <span class="hidden md:block w-[180px] text-gray-950 text-right text-xl font-semibold">$&nbsp;{{ formatAmount(data.rebate) }}</span>
         </div>
 
         <div class="flex flex-col justify-center items-center py-4 gap-3 self-stretch border-b border-gray-200 md:border-none">
             <div class="min-w-[100px] flex gap-1 flex-grow items-center self-stretch">
                 <span class="self-stretch text-gray-500 text-xs font-medium w-[88px] md:w-[140px]">{{ $t('public.rebate_date') }}</span>
-                <span class="self-stretch text-gray-950 text-sm font-medium flex-grow">{{ `${formatDate(selectedDate[0])}&nbsp;-&nbsp;${formatDate(selectedDate[1])}` }}</span>
+                <span class="self-stretch text-gray-950 text-sm font-medium flex-grow">{{ `${formatDate(selectedDate[0] ?? '2024/01/01')}&nbsp;-&nbsp;${formatDate(selectedDate[1] ?? today)}` }}</span>
             </div>
             <div class="min-w-[100px] flex gap-1 flex-grow items-center self-stretch">
                 <span class="self-stretch text-gray-500 text-xs font-medium w-[88px] md:w-[140px]">{{ $t('public.account') }}</span>
-                <span class="self-stretch text-gray-950 text-sm font-medium flex-grow">{{ data.meta_login }}&nbsp;Ł</span>
+                <span class="self-stretch text-gray-950 text-sm font-medium flex-grow">{{ data.meta_login }}</span>
             </div>
             <div class="min-w-[100px] flex gap-1 flex-grow items-center self-stretch">
                 <span class="self-stretch text-gray-500 text-xs font-medium w-[88px] md:w-[140px]">{{ $t('public.total_trade_volume') }}</span>
@@ -292,52 +292,182 @@ const openDialog = (rowData) => {
             </div>
         </div>
 
-        <div class="flex flex-col items-center pt-2 pb-2 gap-1 self-stretch md:pt-5 md:pb-0 md:gap-0">
-            <!-- below md -->
-            <div class="md:hidden flex flex-col items-center self-stretch" v-for="(product, index) in data.details" :key="index" :class="{'border-b border-gray-200': index !== data.details.length - 1}">
-                <div class="flex justify-between items-center py-2 self-stretch">
-                    <div class="flex flex-col items-start flex-grow">
-                    <span class="self-stretch overflow-hidden text-gray-950 text-ellipsis text-xs font-semibold" style="text-transform: capitalize;" >{{ $t('public.' + product.name) }}</span>
-                    <div class="flex items-center gap-2 self-stretch">
-                        <span class="text-gray-500 text-xs">{{ product.volume }}&nbsp;Ł</span>
-                        <span class="text-gray-500 text-xs">•</span>
-                        <span class="text-gray-500 text-xs">$&nbsp;{{ formatAmount(product.rebate) }}</span>
-                    </div>
-                    </div>
-                    <span class="w-[100px] overflow-hidden text-gray-950 text-right text-ellipsis font-semibold">$&nbsp;{{ formatAmount(product.rebate * product.volume) }}</span>
-                </div>
-            </div>
-            <!-- above md -->
-            <div class="w-full hidden md:grid grid-cols-4 gap-2 py-2 items-center border-b border-gray-200 bg-gray-100 uppercase text-gray-950 text-xs font-semibold">
-                <div class="flex items-center px-2">
-                    {{ $t('public.product') }}
-                </div>
-                <div class="flex items-center px-2">
-                    {{ $t('public.volume') }} (Ł)
-                </div>
-                <div class="flex items-center px-2">
-                    {{ $t('public.rebate') }} / Ł ($)
-                </div>
-                <div class="flex items-center px-2">
-                    {{ $t('public.total') }} ($)
-                </div>
-            </div>
+        <div class="flex flex-col items-start pt-2 self-stretch md:pt-0">
+            <DataTable
+                v-model:expandedRows="expandedRows"
+                :value="data.summary"
+                dataKey="execute_at"
+                removableSort
+                :pt="{
+                    column: {
+                        headercell: ({ context, props }) => ({
+                            class: [
+                                'font-semibold',
+                                'text-xs',
+                                'uppercase',
+                                'box-border',
 
-            <div v-for="(product, index) in data.details" :key="index" class="w-full hidden md:grid grid-cols-4 gap-2 py-3 items-center hover:bg-gray-50" :class="{'border-b border-gray-200': index !== data.details.length - 1}">
-                <div class="flex items-center px-2">
-                    <span class="text-gray-950 text-sm">{{ $t('public.' + product.name) }}</span>
-                </div>
-                <div class="flex items-center px-2">
-                    <span class="text-gray-950 text-sm">{{ product.volume }}</span>
-                </div>
-                <div class="flex items-center px-2">
-                    <span class="text-gray-950 text-sm">{{ product.rebate_allocation }}</span>
-                </div>
-                <div class="flex items-center px-2">
-                    <span class="text-gray-950 text-sm">{{ formatAmount(product.rebate) }}</span>
-                </div>
-            </div>
+                                // Position
+                                { 'sticky z-20 border-b': props.frozen || props.frozen === '' },
+
+                                { relative: context.resizable },
+
+                                // Shape
+                                { 'first:border-l border-y border-r': context?.showGridlines },
+                                'border-0 border-b border-solid',
+
+                                // Spacing
+                                context?.size === 'small' ? 'py-[0.375rem] px-2' : context?.size === 'large' ? 'py-[0.9375rem] px-5' : 'p-3',
+
+                                // Color
+                                (props.sortable === '' || props.sortable) && context.sorted ? 'bg-primary-100 text-primary-500' : 'bg-gray-100 text-gray-950',
+                                'border-gray-200 ',
+
+                                // States
+                                { 'hover:bg-gray-100': (props.sortable === '' || props.sortable) && !context?.sorted },
+                                'focus-visible:outline-none focus-visible:outline-offset-0 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-primary-500 dark:focus-visible:ring-primary-400',
+
+                                // Transition
+                                { 'transition duration-200': props.sortable === '' || props.sortable },
+
+                                // Misc
+                                { 'cursor-pointer': props.sortable === '' || props.sortable },
+                                {
+                                    'overflow-hidden space-nowrap border-y bg-clip-padding': context.resizable // Resizable
+                                },
+
+                                'hidden md:table-cell',
+                            ]
+                        }),
+                        bodycell: ({ props, context, state, parent }) => ({
+                            class: [
+                                // Font
+                                'text-sm font-semibold md:font-normal',
+
+                                // Alignment
+                                'text-left',
+
+                                // Spacing
+                                { 'py-2 px-3': context?.size !== 'large' && context?.size !== 'small' && !state['d_editing'] },
+
+                                // Border
+                                'border-0 border-b border-solid border-gray-200'
+                            ]
+                        }),
+                    },
+                }"
+            >
+                <!-- Row Expansion Column -->
+                <Column expander class="w-9 md:w-20 text-gray-500" />
+
+                <!-- Summary Columns -->
+                <Column sortable field="execute_at" header="Date" />
+                <Column field="volume" :header="`${$t('public.total_volume')}&nbsp;(Ł)`" class="text-left hidden md:table-cell"/>
+                <Column field="rebate" :header="`${$t('public.total_rebate')}&nbsp;($)`" class="text-left hidden md:table-cell"/>
+                <Column field="rebate" :header="`${$t('public.total_rebate')}&nbsp;($)`"  class="text-right md:hidden">
+                    <template #body="slotProps">
+                        {{ `$&nbsp;${slotProps.data.rebate}` }}
+                    </template>
+                </Column>
+
+                <!-- Row Expansion Content -->
+                <template #expansion="slotProps">
+                <!-- Display only details for each summary entry -->
+                    <DataTable 
+                        :value="slotProps.data.details" 
+                        class="pl-9 md:pl-20"
+                        unstyled
+                        :pt="{
+                            column: {
+                                headercell: ({ context, props }) => ({
+                                    class: [
+                                        'font-semibold',
+                                        'text-xs',
+                                        'uppercase',
+                                        'box-border',
+
+                                        // Position
+                                        { 'sticky z-20 border-b': props.frozen || props.frozen === '' },
+
+                                        { relative: context.resizable },
+
+                                        // Shape
+                                        { 'first:border-l border-y border-r': context?.showGridlines },
+                                        'border-0 border-b border-solid',
+
+                                        // Spacing
+                                        context?.size === 'small' ? 'py-[0.375rem] px-2' : context?.size === 'large' ? 'py-[0.9375rem] px-5' : 'p-3',
+
+                                        // Color
+                                        (props.sortable === '' || props.sortable) && context.sorted ? 'bg-primary-50 text-primary-500' : 'bg-white text-gray-950',
+                                        'border-gray-200 ',
+
+                                        // States
+                                        { 'hover:bg-gray-100': (props.sortable === '' || props.sortable) && !context?.sorted },
+                                        'focus-visible:outline-none focus-visible:outline-offset-0 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-primary-500 dark:focus-visible:ring-primary-400',
+
+                                        // Transition
+                                        { 'transition duration-200': props.sortable === '' || props.sortable },
+
+                                        // Misc
+                                        { 'cursor-pointer': props.sortable === '' || props.sortable },
+                                        {
+                                            'overflow-hidden space-nowrap border-y bg-clip-padding': context.resizable // Resizable
+                                        },
+
+                                        'hidden md:table-cell',
+                                    ]
+                                }),
+                                bodycell: ({ props, context, state, parent }) => ({
+                                    class: [
+                                        'flex justify-between items-center md:justify-normal md:items-start',
+
+                                        // Spacing
+                                        { 'py-1 md:py-2 px-3': context?.size !== 'large' && context?.size !== 'small' && !state['d_editing'] },
+
+                                        // Border
+                                        { 'border-0 border-b border-solid border-gray-200': parent.props.rowIndex != slotProps.data.details.length - 1 }
+                                    ]
+                                }),
+                            },
+                        }"
+                    >
+                        <Column field="name" :header="$t('public.product')" class="text-sm text-left hidden md:table-cell">
+                            <template #body="slotProps">
+                                {{ $t('public.' + slotProps.data.name) }}
+                            </template>
+                        </Column>
+                        <Column field="volume" :header="$t('public.volume')" class="text-sm text-left hidden md:table-cell">
+                            <template #body="slotProps">
+                                {{ formatAmount(slotProps.data.volume) }}
+                            </template>
+                        </Column>
+                        <Column field="net_rebate" :header="`${$t('public.rebate')}/Ł&nbsp;($)`" class="text-sm text-left hidden md:table-cell">
+                            <template #body="slotProps">
+                                {{ formatAmount(slotProps.data.net_rebate) }}
+                            </template>
+                        </Column>
+                        <Column field="rebate" :header="`${$t('public.rebate')}&nbsp;($)`" class="text-sm text-left hidden md:table-cell">
+                            <template #body="slotProps">
+                                {{ formatAmount(slotProps.data.rebate) }}
+                            </template>
+                        </Column>
+                        <Column field="name" class="md:hidden">
+                            <template #body="slotProps">
+                                <div class="flex flex-col items-start">
+                                    <span class="overflow-hidden text-xs text-gray-950 text-right text-ellipsis font-semibold">{{ $t('public.' + slotProps.data.name) }}</span>
+                                    <div class="flex items-center gap-2 self-stretch">
+                                        <span class="text-gray-700 text-xs">{{ `${formatAmount(slotProps.data.volume)}&nbsp;Ł` }}</span>
+                                        <span class="text-gray-700 text-sm">|</span>
+                                        <span class="text-gray-700 text-xs">{{ `$&nbsp;${formatAmount(slotProps.data.net_rebate)}` }}</span>
+                                    </div>
+                                </div>
+                                <span class="w-[100px] overflow-hidden text-sm text-gray-950 text-right text-ellipsis">$&nbsp;{{ formatAmount(slotProps.data.rebate) }}</span>
+                            </template>
+                        </Column>
+                    </DataTable>
+                </template>
+            </DataTable>
         </div>
     </Dialog>
-
 </template>
