@@ -6,6 +6,7 @@ use App\Models\AssetMaster;
 use App\Models\AssetMasterProfitDistribution;
 use App\Models\AssetMasterUserFavourite;
 use App\Models\AssetSubscription;
+use App\Models\Group;
 use App\Models\Term;
 use App\Models\TradingAccount;
 use App\Services\CTraderService;
@@ -40,66 +41,250 @@ class AssetMasterController extends Controller
         ]);
     }
 
-    public function getMasters()
+    public function getMasters(Request $request)
     {
-        $masters = AssetMaster::where('status', 'active')
-            ->latest()
-            ->get()
-            ->map(function($master) {
-                $asset_subscription = AssetSubscription::where('asset_master_id', $master->id)
-                    ->where('status', 'ongoing');
+        // Fetch limit with default
+        $limit = $request->input('limit', 12);
 
-                $asset_profit_distribution = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
-                    ->whereDate('profit_distribution_date', Carbon::yesterday())
-                    ->first();
+        // Fetch parameter from request
+        $search = $request->input('search', '');
+        $sortType = $request->input('sorting');
+        $tag = $request->input('tag', '');
+        $minInvestmentAmountRange = $request->input('minInvestmentAmountRange', '');
 
-                $profit = $asset_profit_distribution ? $asset_profit_distribution->profit_distribution_percent : 0;
+        // Initialize the query for total count
+        $countQuery = AssetMaster::query();
 
-                // Calculate the monthly gain for the current month
-                $monthly_gain = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
-                    ->whereMonth('profit_distribution_date', Carbon::now()->month)
-                    ->whereDate('profit_distribution_date', '<', Carbon::today())
-                    ->sum('profit_distribution_percent');
-
-                // Calculate the cumulative gain until yesterday, excluding the current month
-                $cumulative_gain_until_yesterday = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
-                    ->whereMonth('profit_distribution_date', '<', Carbon::now()->month)
-                    ->whereDate('profit_distribution_date', '<', Carbon::today())
-                    ->sum('profit_distribution_percent');
-
-                if ($master->created_at->isCurrentMonth()) {
-                    $monthly_gain += $master->monthly_gain;
-                    $total_gain = $master->total_gain + $monthly_gain;
-                } else {
-                    $total_gain = $master->total_gain + $cumulative_gain_until_yesterday;
-                }
-
-                $userFavourites = $master->asset_user_favourites->count();
-
-                $isFavourite = AssetMasterUserFavourite::where('user_id', Auth::id())
-                    ->where('asset_master_id', $master->id)
-                    ->first();
-
-                return [
-                    'id' => $master->id,
-                    'asset_name' => $master->asset_name,
-                    'trader_name' => $master->trader_name,
-                    'total_investors' => $master->total_investors + $asset_subscription->count(),
-                    'total_fund' => $master->total_fund + $asset_subscription->sum('investment_amount'),
-                    'minimum_investment' => $master->minimum_investment,
-                    'minimum_investment_period' => $master->minimum_investment_period,
-                    'performance_fee' => $master->performance_fee,
-                    'total_gain' => $total_gain,
-                    'monthly_gain' => $monthly_gain,
-                    'latest_profit' => $master->created_at->isToday() ? $master->latest_profit : $profit,
-                    'master_profile_photo' => $master->getFirstMediaUrl('master_profile_photo'),
-                    'total_likes_count' => $master->total_likes_count + $userFavourites,
-                    'isFavourite' => $isFavourite ? 1 : 0,
-                ];
+        // Apply search parameter to multiple fields
+        if (!empty($search)) {
+            $countQuery->where(function($query) use ($search) {
+                $query->where('trader_name', 'LIKE', "%$search%")
+                    ->orWhere('asset_name', 'LIKE', "%$search%");
             });
+        }
+
+        // Apply tag filter
+        if (!empty($tag)) {
+            $tags = explode(',', $tag);
+            foreach ($tags as $singleTag) {
+                switch (trim($singleTag)) {
+                    case 'no_min':
+                        $countQuery->where('minimum_investment', 0);
+                        break;
+                    case 'lock_free':
+                        $countQuery->where('minimum_investment_period', 0);
+                        break;
+                    case 'zero_fee':
+                        $countQuery->where('performance_fee', 0);
+                        break;
+                    default:
+                        return response()->json(['error' => 'Invalid filter'], 400);
+                }
+            }
+        }
+
+        // Apply min amount range filter
+        if (!empty($minInvestmentAmountRange)) {
+            $range = explode(',', $minInvestmentAmountRange);
+            $min = $range[0] ?? null;
+            $max = $range[1] ?? null;
+            if (!is_null($min) && !is_null($max)) {
+                $countQuery->whereBetween('minimum_investment', [$min, $max]);
+            } elseif (!is_null($min)) {
+                $countQuery->where('minimum_investment', '>=', $min);
+            } elseif (!is_null($max)) {
+                $countQuery->where('minimum_investment', '<=', $max);
+            }
+        }
+
+        // Apply group filtering based on user's group membership if the master type is 'private'
+        $userGroups = Auth::user()->groupHasUser()->pluck('group_id')->toArray();
+
+        $countQuery->where(function ($query) use ($userGroups) {
+            $query->where('type', 'public')
+                ->orWhere(function ($q) use ($userGroups) {
+                    $q->where('type', 'private')
+                        ->whereHas('visible_to_groups', function ($q) use ($userGroups) {
+                            $q->whereIn('group_id', $userGroups);
+                        });
+                });
+        });
+
+        // Get total count of masters
+        $totalRecords = $countQuery->count();
+
+        // Initialize the query for fetching results
+        $mastersQuery = AssetMaster::query();
+
+        // Apply search parameter to multiple fields
+        if (!empty($search)) {
+            $mastersQuery->where(function($query) use ($search) {
+                $query->where('trader_name', 'LIKE', "%$search%")
+                    ->orWhere('asset_name', 'LIKE', "%$search%");
+            });
+        }
+
+        // Apply sorting dynamically
+        switch ($sortType) {
+            case 'latest':
+                $mastersQuery->orderBy('created_at', 'desc');
+                break;
+
+            case 'popular':
+                $mastersQuery->leftJoin('asset_master_user_favourites', function ($join) {
+                    $join->on('asset_masters.id', '=', 'asset_master_user_favourites.asset_master_id')
+                        ->where('asset_master_user_favourites.user_id', Auth::id());
+                })
+                    ->select('asset_masters.*', DB::raw('COALESCE(total_likes_count, 0) + COALESCE(COUNT(asset_master_user_favourites.id), 0) AS popularity'))
+                    ->groupBy('asset_masters.id')
+                    ->orderBy(DB::raw('COALESCE(total_likes_count, 0) + COALESCE(COUNT(asset_master_user_favourites.id), 0)'), 'desc');
+                break;
+
+            case 'largest_fund':
+                $mastersQuery->leftJoin('asset_subscriptions', function ($join) {
+                    $join->on('asset_masters.id', '=', 'asset_subscriptions.asset_master_id')
+                        ->where('asset_subscriptions.status', 'ongoing');
+                })
+                    ->select('asset_masters.*', DB::raw('total_fund + COALESCE(SUM(asset_subscriptions.investment_amount), 0) AS total_fund_combined'))
+                    ->groupBy('asset_masters.id', 'total_fund')
+                    ->orderBy(DB::raw('total_fund + COALESCE(SUM(asset_subscriptions.investment_amount), 0)'), 'desc');
+                break;
+
+            case 'most_investors':
+                $mastersQuery->leftJoin('asset_subscriptions', function ($join) {
+                    $join->on('asset_masters.id', '=', 'asset_subscriptions.asset_master_id')
+                        ->where('asset_subscriptions.status', 'ongoing');
+                })
+                    ->select('asset_masters.*', DB::raw('total_investors + COALESCE(COUNT(asset_subscriptions.id), 0) AS total_investors_combined'))
+                    ->groupBy('asset_masters.id', 'total_investors')
+                    ->orderBy(DB::raw('total_investors + COALESCE(COUNT(asset_subscriptions.id), 0)'), 'desc');
+                break;
+
+            case 'favourites':
+                $mastersQuery->where('status', 'active')
+                    ->whereHas('asset_user_favourites', function ($query) {
+                        $query->where('user_id', Auth::id());
+                    });
+                break;
+
+            case 'joining':
+                $mastersQuery->where('status', 'active')
+                    ->whereHas('asset_subscriptions', function ($query) {
+                        $query->where('user_id', Auth::id());
+                    });
+                break;
+
+            default:
+                return response()->json(['error' => 'Invalid filter'], 400);
+        }
+
+        // Apply tag filter
+        if (!empty($tag)) {
+            $tags = explode(',', $tag);
+            foreach ($tags as $singleTag) {
+                switch (trim($singleTag)) {
+                    case 'no_min':
+                        $mastersQuery->where('minimum_investment', 0);
+                        break;
+                    case 'lock_free':
+                        $mastersQuery->where('minimum_investment_period', 0);
+                        break;
+                    case 'zero_fee':
+                        $mastersQuery->where('performance_fee', 0);
+                        break;
+                    default:
+                        return response()->json(['error' => 'Invalid filter'], 400);
+                }
+            }
+        }
+
+        // Apply min amount range filter
+        if (!empty($minInvestmentAmountRange)) {
+            $range = explode(',', $minInvestmentAmountRange);
+            $min = $range[0] ?? null;
+            $max = $range[1] ?? null;
+            if (!is_null($min) && !is_null($max)) {
+                $mastersQuery->whereBetween('minimum_investment', [$min, $max]);
+            } elseif (!is_null($min)) {
+                $mastersQuery->where('minimum_investment', '>=', $min);
+            } elseif (!is_null($max)) {
+                $mastersQuery->where('minimum_investment', '<=', $max);
+            }
+        }
+
+        // Apply group filtering based on user's group membership if the master type is 'private'
+        $mastersQuery->where(function ($query) use ($userGroups) {
+            $query->where('type', 'public')
+                ->orWhere(function ($q) use ($userGroups) {
+                    $q->where('type', 'private')
+                        ->whereHas('visible_to_groups', function ($q) use ($userGroups) {
+                            $q->whereIn('group_id', $userGroups);
+                        });
+                });
+        });
+
+        // Fetch paginated results
+        $masters = $mastersQuery->paginate($limit);
+
+        // Format masters
+        $formattedMasters = $masters->map(function($master) {
+
+            $asset_subscription = AssetSubscription::where('asset_master_id', $master->id)
+                ->where('status', 'ongoing');
+
+            $asset_profit_distribution = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
+                ->whereDate('profit_distribution_date', \Carbon\Carbon::yesterday())
+                ->first();
+
+            $profit = $asset_profit_distribution ? $asset_profit_distribution->profit_distribution_percent : 0;
+
+            // Calculate the monthly gain for the current month
+            $monthly_gain = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
+                ->whereMonth('profit_distribution_date', \Illuminate\Support\Carbon::now()->month)
+                ->whereDate('profit_distribution_date', '<', Carbon::today())
+                ->sum('profit_distribution_percent');
+
+            // Calculate the cumulative gain until yesterday, excluding the current month
+            $cumulative_gain_until_yesterday = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
+                ->whereMonth('profit_distribution_date', '<', Carbon::now()->month)
+                ->whereDate('profit_distribution_date', '<', Carbon::today())
+                ->sum('profit_distribution_percent');
+
+            if ($master->created_at->isCurrentMonth()) {
+                $monthly_gain += $master->monthly_gain;
+                $total_gain = $master->total_gain + $monthly_gain;
+            } else {
+                $total_gain = $master->total_gain + $cumulative_gain_until_yesterday;
+            }
+
+            $userFavourites = $master->asset_user_favourites->count();
+
+            $isFavourite = AssetMasterUserFavourite::where('user_id', Auth::id())
+                ->where('asset_master_id', $master->id)
+                ->first();
+
+            return [
+                'id' => $master->id,
+                'asset_name' => $master->asset_name,
+                'trader_name' => $master->trader_name,
+                'total_investors' => $master->total_investors + $asset_subscription->count(),
+                'total_fund' => $master->total_fund + $asset_subscription->sum('investment_amount'),
+                'minimum_investment' => $master->minimum_investment,
+                'minimum_investment_period' => $master->minimum_investment_period,
+                'performance_fee' => $master->performance_fee,
+                'total_gain' => $total_gain,
+                'monthly_gain' => $monthly_gain,
+                'latest_profit' => $master->created_at->isToday() ? $master->latest_profit : $profit,
+                'master_profile_photo' => $master->getFirstMediaUrl('master_profile_photo'),
+                'total_likes_count' => $master->total_likes_count + $userFavourites,
+                'isFavourite' => $isFavourite ? 1 : 0,
+            ];
+        });
 
         return response()->json([
-            'masters' => $masters
+            'masters' => $formattedMasters,
+            'totalRecords' => $totalRecords,
+            'currentPage' => $masters->currentPage(),
         ]);
     }
 

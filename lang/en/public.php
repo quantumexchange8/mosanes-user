@@ -405,4 +405,9 @@ return [
     "empty_transaction_message" => "It looks like there are no transactions yet. Check back soon to see your activity here!",
     "total_volume" => "Total Volume",
     "total_rebate" => "Total Rebate",
+    "filter_by_tags" => "Filter by tags",
+    "no_min" => "No min",
+    "filter_by_min_investment_amount" => "Filter by min. investment amount",
+    "min" => "Min",
+    "max" => "Max",
 ];

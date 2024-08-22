@@ -403,4 +403,9 @@ return [
     "empty_transaction_message" => "看起來尚未有任何交易記錄。稍後再來查看您的活動吧！",
     "total_volume" => "總交易量",
     "total_rebate" => "總返傭",
+    "filter_by_tags" => "過濾標籤",
+    "no_min" => "無限額",
+    "filter_by_min_investment_amount" => "過濾金額",
+    "min" => "最低",
+    "max" => "最高",
 ];

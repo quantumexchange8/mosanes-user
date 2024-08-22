@@ -15,6 +15,10 @@ import { usePage } from '@inertiajs/vue3';
 import debounce from "lodash/debounce.js";
 import Empty from "@/Components/Empty.vue";
 import {NoAssetMaster} from "@/Components/Icons/solid.jsx";
+import Paginator from "primevue/paginator"
+import OverlayPanel from "primevue/overlaypanel"
+import Checkbox from "primevue/checkbox"
+import Slider from 'primevue/slider';
 
 const props = defineProps({
     terms: Object,
@@ -54,19 +58,70 @@ const masterLoading = ref(false);
 const sorting = ref(sortingDropdownOptions[0].value)
 const search = ref('');
 
-const getResults = async () => {
+const selectedTags = ref([]);
+const minInvestmentAmountRange = ref([0, 10000]);
+const currentPage = ref(1);
+const rowsPerPage = ref(12);
+const totalRecords = ref(0);
+
+const getResults = async (page = 1, pagination = rowsPerPage.value) => {
     masterLoading.value = true;
+
     try {
-        const response = await axios.get('/asset_master/getMasters');
+        let url = `/asset_master/getMasters?page=${page}&limit=${pagination}`;
+
+        if (sorting.value) {
+            url += `&sorting=${sorting.value}`;
+        }
+
+        if (selectedTags.value) {
+            url += `&tag=${selectedTags.value}`;
+        }
+
+        if (minInvestmentAmountRange.value) {
+            url += `&minInvestmentAmountRange=${minInvestmentAmountRange.value}`;
+        }
+
+        if (search.value) {
+            url += `&search=${search.value}`;
+        }
+
+        const response = await axios.get(url);
         masters.value = response.data.masters;
+        totalRecords.value = response.data.totalRecords;
+        currentPage.value = response.data.currentPage;
     } catch (error) {
-        console.error('Error get masters:', error);
+        console.error('Error getting masters:', error);
     } finally {
         masterLoading.value = false;
     }
 };
 
-getResults();
+getResults(currentPage.value, rowsPerPage.value);
+
+const onPageChange = (event) => {
+    currentPage.value = event.page + 1;
+    getResults(currentPage.value);
+};
+
+const clearSearch = () => {
+    search.value = '';
+};
+
+// overlay panel
+const op = ref();
+const filterCount = ref(0);
+
+const toggle = (event) => {
+    op.value.toggle(event);
+}
+
+const tags = ref([
+    {name: "no_min", key: "no_min"},
+    {name: "lock_free", key: "lock_free"},
+    {name: "zero_fee", key: "zero_fee"},
+]);
+
 
 watchEffect(() => {
     if (usePage().props.toast !== null) {
@@ -75,40 +130,41 @@ watchEffect(() => {
     }
 });
 
-const getFilterData = async (filter, filterSearch) => {
-    masterLoading.value = true;
-    try {
-        let url = `/asset_master/getFilterMasters/${filter}`;
+const clearFilter = () => {
+    selectedTags.value = [];
+    minInvestmentAmountRange.value = [];
+};
 
-        if (filterSearch) {
-            url += `?search=${filterSearch}`;
+// Watchers for search
+watch(search, debounce(() => {
+    getResults(1);
+}, 300));
+
+// Watchers for min invest amount range
+watch(minInvestmentAmountRange, debounce(() => {
+    getResults(1);
+}, 300));
+
+// Watchers for sortType
+watch(sorting, () => {
+    getResults(1);
+});
+
+watch([selectedTags], () => {
+    filterCount.value = [selectedTags].reduce((count, ref) => {
+        if (Array.isArray(ref.value)) {
+            if (ref.value.length > 0) count += ref.value.length; // Count the elements in the array
+        } else if (ref.value) {
+            count++; // Count non-array values that are truthy
         }
+        return count;
+    }, 0);
 
-        const response = await axios.get(url);
-        masters.value = response.data.masters;
-    } catch (error) {
-        console.error('Error get filter:', error);
-    } finally {
-        masterLoading.value = false;
-    }
-}
-
-watch(sorting, (newValue) => {
-    getFilterData(newValue)
-})
-
-watch(search,
-    debounce((newSearchValue) => {
-        getFilterData(sorting.value, newSearchValue)
-    }, 300)
-);
+    getResults(1);
+});
 
 const viewPammInfo = (index) => {
     window.open(route('asset_master.showPammInfo', masters.value[index].id), '_self')
-}
-
-const clearSearch = () => {
-    search.value = '';
 }
 
 const accounts = ref([]);
@@ -151,7 +207,7 @@ getAvailableAccounts();
                             <IconCircleXFilled size="16" />
                         </div>
                     </div>
-                    <!-- <Button
+                    <Button
                         variant="gray-outlined"
                         @click="toggle"
                         size="sm"
@@ -164,7 +220,7 @@ getAvailableAccounts();
                         <Badge class="w-5 h-5 text-xs text-white" variant="numberbadge">
                             {{ filterCount }}
                         </Badge>
-                    </Button> -->
+                    </Button>
                 </div>
 
                 <Dropdown
@@ -238,115 +294,123 @@ getAvailableAccounts();
 
             <div
                 v-if="!masterLoading && masters.length > 0"
-                class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-5 self-stretch"
+                class="w-full"
             >
-                <div
-                    v-for="(master, index) in masters"
-                    :key="index"
-                    class="w-full p-6 flex flex-col items-center gap-4 rounded-2xl bg-white shadow-toast"
-                >
+                <div class="w-full grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-5 self-stretch">
                     <div
-                        class="flex flex-col gap-4 items-center self-stretch hover:cursor-pointer"
-                        @click="viewPammInfo(index)"
+                        v-for="(master, index) in masters"
+                        :key="index"
+                        class="w-full p-6 flex flex-col items-center gap-4 rounded-2xl bg-white shadow-toast"
                     >
-                        <div class="w-full flex items-center gap-4">
-                            <div class="w-[42px] h-[42px] shrink-0 grow-0 rounded-full overflow-hidden">
-                                <div v-if="master.profile_photo">
-                                    <img :src="master.profile_photo" alt="Profile Photo" />
-                                </div>
-                                <div v-else>
-                                    <DefaultProfilePhoto />
-                                </div>
-                            </div>
-                            <div class="flex flex-col items-start">
-                                <div class="self-stretch truncate w-44 md:w-full md:max-w-[240px] xl:max-w-full 2xl:max-w-[200px] 3xl:max-w-[240px] text-gray-950 font-bold">
-                                    {{ master.asset_name }}
-                                </div>
-                                <div class="self-stretch truncate w-36 text-gray-500 text-sm">
-                                    {{ master.trader_name }}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-2 self-stretch">
-                            <StatusBadge value="info">
-                                $ {{ formatAmount(master.minimum_investment) }}
-                            </StatusBadge>
-                            <StatusBadge value="gray">
-                                <div v-if="master.minimum_investment_period !== 0">
-                                    {{ master.minimum_investment_period }} {{ $t('public.months') }}
-                                </div>
-                                <div v-else>
-                                    {{ $t('public.lock_free') }}
-                                </div>
-                            </StatusBadge>
-                            <StatusBadge value="gray">
-                                {{ master.performance_fee > 0 ? formatAmount(master.performance_fee, 0) + '% ' + $t('public.fee') : $t('public.zero_fee') }}
-                            </StatusBadge>
-                        </div>
-
-                        <div class="py-2 flex justify-center items-center gap-2 self-stretch border-y border-solid border-gray-200">
-                            <div class="w-full flex flex-col items-center">
-                                <div class="self-stretch text-gray-950 text-center font-semibold">
-                                    {{ formatAmount(master.total_gain) }}%
-                                </div>
-                                <div class="self-stretch text-gray-500 text-center text-xs">
-                                    {{ $t('public.total_gain') }}
-                                </div>
-                            </div>
-                            <div class="w-full flex flex-col items-center">
-                                <div class="self-stretch text-gray-950 text-center font-semibold">
-                                    {{ formatAmount(master.monthly_gain) }}%
-                                </div>
-                                <div class="w-16 sm:w-auto mx-auto truncate self-stretch text-gray-500 text-center text-xs">
-                                    {{ $t('public.monthly_gain') }}
-                                </div>
-                            </div>
-                            <div class="w-full flex flex-col items-center">
-                                <div class="self-stretch text-center font-semibold">
-                                    <div
-                                        v-if="master.latest_profit !== 0"
-                                        :class="(master.latest_profit < 0) ? 'text-error-500' : 'text-success-500'"
-                                    >
-                                        {{ formatAmount(master.latest_profit) }}%
+                        <div
+                            class="flex flex-col gap-4 items-center self-stretch hover:cursor-pointer"
+                            @click="viewPammInfo(index)"
+                        >
+                            <div class="w-full flex items-center gap-4">
+                                <div class="w-[42px] h-[42px] shrink-0 grow-0 rounded-full overflow-hidden">
+                                    <div v-if="master.profile_photo">
+                                        <img :src="master.profile_photo" alt="Profile Photo" />
                                     </div>
-                                    <div
-                                        v-else
-                                        class="text-gray-950"
-                                    >
-                                        -
+                                    <div v-else>
+                                        <DefaultProfilePhoto />
                                     </div>
                                 </div>
-                                <div class="self-stretch text-gray-500 text-center text-xs">
-                                    {{ $t('public.latest') }}
+                                <div class="flex flex-col items-start">
+                                    <div class="self-stretch truncate w-44 md:w-full md:max-w-[240px] xl:max-w-full 2xl:max-w-[200px] 3xl:max-w-[240px] text-gray-950 font-bold">
+                                        {{ master.asset_name }}
+                                    </div>
+                                    <div class="self-stretch truncate w-36 text-gray-500 text-sm">
+                                        {{ master.trader_name }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 self-stretch">
+                                <StatusBadge value="info">
+                                    $ {{ formatAmount(master.minimum_investment) }}
+                                </StatusBadge>
+                                <StatusBadge value="gray">
+                                    <div v-if="master.minimum_investment_period !== 0">
+                                        {{ master.minimum_investment_period }} {{ $t('public.months') }}
+                                    </div>
+                                    <div v-else>
+                                        {{ $t('public.lock_free') }}
+                                    </div>
+                                </StatusBadge>
+                                <StatusBadge value="gray">
+                                    {{ master.performance_fee > 0 ? formatAmount(master.performance_fee, 0) + '% ' + $t('public.fee') : $t('public.zero_fee') }}
+                                </StatusBadge>
+                            </div>
+
+                            <div class="py-2 flex justify-center items-center gap-2 self-stretch border-y border-solid border-gray-200">
+                                <div class="w-full flex flex-col items-center">
+                                    <div class="self-stretch text-gray-950 text-center font-semibold">
+                                        {{ formatAmount(master.total_gain) }}%
+                                    </div>
+                                    <div class="self-stretch text-gray-500 text-center text-xs">
+                                        {{ $t('public.total_gain') }}
+                                    </div>
+                                </div>
+                                <div class="w-full flex flex-col items-center">
+                                    <div class="self-stretch text-gray-950 text-center font-semibold">
+                                        {{ formatAmount(master.monthly_gain) }}%
+                                    </div>
+                                    <div class="w-16 sm:w-auto mx-auto truncate self-stretch text-gray-500 text-center text-xs">
+                                        {{ $t('public.monthly_gain') }}
+                                    </div>
+                                </div>
+                                <div class="w-full flex flex-col items-center">
+                                    <div class="self-stretch text-center font-semibold">
+                                        <div
+                                            v-if="master.latest_profit !== 0"
+                                            :class="(master.latest_profit < 0) ? 'text-error-500' : 'text-success-500'"
+                                        >
+                                            {{ formatAmount(master.latest_profit) }}%
+                                        </div>
+                                        <div
+                                            v-else
+                                            class="text-gray-950"
+                                        >
+                                            -
+                                        </div>
+                                    </div>
+                                    <div class="self-stretch text-gray-500 text-center text-xs">
+                                        {{ $t('public.latest') }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col items-center gap-1 self-stretch">
+                                <div class="py-1 flex items-center gap-3 self-stretch">
+                                    <IconUserDollar size="20" stroke-width="1.25" />
+                                    <div class="w-full text-gray-950 text-sm font-medium">
+                                        {{ master.total_investors }} {{ $t('public.investors') }}
+                                    </div>
+                                </div>
+                                <div class="py-1 flex items-center gap-3 self-stretch">
+                                    <IconPremiumRights size="20" stroke-width="1.25" />
+                                    <div class="w-full text-gray-950 text-sm font-medium">
+                                        {{ $t('public.total_fund_size_caption') }}
+                                        <span class="text-primary-500">$ {{ formatAmount(master.total_fund) }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex flex-col items-center gap-1 self-stretch">
-                            <div class="py-1 flex items-center gap-3 self-stretch">
-                                <IconUserDollar size="20" stroke-width="1.25" />
-                                <div class="w-full text-gray-950 text-sm font-medium">
-                                    {{ master.total_investors }} {{ $t('public.investors') }}
-                                </div>
-                            </div>
-                            <div class="py-1 flex items-center gap-3 self-stretch">
-                                <IconPremiumRights size="20" stroke-width="1.25" />
-                                <div class="w-full text-gray-950 text-sm font-medium">
-                                    {{ $t('public.total_fund_size_caption') }}
-                                    <span class="text-primary-500">$ {{ formatAmount(master.total_fund) }}</span>
-                                </div>
-                            </div>
-                        </div>
+                        <AssetMasterAction
+                            :master="master"
+                            :accounts="accounts"
+                            :isLoading="isLoading"
+                            :terms="terms"
+                        />
                     </div>
-
-                    <AssetMasterAction
-                        :master="master"
-                        :accounts="accounts"
-                        :isLoading="isLoading"
-                        :terms="terms"
-                    />
                 </div>
+                <Paginator
+                    :first="(currentPage - 1) * rowsPerPage"
+                    :rows="rowsPerPage"
+                    :totalRecords="totalRecords"
+                    @page="onPageChange"
+                />
             </div>
 
             <!-- Empty Data -->
@@ -355,11 +419,66 @@ getAvailableAccounts();
                 :title="$t('public.no_asset_master_available')"
                 :message="$t('public.no_asset_master_available_desc')"
             >
-            <template #image>
-                <NoAssetMaster class="w-60 h-[180px]" />
-            </template>
+                <template #image>
+                    <NoAssetMaster class="w-60 h-[180px]" />
+                </template>
             </Empty>
-
         </div>
+
+        <OverlayPanel ref="op">
+            <div class="w-60 flex flex-col items-center">
+                <div class="flex flex-col gap-8 w-60 py-5 px-4">
+
+                    <!-- Filter Tags -->
+                    <div class="flex flex-col items-center gap-2 self-stretch">
+                        <span class="self-stretch text-gray-950 text-xs font-bold">{{ $t('public.filter_by_tags') }}</span>
+                        <div class="flex flex-col gap-1 self-stretch">
+                            <div v-for="tag of tags" :key="tag.key" class="flex items-center gap-2">
+                                <div class="flex items-center justify-center p-2 select-none cursor-pointer hover:bg-gray-100 rounded-full">
+                                    <Checkbox
+                                        v-model="selectedTags"
+                                        :inputId="tag.key"
+                                        :value="tag.name"
+                                    />
+                                </div>
+                                <label :for="tag.key" class="text-sm text-gray-950">{{ $t(`public.${tag.name}`) }} {{ tag.name === 'no_min' ? '$' : '' }}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Status -->
+                    <div class="flex flex-col items-center gap-2 self-stretch">
+                        <span class="self-stretch text-gray-950 text-xs font-bold">{{ $t('public.filter_by_min_investment_amount') }}</span>
+                        <Slider
+                            v-model="minInvestmentAmountRange"
+                            range
+                            class="w-full"
+                            :min="0"
+                            :max="10000"
+                        />
+                        <div class="flex justify-between items-center w-full text-xs">
+                            <div class="flex flex-col items-start self-stretch">
+                                <span class="text-gray-500">{{ $t('public.min') }}</span>
+                                <span class="text-gray-950">$ {{ formatAmount(minInvestmentAmountRange[0], 0) }}</span>
+                            </div>
+                            <div class="flex flex-col items-start self-stretch">
+                                <span class="text-gray-500 w-full text-right">{{ $t('public.max') }}</span>
+                                <span class="text-gray-950">$ {{ formatAmount(minInvestmentAmountRange[1], 0) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full flex justify-center items-center py-5 px-4 border-t border-gray-200">
+                    <Button
+                        type="button"
+                        variant="primary-outlined"
+                        class="flex justify-center w-full"
+                        @click="clearFilter()"
+                    >
+                        {{ $t('public.clear_all') }}
+                    </Button>
+                </div>
+            </div>
+        </OverlayPanel>
     </AuthenticatedLayout>
 </template>

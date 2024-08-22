@@ -1,62 +1,72 @@
 <script setup>
 import PammPerformanceChart from "@/Pages/AssetMaster/Partials/PammPerformanceChart.vue";
-import Button from "@/Components/Button.vue"
-import Calendar from "primevue/calendar";
-import {ref, watch} from "vue";
+import Dropdown from "primevue/dropdown";
+import {ref} from "vue";
 import dayjs from "dayjs";
-import {IconChevronDown} from "@tabler/icons-vue"
+import {transactionFormat} from "@/Composables/index.js";
 
 const props = defineProps({
     masterDetail: Object
 })
 
-const isCalendarVisible = ref(false);
-const month = ref(dayjs().format('MM/YYYY'));
-const selectedMonth = ref(dayjs().format('MM/YYYY'));
+const selectedMonth = ref('');
+const historyPeriodOptions = ref([]);
+const currentYear = dayjs().year();
+const {formatAmount} = transactionFormat()
 
-const toggleCalendar = () => {
-    isCalendarVisible.value = !isCalendarVisible.value;
-};
+// Populate historyPeriodOptions with all months of the current year
+for (let month = 1; month <= 12; month++) {
+    historyPeriodOptions.value.push({
+        value: dayjs().month(month - 1).year(currentYear).format('MM/YYYY')
+    });
+}
 
-watch(month, (newMonth) => {
-    selectedMonth.value = dayjs(newMonth).format('MM/YYYY');
-    isCalendarVisible.value = !isCalendarVisible.value;
-})
+selectedMonth.value = dayjs().format('MM/YYYY');
 </script>
 
 <template>
     <div class="p-4 md:p-8 flex flex-col items-center self-stretch gap-5 rounded-2xl bg-white shadow-toast w-full">
-        <div class="flex flex-col items-start self-stretch">
-            <div
-                class="flex justify-between items-start self-stretch w-full relative"
-            >
-                <span class="text-sm text-gray-950 font-bold">{{ $t('public.monthly_pnl_performance') }}</span>
-                <Button
-                    type="button"
-                    size="sm"
-                    variant="gray-text"
-                    @click="toggleCalendar"
-                    class="text-gray-950 font-medium"
-                >
-                    {{ selectedMonth }}
-                    <IconChevronDown size="16" color="#667085" stroke-width="1.25" />
-                </Button>
-                <div
-                    v-if="isCalendarVisible"
-                    class="absolute right-0">
-                    <Calendar
-                        v-model="month"
-                        selectionMode="single"
-                        :manualInput="false"
-                        view="month"
-                        dateFormat="mm/yy"
-                        inline
-                        class="w-52"
-                    />
-                </div>
-
+        <div class="flex flex-col items-start self-stretch md:hidden">
+            <span class="text-gray-950 text-sm font-bold">{{ $t('public.monthly_pnl_performance') }}</span>
+            <div class="flex items-center justify-between self-stretch">
+                 <span
+                     class="text-xl font-semibold"
+                     :class="{
+                    'text-green': masterDetail && masterDetail.monthly_gain > 0,
+                    'text-pink': masterDetail && masterDetail.monthly_gain < 0,
+                    'text-gray-500': masterDetail && masterDetail.monthly_gain === 0,
+                }"
+                 >{{ masterDetail ? formatAmount(masterDetail.monthly_gain) : 0 }}%</span>
+                <Dropdown
+                    v-model="selectedMonth"
+                    :options="historyPeriodOptions"
+                    optionLabel="value"
+                    optionValue="value"
+                    class="border-none shadow-none font-medium text-gray-950"
+                    scroll-height="236px"
+                />
             </div>
-            <span class="text-xxl text-green font-semibold">{{ masterDetail ? masterDetail.monthly_gain : 0 }}%</span>
+        </div>
+        <div class="hidden md:flex flex-col items-start self-stretch">
+            <div class="flex justify-between items-center self-stretch">
+                <span class="text-gray-950 text-sm font-bold">{{ $t('public.monthly_pnl_performance') }}</span>
+                <Dropdown
+                    v-model="selectedMonth"
+                    :options="historyPeriodOptions"
+                    optionLabel="value"
+                    optionValue="value"
+                    class="border-none shadow-none font-medium text-gray-950"
+                    scroll-height="236px"
+                />
+            </div>
+            <span
+                class="text-xxl font-semibold"
+                :class="{
+                    'text-green': masterDetail && masterDetail.monthly_gain > 0,
+                    'text-pink': masterDetail && masterDetail.monthly_gain < 0,
+                    'text-gray-500': !masterDetail || masterDetail.monthly_gain === 0,
+                }"
+            >{{ masterDetail ? formatAmount(masterDetail.monthly_gain) : 0 }}%</span>
         </div>
 
         <!-- chart -->

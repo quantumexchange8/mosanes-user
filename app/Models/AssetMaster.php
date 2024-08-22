@@ -53,4 +53,9 @@ class AssetMaster extends Model implements HasMedia
     {
         return $this->hasMany(AssetMasterUserFavourite::class, 'asset_master_id', 'id');
     }
+
+    public function visible_to_groups(): HasMany
+    {
+        return $this->hasMany(AssetMasterToGroup::class, 'asset_master_id', 'id');
+    }
 }
