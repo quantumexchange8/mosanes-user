@@ -308,8 +308,8 @@ getAvailableAccounts();
                         >
                             <div class="w-full flex items-center gap-4">
                                 <div class="w-[42px] h-[42px] shrink-0 grow-0 rounded-full overflow-hidden">
-                                    <div v-if="master.profile_photo">
-                                        <img :src="master.profile_photo" alt="Profile Photo" />
+                                    <div v-if="master.master_profile_photo">
+                                        <img :src="master.master_profile_photo" alt="Profile Photo" />
                                     </div>
                                     <div v-else>
                                         <DefaultProfilePhoto />

@@ -289,10 +289,10 @@ const addToFavourites = async (masterId) => {
     0% {
         transform: scale(1.2);
     }
-    50% {
-        transform: scale(0.1);
+    20% {
+        transform: scale(0.4);
     }
-    70% {
+    80% {
         transform: scale(1.4);
     }
     100% {
