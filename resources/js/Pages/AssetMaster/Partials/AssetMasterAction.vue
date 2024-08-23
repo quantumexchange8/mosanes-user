@@ -182,6 +182,10 @@ const addToFavourites = async (masterId) => {
                                 <span class="w-full text-gray-500 font-medium text-xs">{{ $t('public.performance_fee') }}</span>
                                 <span class="w-full text-gray-950 font-medium text-sm lowercase">{{ master.performance_fee > 0 ? master.performance_fee + '%' : $t('public.zero_fee')}}</span>
                             </div>
+                            <div class="flex py-1 gap-3 items-center self-stretch">
+                                <span class="w-full text-gray-500 font-medium text-xs">{{ $t('public.penalty_fee') }}</span>
+                                <span class="w-full text-gray-950 font-medium text-sm lowercase">{{ master.penalty_fee > 0 ? master.penalty_fee + '%' : $t('public.zero_penalty_fee')}}</span>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -23,6 +23,7 @@ class AssetMaster extends Model implements HasMedia
         'minimum_investment',
         'minimum_investment_period',
         'performance_fee',
+        'penalty_fee',
         'total_gain',
         'monthly_gain',
         'latest_profit',

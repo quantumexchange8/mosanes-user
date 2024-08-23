@@ -408,4 +408,6 @@ return [
     "filter_by_min_investment_amount" => "過濾金額",
     "min" => "最低",
     "max" => "最高",
+    "penalty_fee" => "退出資管費",
+    "zero_penalty_fee" => "無退出資管費",
 ];

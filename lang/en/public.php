@@ -410,4 +410,6 @@ return [
     "filter_by_min_investment_amount" => "Filter by min. investment amount",
     "min" => "Min",
     "max" => "Max",
+    "penalty_fee" => "Penalty Fee",
+    "zero_penalty_fee" => "Zero Penalty Fee",
 ];
