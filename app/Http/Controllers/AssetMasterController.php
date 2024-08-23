@@ -274,7 +274,7 @@ class AssetMasterController extends Controller
                 'performance_fee' => $master->performance_fee,
                 'total_gain' => $total_gain,
                 'monthly_gain' => $monthly_gain,
-                'latest_profit' => $master->created_at->isToday() ? $master->latest_profit : $profit,
+                'latest_profit' => $master->created_at->isToday() || $profit == 0 ? $master->latest_profit : $profit,
                 'master_profile_photo' => $master->getFirstMediaUrl('master_profile_photo'),
                 'total_likes_count' => $master->total_likes_count + $userFavourites,
                 'isFavourite' => $isFavourite ? 1 : 0,
@@ -285,129 +285,6 @@ class AssetMasterController extends Controller
             'masters' => $formattedMasters,
             'totalRecords' => $totalRecords,
             'currentPage' => $masters->currentPage(),
-        ]);
-    }
-
-    public function getFilterMasters(Request $request, $filter)
-    {
-        $mastersQuery = AssetMaster::query();
-
-        switch ($filter) {
-            case 'latest':
-                $mastersQuery->orderBy('created_at', 'desc');
-                break;
-
-            case 'popular':
-                $mastersQuery->leftJoin('asset_master_user_favourites', function ($join) {
-                    $join->on('asset_masters.id', '=', 'asset_master_user_favourites.asset_master_id')
-                        ->where('asset_master_user_favourites.user_id', Auth::id())
-                        ->where('asset_masters.status', 'active');
-                })
-                    ->select('asset_masters.*', DB::raw('COALESCE(total_likes_count, 0) + COALESCE(COUNT(asset_master_user_favourites.id), 0) AS popularity'))
-                    ->groupBy('asset_masters.id')
-                    ->orderBy('popularity', 'desc');
-                break;
-
-            case 'largest_fund':
-                $mastersQuery->leftJoin('asset_subscriptions', function ($join) {
-                    $join->on('asset_masters.id', '=', 'asset_subscriptions.asset_master_id')
-                        ->where('asset_subscriptions.status', 'ongoing')
-                        ->where('asset_masters.status', 'active');
-                })
-                    ->select('asset_masters.*', DB::raw('total_fund + COALESCE(SUM(asset_subscriptions.investment_amount), 0) AS total_fund_combined'))
-                    ->groupBy('asset_masters.id')
-                    ->orderBy('total_fund_combined', 'desc');
-                break;
-
-            case 'most_investors':
-                $mastersQuery->leftJoin('asset_subscriptions', function ($join) {
-                    $join->on('asset_masters.id', '=', 'asset_subscriptions.asset_master_id')
-                        ->where('asset_subscriptions.status', 'ongoing')
-                        ->where('asset_masters.status', 'active');
-                })
-                    ->select('asset_masters.*', DB::raw('total_investors + COALESCE(COUNT(asset_subscriptions.id), 0) AS total_investors_combined'))
-                    ->groupBy('asset_masters.id')
-                    ->orderBy('total_investors_combined', 'desc');
-                break;
-
-            case 'favourites':
-                $mastersQuery->where('status', 'active')
-                    ->whereHas('asset_user_favourites', function ($query) {
-                    $query->where('user_id', Auth::id());
-                });
-                break;
-
-            case 'joining':
-                $mastersQuery->where('status', 'active')
-                    ->whereHas('asset_subscriptions', function ($query) {
-                    $query->where('user_id', Auth::id());
-                });
-                break;
-
-            default:
-                return response()->json(['error' => 'Invalid filter'], 400);
-        }
-
-        if ($request->search) {
-            $mastersQuery->where('asset_name', 'like', '%' . $request->search . '%')
-                ->orWhere('trader_name', 'like', '%' . $request->search . '%');
-        }
-
-        $masters = $mastersQuery->get()->map(function ($master) {
-            $asset_subscription = AssetSubscription::where('asset_master_id', $master->id)
-                ->where('status', 'ongoing');
-
-            $asset_profit_distribution = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
-                ->whereDate('profit_distribution_date', Carbon::yesterday())
-                ->first();
-
-            $profit = $asset_profit_distribution ? $asset_profit_distribution->profit_distribution_percent : 0;
-
-            // Calculate the monthly gain for the current month
-            $monthly_gain = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
-                ->whereMonth('profit_distribution_date', Carbon::now()->month)
-                ->whereDate('profit_distribution_date', '<', Carbon::today())
-                ->sum('profit_distribution_percent');
-
-            // Calculate the cumulative gain until yesterday, excluding the current month
-            $cumulative_gain_until_yesterday = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
-                ->whereMonth('profit_distribution_date', '<', Carbon::now()->month)
-                ->whereDate('profit_distribution_date', '<', Carbon::today())
-                ->sum('profit_distribution_percent');
-
-            if ($master->created_at->isCurrentMonth()) {
-                $monthly_gain += $master->monthly_gain;
-                $total_gain = $master->total_gain + $monthly_gain;
-            } else {
-                $total_gain = $master->total_gain + $cumulative_gain_until_yesterday;
-            }
-
-            $userFavourites = $master->asset_user_favourites->count();
-
-            $isFavourite = AssetMasterUserFavourite::where('user_id', Auth::id())
-                ->where('asset_master_id', $master->id)
-                ->first();
-
-            return [
-                'id' => $master->id,
-                'asset_name' => $master->asset_name,
-                'trader_name' => $master->trader_name,
-                'total_investors' => $master->total_investors + $asset_subscription->count(),
-                'total_fund' => $master->total_fund + $asset_subscription->sum('investment_amount'),
-                'minimum_investment' => $master->minimum_investment,
-                'minimum_investment_period' => $master->minimum_investment_period,
-                'performance_fee' => $master->performance_fee,
-                'total_gain' => $total_gain,
-                'monthly_gain' => $monthly_gain,
-                'latest_profit' => $master->created_at->isToday() ? $master->latest_profit : $profit,
-                'master_profile_photo' => $master->getFirstMediaUrl('master_profile_photo'),
-                'total_likes_count' => $master->total_likes_count + $userFavourites,
-                'isFavourite' => $isFavourite ? 1 : 0,
-            ];
-        });
-
-        return response()->json([
-            'masters' => $masters
         ]);
     }
 
@@ -505,7 +382,7 @@ class AssetMasterController extends Controller
             'performance_fee' => $master->performance_fee,
             'total_gain' => $total_gain,
             'monthly_gain' => $monthly_gain,
-            'latest_profit' => $master->created_at->isToday() ? $master->latest_profit : $profit,
+            'latest_profit' => $master->created_at->isToday() || $profit == 0 ? $master->latest_profit : $profit,
             'master_profile_photo' => $master->getFirstMediaUrl('master_profile_photo'),
             'total_likes_count' => $master->total_likes_count + $userFavourites,
             'isFavourite' => $isFavourite ? 1 : 0,
