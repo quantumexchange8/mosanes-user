@@ -62,8 +62,7 @@ const items = ref([
         label: 'revoke_pamm',
         icon: h(IconDatabaseMinus),
         command: () => {
-            visible.value = true;
-            dialogType.value = 'revoke_pamm';
+            requireAccountConfirmation('revoke');
         },
         account_type: 'premium_account'
     },
