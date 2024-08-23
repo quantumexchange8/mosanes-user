@@ -127,7 +127,9 @@ class AssetMasterController extends Controller
         // Apply sorting dynamically
         switch ($sortType) {
             case 'latest':
-                $mastersQuery->orderBy('created_at', 'desc');
+                $mastersQuery
+                    ->where('status', 'active')
+                    ->orderBy('created_at', 'desc');
                 break;
 
             case 'popular':
@@ -135,6 +137,7 @@ class AssetMasterController extends Controller
                     $join->on('asset_masters.id', '=', 'asset_master_user_favourites.asset_master_id')
                         ->where('asset_master_user_favourites.user_id', Auth::id());
                 })
+                    ->where('asset_masters.status', 'active')
                     ->select('asset_masters.*', DB::raw('COALESCE(total_likes_count, 0) + COALESCE(COUNT(asset_master_user_favourites.id), 0) AS popularity'))
                     ->groupBy('asset_masters.id')
                     ->orderBy(DB::raw('COALESCE(total_likes_count, 0) + COALESCE(COUNT(asset_master_user_favourites.id), 0)'), 'desc');
@@ -145,6 +148,7 @@ class AssetMasterController extends Controller
                     $join->on('asset_masters.id', '=', 'asset_subscriptions.asset_master_id')
                         ->where('asset_subscriptions.status', 'ongoing');
                 })
+                    ->where('asset_masters.status', 'active')
                     ->select('asset_masters.*', DB::raw('total_fund + COALESCE(SUM(asset_subscriptions.investment_amount), 0) AS total_fund_combined'))
                     ->groupBy('asset_masters.id', 'total_fund')
                     ->orderBy(DB::raw('total_fund + COALESCE(SUM(asset_subscriptions.investment_amount), 0)'), 'desc');
@@ -155,6 +159,7 @@ class AssetMasterController extends Controller
                     $join->on('asset_masters.id', '=', 'asset_subscriptions.asset_master_id')
                         ->where('asset_subscriptions.status', 'ongoing');
                 })
+                    ->where('asset_masters.status', 'active')
                     ->select('asset_masters.*', DB::raw('total_investors + COALESCE(COUNT(asset_subscriptions.id), 0) AS total_investors_combined'))
                     ->groupBy('asset_masters.id', 'total_investors')
                     ->orderBy(DB::raw('total_investors + COALESCE(COUNT(asset_subscriptions.id), 0)'), 'desc');
@@ -232,15 +237,23 @@ class AssetMasterController extends Controller
             $asset_subscription = AssetSubscription::where('asset_master_id', $master->id)
                 ->where('status', 'ongoing');
 
-            $asset_profit_distribution = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
-                ->whereDate('profit_distribution_date', \Carbon\Carbon::yesterday())
+            // Get the last profit distribution before today
+            $last_profit_distribution = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
+                ->whereDate('profit_distribution_date', '<', today())
+                ->orderByDesc('profit_distribution_date')
                 ->first();
 
-            $profit = $asset_profit_distribution ? $asset_profit_distribution->profit_distribution_percent : 0;
+            // Initialize the profit with the master's latest profit as a fallback
+            $profit = $master->latest_profit;
+
+            // If there's a last profit distribution, update the profit to that value
+            if ($last_profit_distribution) {
+                $profit = $last_profit_distribution->profit_distribution_percent;
+            }
 
             // Calculate the monthly gain for the current month
             $monthly_gain = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
-                ->whereMonth('profit_distribution_date', \Illuminate\Support\Carbon::now()->month)
+                ->whereMonth('profit_distribution_date', Carbon::now()->month)
                 ->whereDate('profit_distribution_date', '<', Carbon::today())
                 ->sum('profit_distribution_percent');
 
@@ -274,7 +287,7 @@ class AssetMasterController extends Controller
                 'performance_fee' => $master->performance_fee,
                 'total_gain' => $total_gain,
                 'monthly_gain' => $monthly_gain,
-                'latest_profit' => $master->created_at->isToday() || $profit == 0 ? $master->latest_profit : $profit,
+                'latest_profit' => $profit,
                 'master_profile_photo' => $master->getFirstMediaUrl('master_profile_photo'),
                 'total_likes_count' => $master->total_likes_count + $userFavourites,
                 'isFavourite' => $isFavourite ? 1 : 0,
@@ -342,11 +355,19 @@ class AssetMasterController extends Controller
         $date = new DateTime($master->started_at);
         $duration = $date->diff(now())->format('%d');
 
-        $asset_profit_distribution = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
-            ->whereDate('profit_distribution_date', Carbon::yesterday())
+        // Get the last profit distribution before today
+        $last_profit_distribution = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
+            ->whereDate('profit_distribution_date', '<', today())
+            ->orderByDesc('profit_distribution_date')
             ->first();
 
-        $profit = $asset_profit_distribution ? $asset_profit_distribution->profit_distribution_percent : 0;
+        // Initialize the profit with the master's latest profit as a fallback
+        $profit = $master->latest_profit;
+
+        // If there's a last profit distribution, update the profit to that value
+        if ($last_profit_distribution) {
+            $profit = $last_profit_distribution->profit_distribution_percent;
+        }
 
         // Calculate the monthly gain for the current month
         $monthly_gain = AssetMasterProfitDistribution::where('asset_master_id', $master->id)
@@ -382,7 +403,7 @@ class AssetMasterController extends Controller
             'performance_fee' => $master->performance_fee,
             'total_gain' => $total_gain,
             'monthly_gain' => $monthly_gain,
-            'latest_profit' => $master->created_at->isToday() || $profit == 0 ? $master->latest_profit : $profit,
+            'latest_profit' => $profit,
             'master_profile_photo' => $master->getFirstMediaUrl('master_profile_photo'),
             'total_likes_count' => $master->total_likes_count + $userFavourites,
             'isFavourite' => $isFavourite ? 1 : 0,
