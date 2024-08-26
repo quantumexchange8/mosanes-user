@@ -325,7 +325,7 @@ class AssetMasterController extends Controller
                 $query->where('category', 'manage');
             })
             ->whereDoesntHave('asset_subscriptions', function ($query) {
-                $query->where('status', 'ongoing');
+                $query->whereIn('status', ['ongoing', 'pending']);
             })
             ->get()
             ->map(function($account) {

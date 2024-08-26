@@ -99,6 +99,7 @@ const submitForm = (formType) => {
         size="sm"
         class="w-full"
         @click="openDialog('deposit')"
+        :disabled="account.status === 'pending'"
     >
         {{ $t('public.deposit') }}
     </Button>
@@ -109,6 +110,7 @@ const submitForm = (formType) => {
         pill
         iconOnly
         @click="openDialog('transfer')"
+        :disabled="account.status === 'pending'"
     >
         <SwitchHorizontal01Icon class="w-4 text-gray-950" />
     </Button>

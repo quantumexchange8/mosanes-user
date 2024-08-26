@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AssetSubscription;
 use App\Models\Term;
 use App\Models\User;
-use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use App\Models\AccountType;
+use App\Models\AssetRevoke;
 use App\Models\TradingUser;
 use App\Models\Transaction;
 use Illuminate\Support\Str;
@@ -16,12 +15,14 @@ use App\Models\PaymentAccount;
 use App\Models\TradingAccount;
 use Illuminate\Support\Carbon;
 use App\Services\CTraderService;
+use App\Models\AssetSubscription;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Services\RunningNumberService;
 use App\Services\DropdownOptionService;
 use App\Services\ChangeTraderBalanceType;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class TradingAccountController extends Controller
@@ -200,6 +201,7 @@ class TradingAccountController extends Controller
                     'asset_master_id' => $following_master->asset_master->id ?? null,
                     'asset_master_name' => $following_master->asset_master->asset_name ?? null,
                     'remaining_days' => intval($remaining_days),
+                    'status' => $following_master->status ?? null,
                 ];
             });
 
@@ -547,22 +549,66 @@ class TradingAccountController extends Controller
 
     public function revoke_account(Request $request)
     {
+        // Validate the request
         $request->validate([
             'account_id' => 'required|exists:trading_accounts,id',
         ]);
+    
+        // Check connection status
+        $conn = (new CTraderService)->connectionStatus();
+        if ($conn['code'] != 0) {
+            return back()->with('toast', [
+                'title' => 'Connection Error',
+                'type' => 'error'
+            ]);
+        }
+    
+        // Retrieve the TradingAccount by its ID
+        $tradingAccount = TradingAccount::findOrFail($request->account_id);
+    
+        try {
+            // Get latest user info from CTraderService and update the TradingAccount
+            (new CTraderService)->getUserInfo($tradingAccount);
+    
+            // Retrieve the updated TradingAccount to get the latest balance
+            $tradingAccount = TradingAccount::findOrFail($request->account_id);
+    
+            // Find the AssetSubscription record
+            $assetSubscription = AssetSubscription::with('asset_master')
+                ->where('user_id', $tradingAccount->user_id)
+                ->where('meta_login', $tradingAccount->meta_login)
+                ->where('status', 'ongoing')
+                ->firstOrFail();
+    
+            // Calculate the penalty fee
+            $penaltyPercentage = $assetSubscription->asset_master->penalty_fee;
+            $penaltyFee = ($penaltyPercentage / 100) * $tradingAccount->balance;
 
-        $account = TradingAccount::find($request->account_id);
-
-        // Check if the account exists
-        if ($account) {
+            // Create a new AssetRevoke record
+            AssetRevoke::create([
+                'user_id' => $tradingAccount->user_id,
+                'asset_subscription_id' => $assetSubscription->id,
+                'asset_master_id' => $assetSubscription->asset_master->id,
+                'meta_login' => $tradingAccount->meta_login,
+                'balance_on_revoke' => $tradingAccount->balance,
+                'penalty_percentage' => $penaltyPercentage,
+                'penalty_fee' => $penaltyFee,
+                'status' => 'pending',
+            ]);
+    
+            // Update the status of the AssetSubscription to 'pending'
+            $assetSubscription->update(['status' => 'pending']);
+    
             // Redirect back with success message
             return back()->with('toast', [
                 'title' => trans('public.toast_revoke_account_success'),
                 'type' => 'success',
             ]);
+        } catch (\Exception $e) {
+            Log::error('Revoke Account Error: ' . $e->getMessage());
         }
     }
-
+        
     public function delete_account(Request $request)
     {
         $request->validate([

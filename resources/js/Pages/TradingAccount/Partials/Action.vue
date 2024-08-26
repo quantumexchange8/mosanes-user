@@ -64,7 +64,8 @@ const items = ref([
         command: () => {
             requireAccountConfirmation('revoke');
         },
-        account_type: 'premium_account'
+        account_type: 'premium_account',
+        disabled: props.account.status === 'pending',
     },
     {
         label: 'account_report',
@@ -213,6 +214,7 @@ const requireAccountConfirmation = (accountType) => {
             <div
                 class="flex items-center gap-3 self-stretch"
                 v-bind="props.action"
+                :class="{ 'hidden': item.disabled }"
             >
                 <component :is="item.icon" size="20" stroke-width="1.25" :color="item.label === 'delete_account' ? '#F04438' : '#667085'" />
                 <span class="font-medium" :class="{'text-error-500': item.label === 'delete_account'}">{{ $t(`public.${item.label}`) }}</span>
