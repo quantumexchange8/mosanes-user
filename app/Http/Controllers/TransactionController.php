@@ -43,7 +43,7 @@ class TransactionController extends Controller
         $startDate = $request->query('startDate');
         $endDate = $request->query('endDate');
 
-        $query = Transaction::where(['category' => 'trading_account', 'user_id' => Auth::id()])
+        $query = Transaction::where('user_id', Auth::id())
             ->where(function (Builder $query) {
                 $query->where('transaction_type', 'deposit')
                     ->orWhere('transaction_type', 'withdrawal');

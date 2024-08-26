@@ -511,27 +511,14 @@ class TradingAccountController extends Controller
              'category' => 'trading_account',
              'transaction_type' => 'account_to_account',
              'from_meta_login' => $tradingAccount->meta_login,
-             'ticket' => $ticketFrom,
+             'to_meta_login' => $to_meta_login,
+             'ticket' => $ticketFrom . ','. $ticketTo,
              'transaction_number' => RunningNumberService::getID('transaction'),
              'amount' => $amount,
              'transaction_charges' => 0,
              'transaction_amount' => $amount,
              'status' => 'successful',
              'comment' => 'to ' . $to_meta_login
-         ]);
-
-         Transaction::create([
-             'user_id' => Auth::id(),
-             'category' => 'trading_account',
-             'transaction_type' => 'account_to_account',
-             'to_meta_login' => $to_meta_login,
-             'ticket' => $ticketTo,
-             'transaction_number' => RunningNumberService::getID('transaction'),
-             'amount' => $amount,
-             'transaction_charges' => 0,
-             'transaction_amount' => $amount,
-             'status' => 'successful',
-             'comment' => 'from ' . $tradingAccount->meta_login
          ]);
 
         return back()->with('toast', [
