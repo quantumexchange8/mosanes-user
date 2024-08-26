@@ -118,14 +118,6 @@ function copyToClipboard(text) {
 
     document.body.removeChild(textArea);
 }
-
-const actionWord = (comment) => {
-    if (comment) {
-        const [firstWord] = comment.split(' ');
-        return firstWord;
-    }
-    return '';
-};
 </script>
 
 <template>
@@ -195,8 +187,15 @@ const actionWord = (comment) => {
             class="hidden md:table-cell"
         >
             <template #body="slotProps">
-                <span v-if="['transfer_to_account', 'account_to_account'].includes(slotProps.data.transaction_type)">{{ $t(`public.${actionWord(slotProps.data.comment)}`) }} {{ slotProps.data.comment.split(' ')[1] }}</span>
-                <span v-else>{{ $t(`public.${slotProps.data.transaction_type}`) }}</span>
+                <div v-if="['transfer_to_account', 'account_to_account'].includes(slotProps.data.transaction_type)">
+                    <div v-if="account.meta_login === slotProps.data.to_meta_login">
+                        {{ $t('public.from') }} {{ slotProps.data.from_meta_login }}
+                    </div>
+                    <div v-else>
+                        {{ $t('public.to') }} {{ slotProps.data.to_meta_login }}
+                    </div>
+                </div>
+                <div v-else>{{ $t(`public.${slotProps.data.transaction_type}`) }}</div>
             </template>
         </Column>
         <Column
@@ -268,8 +267,15 @@ const actionWord = (comment) => {
             <div class="flex items-center gap-1 self-stretch">
                 <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.description') }}</span>
                 <div class="flex-grow text-gray-950 text-sm font-medium">
-                    <span v-if="['transfer_to_account', 'account_to_account'].includes(data.transaction_type)">{{ $t(`public.${actionWord(data.comment)}`) }} {{ data.comment.split(' ')[1] }}</span>
-                    <span v-else>{{ $t(`public.${data.transaction_type}`) }}</span>
+                    <div v-if="['transfer_to_account', 'account_to_account'].includes(data.transaction_type)">
+                        <div v-if="account.meta_login === data.to_meta_login">
+                            {{ $t('public.from') }} {{ data.from_meta_login }}
+                        </div>
+                        <div v-else>
+                            {{ $t('public.to') }} {{ data.to_meta_login }}
+                        </div>
+                    </div>
+                    <div v-else>{{ $t(`public.${data.transaction_type}`) }}</div>
                 </div>
             </div>
             <div class="flex items-center gap-1 self-stretch">
