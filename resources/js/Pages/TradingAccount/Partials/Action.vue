@@ -65,7 +65,7 @@ const items = ref([
             requireAccountConfirmation('revoke');
         },
         account_type: 'premium_account',
-        disabled: props.account.status === 'pending',
+        disabled: props.account.status === 'pending' || props.account.status === null,
     },
     {
         label: 'account_report',
