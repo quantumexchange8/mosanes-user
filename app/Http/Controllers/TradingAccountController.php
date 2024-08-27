@@ -216,7 +216,7 @@ class TradingAccountController extends Controller
         $type = $request->query('type');
 
         $query = Transaction::query()
-            ->whereIn('transaction_type', ['deposit', 'withdrawal', 'transfer_to_account', 'account_to_account'])
+            ->whereIn('transaction_type', ['deposit', 'withdrawal', 'transfer_to_account', 'account_to_account', 'profit', 'loss', 'performance_fee'])
             ->where('status', 'successful');
 
         if ($meta_login) {
@@ -553,7 +553,7 @@ class TradingAccountController extends Controller
         $request->validate([
             'account_id' => 'required|exists:trading_accounts,id',
         ]);
-    
+
         // Check connection status
         $conn = (new CTraderService)->connectionStatus();
         if ($conn['code'] != 0) {
@@ -562,10 +562,10 @@ class TradingAccountController extends Controller
                 'type' => 'error'
             ]);
         }
-    
+
         // Retrieve the TradingAccount by its ID
         $tradingAccount = TradingAccount::findOrFail($request->account_id);
-    
+
         // Find the AssetSubscription record
         $assetSubscription = AssetSubscription::with('asset_master')
             ->where('user_id', $tradingAccount->user_id)
@@ -585,10 +585,10 @@ class TradingAccountController extends Controller
         try {
             // Get latest user info from CTraderService and update the TradingAccount
             (new CTraderService)->getUserInfo($tradingAccount);
-    
+
             // Retrieve the updated TradingAccount to get the latest balance
             $tradingAccount = TradingAccount::findOrFail($request->account_id);
-    
+
             // Calculate the penalty fee
             $penaltyPercentage = $assetSubscription->asset_master->penalty_fee;
             $penaltyFee = ($penaltyPercentage / 100) * $tradingAccount->balance;
@@ -604,10 +604,10 @@ class TradingAccountController extends Controller
                 'penalty_fee' => $penaltyFee,
                 'status' => 'pending',
             ]);
-    
+
             // Update the status of the AssetSubscription to 'pending'
             $assetSubscription->update(['status' => 'pending']);
-    
+
             // Redirect back with success message
             return back()->with('toast', [
                 'title' => trans('public.toast_revoke_account_success'),
@@ -617,7 +617,7 @@ class TradingAccountController extends Controller
             Log::error('Revoke Account Error: ' . $e->getMessage());
         }
     }
-        
+
     public function delete_account(Request $request)
     {
         $request->validate([

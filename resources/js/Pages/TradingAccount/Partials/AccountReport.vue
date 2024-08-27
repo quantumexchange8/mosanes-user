@@ -201,7 +201,7 @@ function copyToClipboard(text) {
         <Column
             field="transaction_amount"
             sortable
-            :header="$t('public.amount') + ` ($)`"
+            :header="$t('public.amount') + ' ($)'"
             class="hidden md:table-cell"
         >
             <template #body="slotProps">
