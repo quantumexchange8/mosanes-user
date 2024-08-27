@@ -198,79 +198,81 @@ const clearFilterGlobal = () => {
                     <span class="text-sm text-gray-700">{{ $t('public.loading_transactions_caption') }}</span>
                 </div>
             </template>
-            <Column
-                field="created_at"
-                sortable
-                :header="$t('public.date')"
-                class="hidden md:table-cell"
-            >
-                <template #body="slotProps">
-                    {{ formatDate(slotProps.data.created_at) }}
-                </template>
-            </Column>
-            <Column
-                field="name"
-                sortable
-                :header="$t('public.name')"
-                class="hidden md:table-cell"
-            >
-                <template #body="slotProps">
-                    <div class="flex items-center gap-3">
-                        <div class="w-7 h-7 rounded-full overflow-hidden grow-0 shrink-0">
-                            <DefaultProfilePhoto />
-                        </div>
-                        <div class="flex flex-col items-start">
-                            <div class="font-medium">
-                                {{ slotProps.data.name }}
-                            </div>
-                            <div class="text-gray-500 text-xs">
-                                {{ slotProps.data.email }}
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </Column>
-            <Column
-                field="meta_login"
-                :header="`${$t('public.account')}`"
-                class="hidden md:table-cell"
-            >
-                <template #body="slotProps">
-                    {{ slotProps.data.meta_login }}
-                </template>
-            </Column>
-            <Column
-                field="transaction_amount"
-                sortable
-                :header="`${$t('public.amount')}`"
-                class="hidden md:table-cell"
-            >
-                <template #body="slotProps">
-                    {{ formatAmount(slotProps.data.transaction_amount) }}
-                </template>
-            </Column>
-            <Column class="md:hidden">
-                <template #body="slotProps">
-                    <div class="flex items-center justify-between">
+            <template v-if="transactions?.length > 0">
+                <Column
+                    field="created_at"
+                    sortable
+                    :header="$t('public.date')"
+                    class="hidden md:table-cell"
+                >
+                    <template #body="slotProps">
+                        {{ formatDate(slotProps.data.created_at) }}
+                    </template>
+                </Column>
+                <Column
+                    field="name"
+                    sortable
+                    :header="$t('public.name')"
+                    class="hidden md:table-cell"
+                >
+                    <template #body="slotProps">
                         <div class="flex items-center gap-3">
                             <div class="w-7 h-7 rounded-full overflow-hidden grow-0 shrink-0">
                                 <DefaultProfilePhoto />
                             </div>
                             <div class="flex flex-col items-start">
-                                <div class="text-sm font-semibold">
+                                <div class="font-medium">
                                     {{ slotProps.data.name }}
                                 </div>
-                                <div class="text-gray-500 text-sm">
-                                    {{ `${formatDate(slotProps.data.created_at)}&nbsp;|&nbsp;${slotProps.data.meta_login}` }}
+                                <div class="text-gray-500 text-xs">
+                                    {{ slotProps.data.email }}
                                 </div>
                             </div>
                         </div>
-                        <div class="overflow-hidden text-right text-ellipsis font-semibold">
-                            $&nbsp;{{ formatAmount(slotProps.data.transaction_amount) }}
+                    </template>
+                </Column>
+                <Column
+                    field="meta_login"
+                    :header="`${$t('public.account')}`"
+                    class="hidden md:table-cell"
+                >
+                    <template #body="slotProps">
+                        {{ slotProps.data.meta_login }}
+                    </template>
+                </Column>
+                <Column
+                    field="transaction_amount"
+                    sortable
+                    :header="`${$t('public.amount')}`"
+                    class="hidden md:table-cell"
+                >
+                    <template #body="slotProps">
+                        {{ formatAmount(slotProps.data.transaction_amount) }}
+                    </template>
+                </Column>
+                <Column class="md:hidden">
+                    <template #body="slotProps">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-7 h-7 rounded-full overflow-hidden grow-0 shrink-0">
+                                    <DefaultProfilePhoto />
+                                </div>
+                                <div class="flex flex-col items-start">
+                                    <div class="text-sm font-semibold">
+                                        {{ slotProps.data.name }}
+                                    </div>
+                                    <div class="text-gray-500 text-sm">
+                                        {{ `${formatDate(slotProps.data.created_at)}&nbsp;|&nbsp;${slotProps.data.meta_login}` }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="overflow-hidden text-right text-ellipsis font-semibold">
+                                $&nbsp;{{ formatAmount(slotProps.data.transaction_amount) }}
+                            </div>
                         </div>
-                    </div>
-                </template>
-            </Column>
+                    </template>
+                </Column>
+            </template>
         </DataTable>
     </div>
 

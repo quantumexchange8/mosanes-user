@@ -184,79 +184,81 @@ const openDialog = (rowData) => {
                     <span class="text-sm text-gray-700">{{ $t('public.loading_rebate_record_caption') }}</span>
                 </div>
             </template>
-            <Column
-                field="name"
-                sortable
-                :header="$t('public.name')"
-                class="hidden md:table-cell"
-            >
-                <template #body="slotProps">
-                    <div class="flex items-center gap-3">
-                        <div class="w-7 h-7 rounded-full overflow-hidden grow-0 shrink-0">
-                            <DefaultProfilePhoto />
-                        </div>
-                        <div class="flex flex-col items-start">
-                            <div class="font-medium">
-                                {{ slotProps.data.name }}
-                            </div>
-                            <div class="text-gray-500 text-xs">
-                                {{ slotProps.data.email }}
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </Column>
-            <Column
-                field="meta_login"
-                :header="`${$t('public.account')}`"
-                class="hidden md:table-cell"
-            >
-                <template #body="slotProps">
-                    {{ slotProps.data.meta_login }}
-                </template>
-            </Column>
-            <Column
-                field="volume"
-                sortable
-                :header="`${$t('public.volume')}&nbsp;(Ł)`"
-                class="hidden md:table-cell"
-            >
-                <template #body="slotProps">
-                    {{ formatAmount(slotProps.data.volume) }}
-                </template>
-            </Column>
-            <Column
-                field="rebate"
-                sortable
-                :header="`${$t('public.rebate')}&nbsp;($)`"
-                class="hidden md:table-cell"
-            >
-                <template #body="slotProps">
-                    {{ formatAmount(slotProps.data.rebate) }}
-                </template>
-            </Column>
-            <Column class="md:hidden">
-                <template #body="slotProps">
-                    <div class="flex items-center justify-between">
+            <template v-if="rebateListing?.length > 0">
+                <Column
+                    field="name"
+                    sortable
+                    :header="$t('public.name')"
+                    class="hidden md:table-cell"
+                >
+                    <template #body="slotProps">
                         <div class="flex items-center gap-3">
                             <div class="w-7 h-7 rounded-full overflow-hidden grow-0 shrink-0">
                                 <DefaultProfilePhoto />
                             </div>
                             <div class="flex flex-col items-start">
-                                <div class="text-sm font-semibold">
+                                <div class="font-medium">
                                     {{ slotProps.data.name }}
                                 </div>
                                 <div class="text-gray-500 text-xs">
-                                    {{ `${slotProps.data.meta_login}&nbsp;|&nbsp;${slotProps.data.volume}&nbsp;Ł` }}
+                                    {{ slotProps.data.email }}
                                 </div>
                             </div>
                         </div>
-                        <div class="overflow-hidden text-right text-ellipsis font-semibold">
-                            $&nbsp;{{ formatAmount(slotProps.data.rebate) }}
+                    </template>
+                </Column>
+                <Column
+                    field="meta_login"
+                    :header="`${$t('public.account')}`"
+                    class="hidden md:table-cell"
+                >
+                    <template #body="slotProps">
+                        {{ slotProps.data.meta_login }}
+                    </template>
+                </Column>
+                <Column
+                    field="volume"
+                    sortable
+                    :header="`${$t('public.volume')}&nbsp;(Ł)`"
+                    class="hidden md:table-cell"
+                >
+                    <template #body="slotProps">
+                        {{ formatAmount(slotProps.data.volume) }}
+                    </template>
+                </Column>
+                <Column
+                    field="rebate"
+                    sortable
+                    :header="`${$t('public.rebate')}&nbsp;($)`"
+                    class="hidden md:table-cell"
+                >
+                    <template #body="slotProps">
+                        {{ formatAmount(slotProps.data.rebate) }}
+                    </template>
+                </Column>
+                <Column class="md:hidden">
+                    <template #body="slotProps">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-7 h-7 rounded-full overflow-hidden grow-0 shrink-0">
+                                    <DefaultProfilePhoto />
+                                </div>
+                                <div class="flex flex-col items-start">
+                                    <div class="text-sm font-semibold">
+                                        {{ slotProps.data.name }}
+                                    </div>
+                                    <div class="text-gray-500 text-xs">
+                                        {{ `${slotProps.data.meta_login}&nbsp;|&nbsp;${slotProps.data.volume}&nbsp;Ł` }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="overflow-hidden text-right text-ellipsis font-semibold">
+                                $&nbsp;{{ formatAmount(slotProps.data.rebate) }}
+                            </div>
                         </div>
-                    </div>
-                </template>
-            </Column>
+                    </template>
+                </Column>
+            </template>
         </DataTable>
     </div>
 

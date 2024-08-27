@@ -218,66 +218,68 @@ const rowClicked = (data) => {
                     <span class="text-sm text-gray-700">{{ $t('public.loading_caption') }}</span>
                 </div>
             </template>
-            <Column
-                field="created_at"
-                sortable
-                :header="$t('public.date')"
-                class="w-1/6"
-            >
-                <template #body="slotProps">
-                    {{ formatDateTime(slotProps.data.created_at) }}
-                </template>
-            </Column>
-            <Column
-                field="transaction_number"
-                sortable
-                class="w-auto"
-                :header="$t('public.id')"
-            >
-                <template #body="slotProps">
-                    <template v-if="slotProps.data.transaction_number">{{ slotProps.data.transaction_number }}</template>
-                    <template v-else>-</template>
-                </template>
-            </Column>
-            <Column
-                field="description"
-                class="w-auto"
-                :header="$t('public.description')"
-            >
-                <template #body="slotProps">
-                    <span v-if="['transfer_to_account'].includes(slotProps.data.transaction_type)">{{ $t('public.to') }} {{ slotProps.data.to_meta_login }}</span>
-                    <span v-else>{{ $t(`public.${slotProps.data.transaction_type}`) }}</span>
-                </template>
-            </Column>
-            <Column
-                field="amount"
-                sortable
-                class="w-auto"
-                :header="`${$t('public.amount')} ($)`"
-            >
-                <template #body="slotProps">
-                    <template v-if="slotProps.data.transaction_amount">
-                        $ {{ formatAmount(slotProps.data.transaction_type === 'withdrawal' ? slotProps.data.amount : slotProps.data.transaction_amount) }}
+            <template v-if="transactions?.length > 0">
+                <Column
+                    field="created_at"
+                    sortable
+                    :header="$t('public.date')"
+                    class="w-1/6"
+                >
+                    <template #body="slotProps">
+                        {{ formatDateTime(slotProps.data.created_at) }}
                     </template>
-                    <template v-else>-</template>
-                </template>
-            </Column>
-            <Column
-                field="status"
-                :header="$t('public.status')"
-            >
-                <template #body="slotProps">
-                    <div class="flex py-1.5 items-center flex-1">
-                        <StatusBadge
-                            v-if="slotProps.data.status"
-                            :value="slotProps.data.status"
-                        >
-                            {{ $t(`public.${slotProps.data.status}`) }}
-                        </StatusBadge>
+                </Column>
+                <Column
+                    field="transaction_number"
+                    sortable
+                    class="w-auto"
+                    :header="$t('public.id')"
+                >
+                    <template #body="slotProps">
+                        <template v-if="slotProps.data.transaction_number">{{ slotProps.data.transaction_number }}</template>
                         <template v-else>-</template>
-                    </div>
-                </template>
-            </Column>
+                    </template>
+                </Column>
+                <Column
+                    field="description"
+                    class="w-auto"
+                    :header="$t('public.description')"
+                >
+                    <template #body="slotProps">
+                        <span v-if="['transfer_to_account'].includes(slotProps.data.transaction_type)">{{ $t('public.to') }} {{ slotProps.data.to_meta_login }}</span>
+                        <span v-else>{{ $t(`public.${slotProps.data.transaction_type}`) }}</span>
+                    </template>
+                </Column>
+                <Column
+                    field="amount"
+                    sortable
+                    class="w-auto"
+                    :header="`${$t('public.amount')} ($)`"
+                >
+                    <template #body="slotProps">
+                        <template v-if="slotProps.data.transaction_amount">
+                            $ {{ formatAmount(slotProps.data.transaction_type === 'withdrawal' ? slotProps.data.amount : slotProps.data.transaction_amount) }}
+                        </template>
+                        <template v-else>-</template>
+                    </template>
+                </Column>
+                <Column
+                    field="status"
+                    :header="$t('public.status')"
+                >
+                    <template #body="slotProps">
+                        <div class="flex py-1.5 items-center flex-1">
+                            <StatusBadge
+                                v-if="slotProps.data.status"
+                                :value="slotProps.data.status"
+                            >
+                                {{ $t(`public.${slotProps.data.status}`) }}
+                            </StatusBadge>
+                            <template v-else>-</template>
+                        </div>
+                    </template>
+                </Column>
+            </template>
         </DataTable>
     </div>
 
