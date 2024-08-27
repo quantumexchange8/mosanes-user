@@ -177,7 +177,7 @@ class TradingAccountController extends Controller
 
                 $following_master = AssetSubscription::with('asset_master:id,asset_name')
                     ->where('meta_login', $account->meta_login)
-                    ->where('status', 'ongoing')
+                    ->whereIn('status', ['ongoing', 'pending'])
                     ->first();
 
                 $remaining_days = null;
@@ -566,19 +566,28 @@ class TradingAccountController extends Controller
         // Retrieve the TradingAccount by its ID
         $tradingAccount = TradingAccount::findOrFail($request->account_id);
     
+        // Find the AssetSubscription record
+        $assetSubscription = AssetSubscription::with('asset_master')
+            ->where('user_id', $tradingAccount->user_id)
+            ->where('meta_login', $tradingAccount->meta_login)
+            ->where('status', 'ongoing')
+            ->first();
+
+        // Check if the AssetSubscription is null
+        if ($assetSubscription === null) {
+            return back()->with('toast', [
+                'title' => trans('public.toast_revoke_account_error_title'),
+                'message' => trans('public.toast_revoke_account_error_message'),
+                'type' => 'warning',
+            ]);
+        }
+
         try {
             // Get latest user info from CTraderService and update the TradingAccount
             (new CTraderService)->getUserInfo($tradingAccount);
     
             // Retrieve the updated TradingAccount to get the latest balance
             $tradingAccount = TradingAccount::findOrFail($request->account_id);
-    
-            // Find the AssetSubscription record
-            $assetSubscription = AssetSubscription::with('asset_master')
-                ->where('user_id', $tradingAccount->user_id)
-                ->where('meta_login', $tradingAccount->meta_login)
-                ->where('status', 'ongoing')
-                ->firstOrFail();
     
             // Calculate the penalty fee
             $penaltyPercentage = $assetSubscription->asset_master->penalty_fee;

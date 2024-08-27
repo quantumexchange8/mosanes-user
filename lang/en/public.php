@@ -412,4 +412,6 @@ return [
     "max" => "Max",
     "penalty_fee" => "Penalty Fee",
     "zero_penalty_fee" => "Zero Penalty Fee",
+    "toast_revoke_account_error_title" => "Pamm Not Found",
+    "toast_revoke_account_error_message" => "Revocation only applies to accounts that have join Pamm",
 ];

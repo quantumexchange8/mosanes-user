@@ -410,4 +410,6 @@ return [
     "max" => "最高",
     "penalty_fee" => "退出資管費",
     "zero_penalty_fee" => "無退出資管費",
+    "toast_revoke_account_error_title" => "未找到資產大師",
+    "toast_revoke_account_error_message" => "只有綁定資產大師的帳戶才能取消綁定資管大師",
 ];
