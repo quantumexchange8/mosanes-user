@@ -183,7 +183,7 @@ class TransactionController extends Controller
 
         $transaction = Transaction::create([
             'user_id' => $user->id,
-            'category' => 'rebate_wallet',
+            'category' => $wallet->type,
             'transaction_type' => 'withdrawal',
             'from_wallet_id' => $wallet->id,
             'transaction_number' => RunningNumberService::getID('transaction'),
@@ -202,7 +202,7 @@ class TransactionController extends Controller
         return redirect()->back()->with('notification', [
             'details' => $transaction,
             'type' => 'withdrawal',
-            'withdrawal_type' => 'rebate'
+            'withdrawal_type' => $transaction->category == 'rebate_wallet' ? 'rebate' : 'bonus'
         ]);
     }
 

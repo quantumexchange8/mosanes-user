@@ -49,9 +49,6 @@ export default {
             // Shape
             props.showGridlines ? 'border-x border-t border-b-0' : 'border-y border-x-0',
 
-            // Spacing
-            'pb-6',
-
             // Color
             'bg-white',
             'border-transparent',
@@ -85,18 +82,18 @@ export default {
     }),
     footer: {
         class: [
-            'font-bold',
+            'font-semibold',
 
             // Shape
-            'border-t-0 border-b border-x-0',
+            // 'border-y border-gray-200 border-x-0',
 
             // Spacing
-            'p-4',
+            // 'py-2 px-3',
 
             // Color
             'bg-white',
-            'border-surface-200 dark:border-surface-700',
-            'text-surface-700 dark:text-white/80'
+            'border-gray-200',
+            'text-gray-950'
         ]
     },
     column: {
@@ -116,10 +113,10 @@ export default {
 
                 // Shape
                 { 'first:border-l border-y border-r': context?.showGridlines },
-                'border-0 border-b border-solid',
+                'border-0 md:border-b border-solid',
 
                 // Spacing
-                context?.size === 'small' ? 'py-[0.375rem] px-2' : context?.size === 'large' ? 'py-[0.9375rem] px-5' : 'p-3',
+                context?.size === 'small' ? 'py-[0.375rem] px-2' : context?.size === 'large' ? 'py-[0.9375rem] px-5' : 'p-2.5 md:p-3',
 
                 // Color
                 (props.sortable === '' || props.sortable) && context.sorted ? 'bg-primary-50 text-primary-500' : 'bg-white text-gray-950',
@@ -165,8 +162,8 @@ export default {
                 // Spacing
                 { 'py-[0.375rem] px-2': context?.size === 'small' && !state['d_editing'] },
                 { 'py-[0.9375rem] px-5': context?.size === 'large' && !state['d_editing'] },
-                { 'py-2 px-3': context?.size !== 'large' && context?.size !== 'small' && !state['d_editing'] },
-                { 'py-[0.6rem] px-2': state['d_editing'] },
+                { 'py-2 md:px-3': context?.size !== 'large' && context?.size !== 'small' && !state['d_editing'] },
+                { 'p-3': state['d_editing'] },
 
                 // Color
                 'border-gray-200'
@@ -175,7 +172,8 @@ export default {
         footercell: ({ context }) => ({
             class: [
                 // Font
-                'font-bold',
+                'text-sm',
+                'font-semibold',
 
                 // Alignment
                 'text-left',
@@ -185,12 +183,11 @@ export default {
                 { 'border-x border-y': context?.showGridlines },
 
                 // Spacing
-                context?.size === 'small' ? 'p-2' : context?.size === 'large' ? 'p-5' : 'p-4',
+                context?.size === 'small' ? 'p-2' : context?.size === 'large' ? 'p-5' : 'p-3',
 
                 // Color
-                'border-surface-200 dark:border-surface-700',
-                'text-surface-700 dark:text-white/80',
-                'bg-surface-0 dark:bg-surface-900'
+                'text-gray-950',
+                'bg-white'
             ]
         }),
         sorticon: ({ context }) => ({
@@ -654,10 +651,10 @@ export default {
                 'border-0 rounded-full',
 
                 // Color
-                'text-gray-500',
+                'text-surface-500 dark:text-white/70',
                 'bg-transparent',
                 'focus-visible:outline-none focus-visible:outline-offset-0',
-                'focus-visible:ring-1 focus-visible:ring-primary-500',
+                'focus-visible:ring-1 focus-visible:ring-primary-500 dark:focus-visible:ring-primary-400',
 
                 // Transition
                 'transition duration-200',
@@ -705,12 +702,12 @@ export default {
                 'border-0 rounded-full',
 
                 // Color
-                'text-surface-700 dark:text-white/70',
+                'text-gray-500',
                 'border-transparent',
 
                 // States
                 'focus:outline-none focus:outline-offset-0 focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-400',
-                'hover:text-surface-700 hover:bg-surface-50 dark:hover:bg-surface-800/50',
+                'hover:text-gray-700 hover:bg-gray-100',
 
                 // Transition
                 'transition duration-200',
@@ -729,18 +726,18 @@ export default {
                 'text-left',
 
                 // Size
-                'w-8 h-8',
+                'w-9 h-9',
 
                 // Shape
                 'border-0 rounded-full',
 
                 // Color
-                'text-surface-700 dark:text-white/70',
+                'text-gray-500',
                 'border-transparent',
 
                 // States
-                'focus:outline-none focus:outline-offset-0 focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-400',
-                'hover:text-surface-700 hover:bg-surface-300/20',
+                'focus:outline-none focus:outline-offset-0 focus:ring-1 focus:ring-primary-500',
+                'hover:text-gray-700',
 
                 // Transition
                 'transition duration-200',
@@ -765,12 +762,12 @@ export default {
                 'border-0 rounded-full',
 
                 // Color
-                'text-surface-700 dark:text-white/70',
+                'text-gray-500',
                 'border-transparent',
 
                 // States
-                'focus:outline-none focus:outline-offset-0 focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-400',
-                'hover:text-surface-700 hover:bg-surface-300/20',
+                'focus:outline-none focus:outline-offset-0 focus:ring-1 focus:ring-primary-500',
+                'hover:text-gray-700',
 
                 // Transition
                 'transition duration-200',
@@ -1109,16 +1106,13 @@ export default {
         ]
     }),
     rowexpansion: {
-        class: 'bg-surface-0 text-surface-600',
-    },
-    rowexpansioncell: {
-        class: 'border-b border-gray-200',
+        class: 'bg-surface-0 dark:bg-surface-900 text-surface-600 dark:text-white/80'
     },
     rowgroupheader: {
-        class: ['sticky z-20', 'bg-surface-0 text-surface-600']
+        class: ['sticky z-20', 'bg-surface-0 text-surface-600 dark:text-white/70', 'dark:bg-surface-900']
     },
     rowgroupfooter: {
-        class: ['sticky z-20', 'bg-surface-0 text-surface-600']
+        class: ['sticky z-20', 'bg-white text-gray-950']
     },
     rowgrouptoggler: {
         class: [

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BillboardController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
@@ -119,6 +120,20 @@ Route::middleware(['auth','verified'])->group(function () {
         Route::get('/getRebateAllocateData', [RebateController::class, 'getRebateAllocateData'])->name('rebate_allocate.getRebateAllocateData');
         Route::get('/getAgents', [RebateController::class, 'getAgents'])->name('rebate_allocate.getAgents');
         Route::get('/changeAgents', [RebateController::class, 'changeAgents'])->name('rebate_allocate.changeAgents');
+    });
+
+    /**
+     * ==============================
+     *          Billboard
+     * ==============================
+     */
+    Route::prefix('billboard')->group(function () {
+        Route::get('/', [BillboardController::class, 'index'])->name('billboard');
+        Route::get('/getBonusWallet', [BillboardController::class, 'getBonusWallet'])->name('billboard.getBonusWallet');
+        Route::get('/getTargetAchievements', [BillboardController::class, 'getTargetAchievements'])->name('billboard.getTargetAchievements');
+        Route::get('/getTotalEarnedBonusData', [BillboardController::class, 'getTotalEarnedBonusData'])->name('billboard.getTotalEarnedBonusData');
+        Route::get('/getStatementData', [BillboardController::class, 'getStatementData'])->name('billboard.getStatementData');
+        Route::get('/getBonusWithdrawalHistories', [BillboardController::class, 'getBonusWithdrawalHistories'])->name('billboard.getBonusWithdrawalHistories');
     });
 
     /**

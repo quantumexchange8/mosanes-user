@@ -10,7 +10,7 @@ import {transactionFormat} from "@/Composables/index.js";
 import TermsAndCondition from "@/Components/TermsAndCondition.vue";
 
 const props = defineProps({
-    rebateWallet: Object,
+    wallet: Object,
     terms: Object,
 })
 
@@ -30,7 +30,7 @@ const getOptions = async () => {
 getOptions();
 
 const form = useForm({
-    wallet_id: props.rebateWallet.id,
+    wallet_id: props.wallet.id,
     amount: 0,
     wallet_address: '',
 })
@@ -43,7 +43,7 @@ const toggleFullAmount = () => {
     if (form.amount) {
         form.amount = 0;
     } else {
-        form.amount = Number(props.rebateWallet.balance);
+        form.amount = Number(props.wallet.balance);
     }
 };
 
@@ -65,8 +65,8 @@ const closeDialog = () => {
         <div class="flex flex-col items-center gap-8 self-stretch md:gap-10">
             <div class="flex flex-col items-center gap-5 self-stretch">
                 <div class="flex flex-col justify-center items-center py-4 px-8 gap-2 self-stretch bg-logo">
-                    <span class="w-full text-gray-100 text-center text-xs font-medium">{{ $t('public.available_rebate_balance') }}</span>
-                    <span class="w-full text-white text-center text-xl font-semibold">$ {{ formatAmount(rebateWallet.balance) }}</span>
+                    <span class="w-full text-gray-100 text-center text-xs font-medium">{{ wallet.type === 'rebate_wallet' ? $t('public.available_rebate_balance') : $t('public.available_bonus_balance') }}</span>
+                    <span class="w-full text-white text-center text-xl font-semibold">$ {{ formatAmount(wallet.balance) }}</span>
                 </div>
 
                 <!-- input fields -->

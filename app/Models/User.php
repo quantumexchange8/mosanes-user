@@ -105,6 +105,11 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
         return $this->hasOne(Wallet::class, 'user_id', 'id')->where('type', 'rebate_wallet');
     }
 
+    public function bonus_wallet(): HasOne
+    {
+        return $this->hasOne(Wallet::class, 'user_id', 'id')->where('type', 'bonus_wallet');
+    }
+
     public function tradingAccounts(): HasMany
     {
         return $this->hasMany(TradingAccount::class, 'user_id', 'id');

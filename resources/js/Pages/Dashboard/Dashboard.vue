@@ -71,7 +71,7 @@ const getDashboardData = async () => {
 getDashboardData();
 
 watchEffect(() => {
-    if (usePage().props.toast !== null) {
+    if (usePage().props.toast !== null || usePage().props.notification !== null) {
         getDashboardData();
     }
 });

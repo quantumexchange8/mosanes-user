@@ -28,7 +28,7 @@ const requireAccountConfirmation = (accountType) => {
             cancelButton: trans('public.later'),
             acceptButton: trans('public.add_Wallet'),
             action: () => {
-                window.location.href = route('profile.edit');
+                window.location.href = route('profile');
             }
         }
     };
@@ -97,7 +97,7 @@ const openDialog = (type) => {
 
         <template v-if="dialogType === 'withdrawal'">
             <WalletWithdrawal
-                :rebateWallet="rebateWallet"
+                :wallet="rebateWallet"
                 :terms="terms"
                 @update:visible="visible = false"
             />

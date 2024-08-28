@@ -15,6 +15,7 @@ import {
     IconFileAnalytics,
     IconLogout,
     IconDownload,
+    IconAward
 } from '@tabler/icons-vue';
 
 const user = usePage().props.auth.user;
@@ -84,7 +85,7 @@ const user = usePage().props.auth.user;
 
         <!-- Report -->
        <SidebarLink
-            v-if="user.role == 'agent'"
+           v-if="user.role === 'agent'"
            :title="$t('public.report')"
            :href="route('report')"
            :active="route().current('report')"
@@ -104,6 +105,18 @@ const user = usePage().props.auth.user;
 <!--                <IconBusinessplan :size="20" stroke-width="1.25" />-->
 <!--            </template>-->
 <!--        </SidebarLink>-->
+
+        <!-- Billboard -->
+        <SidebarLink
+            :title="$t('public.billboard')"
+            :href="route('billboard')"
+            :active="route().current('billboard')"
+            v-if="user.role === 'agent'"
+        >
+            <template #icon>
+                <IconAward :size="20" stroke-width="1.25" />
+            </template>
+        </SidebarLink>
 
         <!-- Download Center -->
        <SidebarLink
