@@ -64,6 +64,7 @@ class BillboardController extends Controller
                     if ($achievement->sales_category == 'gross_deposit') {
                         $gross_deposit = Transaction::where('user_id', $user->id)
                             ->where('transaction_type', 'deposit')
+                            ->orWhere('transaction_type', 'balance_in')
                             ->whereMonth('approved_at', date('m'))
                             ->where('status', 'successful')
                             ->sum('transaction_amount');
@@ -74,12 +75,15 @@ class BillboardController extends Controller
                     } elseif ($achievement->sales_category == 'net_deposit') {
                         $total_deposit = Transaction::where('user_id', $user->id)
                             ->where('transaction_type', 'deposit')
+                            ->orWhere('transaction_type', 'balance_in')
                             ->whereMonth('approved_at', date('m'))
                             ->where('status', 'successful')
                             ->sum('transaction_amount');
 
                         $total_withdrawal = Transaction::where('user_id', $user->id)
                             ->where('transaction_type', 'withdrawal')
+                            ->orWhere('transaction_type', 'balance_out')
+                            ->orWhere('transaction_type', 'rebate_out')
                             ->whereMonth('approved_at', date('m'))
                             ->where('status', 'successful')
                             ->sum('transaction_amount');
@@ -106,6 +110,7 @@ class BillboardController extends Controller
 
                         $gross_deposit = Transaction::whereIn('user_id', $child_ids)
                             ->where('transaction_type', 'deposit')
+                            ->orWhere('transaction_type', 'balance_in')
                             ->whereMonth('approved_at', date('m'))
                             ->where('status', 'successful')
                             ->sum('transaction_amount');
@@ -119,17 +124,20 @@ class BillboardController extends Controller
 
                         $total_deposit = Transaction::whereIn('user_id', $child_ids)
                             ->where('transaction_type', 'deposit')
+                            ->orWhere('transaction_type', 'balance_in')
                             ->whereMonth('approved_at', date('m'))
                             ->where('status', 'successful')
                             ->sum('transaction_amount');
 
                         $total_withdrawal = Transaction::whereIn('user_id', $child_ids)
                             ->where('transaction_type', 'withdrawal')
+                            ->orWhere('transaction_type', 'balance_out')
+                            ->orWhere('transaction_type', 'rebate_out')
                             ->whereMonth('approved_at', date('m'))
                             ->where('status', 'successful')
                             ->sum('transaction_amount');
 
-                        $net_deposit = abs($total_deposit - $total_withdrawal);
+                        $net_deposit = $total_deposit - $total_withdrawal;
 
                         $achieved_percentage = ($net_deposit / $achievement->target_amount) * 100;
                         $bonus_amount = ($net_deposit * $achievement->bonus_rate) / 100;
