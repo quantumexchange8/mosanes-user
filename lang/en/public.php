@@ -443,4 +443,6 @@ return [
     "bonus_withdrawal_history" => "Bonus Withdrawal History",
     "available_bonus_balance" => "Available Bonus Balance",
     "total_approved" => "Total Approved",
+    "empty_downline_title" => "No Downline Found",
+    "empty_downline_message" => "It looks like you don't have any downline members yet. Start building your team to grow your network!",
 ];

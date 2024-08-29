@@ -8,6 +8,8 @@ import {transactionFormat} from "@/Composables/index.js";
 import debounce from "lodash/debounce.js";
 import { usePage } from "@inertiajs/vue3";
 
+const emit = defineEmits();
+
 const search = ref('');
 const checked = ref(true);
 const upline = ref(null);
@@ -38,6 +40,16 @@ const getNetwork = async (filterUplineId = upline_id.value, filterParentId = par
         upline.value = response.data.upline;
         parent.value = response.data.parent;
         children.value = response.data.direct_children;
+
+        // Check upline first
+        if (upline.value && upline.value.total_agent_count === 0 && upline.value.total_member_count === 0) {
+            emit('noData');
+        } 
+        // If upline is not available, check parent
+        else if (!upline.value && parent.value && parent.value.total_agent_count === 0 && parent.value.total_member_count === 0) {
+            emit('noData');
+        }
+
     } catch (error) {
         console.error('Error get network:', error);
     } finally {

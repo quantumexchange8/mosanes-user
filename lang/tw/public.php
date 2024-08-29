@@ -441,4 +441,6 @@ return [
     "bonus_withdrawal_history" => "獎金提取歷史",
     "available_bonus_balance" => "獎金餘額",
     "total_approved" => "批准數額",
+    "empty_downline_title" => "尚未找到下線.",
+    "empty_downline_message" => "看起來您還沒有任何下線成員, 開始建立您的團隊, 以擴展您的網絡吧!",
 ];
