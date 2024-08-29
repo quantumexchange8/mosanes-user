@@ -130,7 +130,7 @@ const clearFilterGlobal = () => {
         <DataTable
             v-model:filters="filters"
             :value="transactions"
-            paginator
+            :paginator="transactions?.length > 0"
             removableSort
             :rows="10"
             :rowsPerPageOptions="[10, 20, 50, 100]"

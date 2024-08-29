@@ -36,6 +36,7 @@ const transactions = ref();
 const selectedDate = ref();
 const minFilterAmount = ref(0);
 const maxFilterAmount = ref(0);
+const totalTransaction = ref(0);
 
 const getResults = async (filterDate = null) => {
     if (loading.value) return;
@@ -51,6 +52,7 @@ const getResults = async (filterDate = null) => {
 
         const response = await axios.get(url);
         transactions.value = response.data.transactions;
+        totalTransaction.value = transactions.value?.length;
         maxFilterAmount.value = transactions.value?.length ? Math.max(...transactions.value.map(item => parseFloat(item.transaction_amount || 0))) : 0;
     } catch (error) {
         console.error('Error get rebate transactions:', error);
@@ -112,7 +114,21 @@ const toggle = (event) => {
     op.value.toggle(event);
 }
 
+const recalculateTotals = () => {
+    const filtered = transactions.value.filter(transaction => {
+        return (
+            (!filters.value.name?.value || transaction.name.startsWith(filters.value.name.value)) &&
+            (!filters.value.transaction_type?.value || transaction.transaction_type === filters.value.transaction_type.value) &&
+            (!filters.value.amount?.value[0] || !filters.value.amount?.value[1] || (transaction.transaction_amount >= filters.value.amount.value[0] && transaction.transaction_amount <= filters.value.amount.value[1])) &&
+            (!filters.value.status?.value || transaction.status === filters.value.status.value)
+        );
+    });
+
+    totalTransaction.value = filtered.length;
+};
+
 watch(filters, () => {
+    recalculateTotals();
     // Check if amount filter covers the entire range (considering full range as minFilterAmount and maxFilterAmount)
     const amountFilterIsActive = filters.value.amount.value[0] !== minFilterAmount.value || filters.value.amount.value[1] !== maxFilterAmount.value;
 
@@ -154,7 +170,7 @@ const rowClicked = (data) => {
         <DataTable
             v-model:filters="filters"
             :value="transactions"
-            paginator
+            :paginator="transactions?.length > 0 && totalTransaction > 0"
             removableSort
             :rows="10"
             :rowsPerPageOptions="[10, 20, 50, 100]"
@@ -218,7 +234,7 @@ const rowClicked = (data) => {
                     <span class="text-sm text-gray-700">{{ $t('public.loading_caption') }}</span>
                 </div>
             </template>
-            <template v-if="transactions?.length > 0">
+            <template v-if="transactions?.length > 0 && totalTransaction > 0">
                 <Column
                     field="created_at"
                     sortable

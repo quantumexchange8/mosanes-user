@@ -115,7 +115,7 @@ const openDialog = (rowData) => {
         <DataTable
             v-model:filters="filters"
             :value="rebateListing"
-            paginator
+            :paginator="rebateListing?.length > 0"
             removableSort
             :rows="10"
             :rowsPerPageOptions="[10, 20, 50, 100]"
