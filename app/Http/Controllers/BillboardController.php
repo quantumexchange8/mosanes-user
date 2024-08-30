@@ -98,8 +98,10 @@ class BillboardController extends Controller
                     if ($achievement->sales_category == 'gross_deposit') {
                         $gross_deposit = Transaction::where('user_id', $user->id)
                             ->whereBetween('approved_at', [$startDate, $endDate])
-                            ->where('transaction_type', 'deposit')
-                            ->orWhere('transaction_type', 'balance_in')
+                            ->where(function ($query) {
+                                $query->where('transaction_type', 'deposit')
+                                    ->orWhere('transaction_type', 'balance_in');
+                            })
                             ->where('status', 'successful')
                             ->sum('transaction_amount');
 
@@ -109,16 +111,20 @@ class BillboardController extends Controller
                     } elseif ($achievement->sales_category == 'net_deposit') {
                         $total_deposit = Transaction::where('user_id', $user->id)
                             ->whereBetween('approved_at', [$startDate, $endDate])
-                            ->where('transaction_type', 'deposit')
-                            ->orWhere('transaction_type', 'balance_in')
+                            ->where(function ($query) {
+                                $query->where('transaction_type', 'deposit')
+                                    ->orWhere('transaction_type', 'balance_in');
+                            })
                             ->where('status', 'successful')
                             ->sum('transaction_amount');
 
                         $total_withdrawal = Transaction::where('user_id', $user->id)
                             ->whereBetween('approved_at', [$startDate, $endDate])
-                            ->where('transaction_type', 'withdrawal')
-                            ->orWhere('transaction_type', 'balance_out')
-                            ->orWhere('transaction_type', 'rebate_out')
+                            ->where(function ($query) {
+                                $query->where('transaction_type', 'withdrawal')
+                                    ->orWhere('transaction_type', 'balance_out')
+                                    ->orWhere('transaction_type', 'rebate_out');
+                            })
                             ->where('status', 'successful')
                             ->sum('transaction_amount');
 
@@ -145,8 +151,10 @@ class BillboardController extends Controller
                     if ($achievement->sales_category == 'gross_deposit') {
                         $gross_deposit = Transaction::whereIn('user_id', $child_ids)
                             ->whereBetween('approved_at', [$startDate, $endDate])
-                            ->where('transaction_type', 'deposit')
-                            ->orWhere('transaction_type', 'balance_in')
+                            ->where(function ($query) {
+                                $query->where('transaction_type', 'deposit')
+                                    ->orWhere('transaction_type', 'balance_in');
+                            })
                             ->where('status', 'successful')
                             ->sum('transaction_amount');
 
@@ -156,16 +164,20 @@ class BillboardController extends Controller
                     } elseif ($achievement->sales_category == 'net_deposit') {
                         $total_deposit = Transaction::whereIn('user_id', $child_ids)
                             ->whereBetween('approved_at', [$startDate, $endDate])
-                            ->where('transaction_type', 'deposit')
-                            ->orWhere('transaction_type', 'balance_in')
+                            ->where(function ($query) {
+                                $query->where('transaction_type', 'deposit')
+                                    ->orWhere('transaction_type', 'balance_in');
+                            })
                             ->where('status', 'successful')
                             ->sum('transaction_amount');
 
                         $total_withdrawal = Transaction::whereIn('user_id', $child_ids)
                             ->whereBetween('approved_at', [$startDate, $endDate])
-                            ->where('transaction_type', 'withdrawal')
-                            ->orWhere('transaction_type', 'balance_out')
-                            ->orWhere('transaction_type', 'rebate_out')
+                            ->where(function ($query) {
+                                $query->where('transaction_type', 'withdrawal')
+                                    ->orWhere('transaction_type', 'balance_out')
+                                    ->orWhere('transaction_type', 'rebate_out');
+                            })
                             ->where('status', 'successful')
                             ->sum('transaction_amount');
 
