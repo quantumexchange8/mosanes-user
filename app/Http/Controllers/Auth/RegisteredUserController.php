@@ -118,7 +118,7 @@ class RegisteredUserController extends Controller
         } else {
             $default_upline = User::find(3);
             $default_upline_id = $default_upline->id;
-            $newHierarchyList = empty($default_upline_id->hierarchyList) ? "-" . $default_upline_id . "-" : $default_upline_id->hierarchyList . $default_upline_id . "-";
+            $newHierarchyList = $default_upline->hierarchyList . $default_upline_id . "-";
 
             $userData['upline_id'] = $default_upline_id;
             $userData['hierarchyList'] = $newHierarchyList;
