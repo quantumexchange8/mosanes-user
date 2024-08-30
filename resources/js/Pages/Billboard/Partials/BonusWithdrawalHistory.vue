@@ -12,6 +12,9 @@ import Row from "primevue/row";
 import {ref, watch} from "vue";
 import {transactionFormat} from "@/Composables/index.js";
 import StatusBadge from "@/Components/StatusBadge.vue";
+import Dialog from "primevue/dialog";
+import Tag from "primevue/tag";
+import DefaultProfilePhoto from "@/Components/DefaultProfilePhoto.vue";
 
 const props = defineProps({
     bonusWallet: Object
@@ -72,6 +75,38 @@ watch(selectedDate, (newDateRange) => {
 const clearDate = () => {
     selectedDate.value = [];
 };
+
+const visible = ref(false);
+const withdrawalData = ref();
+const tooltipText = ref('copy');
+
+const rowClicked = (data) => {
+    withdrawalData.value = data;
+    visible.value = true;
+}
+
+const copyToClipboard = (text) => {
+    const textToCopy = text;
+
+    const textArea = document.createElement('textarea');
+    document.body.appendChild(textArea);
+
+    textArea.value = textToCopy;
+    textArea.select();
+
+    try {
+        const successful = document.execCommand('copy');
+
+        tooltipText.value = 'copied';
+        setTimeout(() => {
+            tooltipText.value = 'copy';
+        }, 1500);
+    } catch (err) {
+        console.error('Copy to clipboard failed:', err);
+    }
+
+    document.body.removeChild(textArea);
+}
 </script>
 
 <template>
@@ -84,6 +119,8 @@ const clearDate = () => {
             tableStyle="md:min-width: 50rem"
             ref="dt"
             :loading="loading"
+            selectionMode="single"
+            @row-click="rowClicked($event.data)"
         >
             <template #header>
                 <div class="flex flex-col md:flex-row gap-3 items-center self-stretch md:pb-6">
@@ -206,4 +243,85 @@ const clearDate = () => {
             </ColumnGroup>
         </DataTable>
     </div>
+
+    <Dialog
+        v-model:visible="visible"
+        modal
+        :header="$t('public.withdrawal_details')"
+        class="dialog-xs md:dialog-md"
+    >
+        <div class="flex flex-col justify-center items-start pb-4 gap-3 self-stretch border-b border-gray-200 md:flex-row md:pt-4 md:justify-between">
+            <!-- below md -->
+            <span class="md:hidden self-stretch text-gray-950 text-xl font-semibold">$ {{ formatAmount(withdrawalData.transaction_amount) }}</span>
+            <div class="flex items-center gap-3 self-stretch">
+                <div class="w-9 h-9 rounded-full overflow-hidden grow-0 shrink-0">
+                    <template v-if="withdrawalData.user_profile_photo">
+                        <img :src="withdrawalData.user_profile_photo" alt="profile_photo">
+                    </template>
+                    <template v-else>
+                        <DefaultProfilePhoto />
+                    </template>
+                </div>
+                <div class="flex flex-col items-start flex-grow">
+                    <span class="self-stretch overflow-hidden text-gray-950 text-ellipsis text-sm font-medium">{{ withdrawalData.user_name }}</span>
+                    <span class="self-stretch overflow-hidden text-gray-500 text-ellipsis text-xs">{{ withdrawalData.user_email }}</span>
+                </div>
+            </div>
+            <!-- above md -->
+            <span class="hidden md:block w-[180px] text-gray-950 text-right text-xl font-semibold">$ {{ formatAmount(withdrawalData.transaction_amount) }}</span>
+        </div>
+
+        <div class="flex flex-col items-center py-4 gap-3 self-stretch border-b border-gray-200">
+            <div class="flex flex-col md:flex-row items-start gap-1 self-stretch">
+                <span class="self-stretch md:w-[140px] text-gray-500 text-xs">{{ $t('public.transaction_id') }}</span>
+                <span class="self-stretch text-gray-950 text-sm font-medium">{{ withdrawalData.transaction_number }}</span>
+            </div>
+            <div class="flex flex-col md:flex-row items-start gap-1 self-stretch">
+                <span class="self-stretch md:w-[140px] text-gray-500 text-xs">{{ $t('public.requested_date') }}</span>
+                <span class="self-stretch text-gray-950 text-sm font-medium">{{ dayjs(withdrawalData.created_at).format('YYYY/MM/DD H:mm:ss') }}</span>
+            </div>
+            <div class="flex flex-col md:flex-row items-start gap-1 self-stretch">
+                <span class="self-stretch md:w-[140px] text-gray-500 text-xs">{{ $t('public.approval_date') }}</span>
+                <span class="self-stretch text-gray-950 text-sm font-medium">{{ withdrawalData.status !== 'processing' ? dayjs(withdrawalData.approved_at).format('YYYY/MM/DD H:mm:ss') : '-'}}</span>
+            </div>
+            <div class="flex flex-col md:flex-row items-start gap-1 self-stretch">
+                <span class="self-stretch md:w-[140px] text-gray-500 text-xs">{{ $t('public.from') }}</span>
+                <span class="self-stretch text-gray-950 text-sm font-medium"> {{ $t(`public.${withdrawalData.from_wallet_name}`)  }}</span>
+            </div>
+            <div class="flex flex-col md:flex-row items-start gap-1 self-stretch">
+                <span class="self-stretch md:w-[140px] text-gray-500 text-xs">{{ $t('public.status') }}</span>
+                <StatusBadge :value="withdrawalData.status">
+                    <span v-if="withdrawalData.status === 'successful'">{{ $t('public.approved') }}</span>
+                    <span v-else-if="withdrawalData.status === 'fail'">{{ $t('public.rejected') }}</span>
+                    <span v-else>{{ $t('public.processing') }}</span>
+                </StatusBadge>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center py-4 gap-3 self-stretch border-b border-gray-200">
+            <div class="flex flex-col md:flex-row items-start gap-1 self-stretch">
+                <span class="self-stretch md:w-[140px] text-gray-500 text-xs">{{ $t('public.wallet_name') }}</span>
+                <span class="self-stretch text-gray-950 text-sm font-medium">{{ withdrawalData.to_wallet_name }}</span>
+            </div>
+            <div class="flex flex-col md:flex-row items-start gap-1 self-stretch">
+                <span class="self-stretch md:w-[140px] text-gray-500 text-xs">{{ $t('public.receiving_address') }}</span>
+                <div class="flex justify-center items-center self-stretch select-none cursor-pointer relative" @click="copyToClipboard(withdrawalData.to_wallet_address)">
+                    <Tag
+                        v-if="tooltipText === 'copied'"
+                        class="absolute -top-7 right-32"
+                        severity="contrast"
+                        :value="$t(`public.${tooltipText}`)"
+                    ></Tag>
+                    <span class="flex-grow overflow-hidden text-gray-950 text-ellipsis text-sm font-medium break-words">{{ withdrawalData.to_wallet_address }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center py-4 gap-3 self-stretch">
+            <div class="flex flex-col md:flex-row items-start gap-1 self-stretch">
+                <span class="self-stretch md:w-[140px] text-gray-500 text-xs">{{ $t('public.remarks') }}</span>
+                <span class="self-stretch text-gray-950 text-sm font-medium">{{ withdrawalData.status !== 'processing' ? withdrawalData.remarks : '-' }}</span>
+            </div>
+        </div>
+    </Dialog>
 </template>

@@ -443,4 +443,5 @@ return [
     "total_approved" => "批准數額",
     "empty_downline_title" => "尚未找到下線.",
     "empty_downline_message" => "看起來您還沒有任何下線成員, 開始建立您的團隊, 以擴展您的網絡吧!",
+    "bonus_wallet" => "獎金",
 ];

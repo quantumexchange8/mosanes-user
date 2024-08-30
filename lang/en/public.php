@@ -445,4 +445,5 @@ return [
     "total_approved" => "Total Approved",
     "empty_downline_title" => "No Downline Found",
     "empty_downline_message" => "It looks like you don't have any downline members yet. Start building your team to grow your network!",
+    "bonus_wallet" => "Bonus",
 ];
