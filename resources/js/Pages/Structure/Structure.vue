@@ -65,7 +65,7 @@ const handleNoData = () => {
         </div>
         <Empty v-else :title="$t('public.empty_downline_title')" :message="$t('public.empty_downline_message')">
             <template #image>
-                <img src="/img/member/empty_downline.svg"  alt="" class="w-60 h-[180px]">
+                <img src="/img/no_data/empty_downline.svg"  alt="" class="w-60 h-[180px]">
             </template>
         </Empty>
     </AuthenticatedLayout>
