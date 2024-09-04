@@ -428,6 +428,7 @@ const removeKycVerification = () => {
                                 variant="primary-flat"
                                 class="w-full"
                                 @click.prevent="handleContinue"
+                                :disabled="form.processing"
                             >
                                 {{ $t('public.continue') }}
                             </Button>
