@@ -444,4 +444,8 @@ return [
     "empty_downline_title" => "尚未找到下線.",
     "empty_downline_message" => "看起來您還沒有任何下線成員, 開始建立您的團隊, 以擴展您的網絡吧!",
     "bonus_wallet" => "獎金",
+    "banner_maximize_return" => "綁定資產大師進行投資以最大化",
+    "banner_pamm" => "您的投資回報", 
+    "banner_message" => "享受專家管理的無憂投資.",
+    
 ];

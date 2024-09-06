@@ -19,6 +19,9 @@ import Paginator from "primevue/paginator"
 import OverlayPanel from "primevue/overlaypanel"
 import Checkbox from "primevue/checkbox"
 import Slider from 'primevue/slider';
+import ApplicationLogo from '@/Components/ApplicationLogo.vue'
+import { Link } from '@inertiajs/vue3'
+
 
 const props = defineProps({
     terms: Object,
@@ -188,8 +191,36 @@ getAvailableAccounts();
 <template>
     <AuthenticatedLayout :title="$t('public.asset_master')">
         <div class="flex flex-col items-center gap-5 self-stretch">
-            <div class="flex flex-col items-stretch rounded-2xl shadow-toast w-full">
-                <img src="/img/banner-pamm.png"  alt="">
+
+            <div class="relative flex flex-col items-center gap-5 w-full h-full">
+                <!-- Banner Image -->
+                <a href="https://home.mosanes.com/" target="blank" class="w-full h-full">
+                <img src="/img/banner-pamm.svg" alt="" class="w-full h-full hover:cursor-pointer">
+                
+                <!-- Logo and Text Block -->
+                <div class="absolute top-[8%] left-[4%]">
+                    <div class="flex gap-1 md:gap-3 items-center">
+                        <ApplicationLogo aria-hidden="true" class="size-[3%] fill-white" />
+                        <div class="text-[6px] md:text-base 3xl:text-xl font-bold text-white mt-0.5 md:mt-0">
+                            Mosanes.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Headline and Description -->
+                <div class="absolute top-[28%] left-[4%]">
+                    <div class="max-w-[177px] md:max-w-[385px] xl:max-w-[520px] 3xl:max-w-[760px] flex flex-col">
+                        <div class="font-bold text-white text-xs md:text-[27px] xl:text-[36px] 3xl:text-[53px] w-full leading-[14px] md:leading-8 xl:leading-10 3xl:leading-[50px]">{{ $t('public.banner_maximize_return') }}</div>
+                        <div class="font-bold text-transparent bg-clip-text bg-gradient-to-b from-[#FEDC32] to-[#F79009] text-xs md:text-[27px] xl:text-[36px] 3xl:text-[53px] w-full leading-[14px] md:leading-8 xl:leading-10 3xl:leading-[70px]">{{ $t('public.banner_pamm') }}</div>
+                    </div>
+                    <div class="text-white text-[6px] md:text-xs xl:text-sm 3xl:text-lg md:mt-1">
+                        {{ $t('public.banner_message') }}
+                    </div>
+                </div>
+                    <div class="absolute bottom-[9%] left-[6%] font-semibold text-white text-[4px] md:text-[9px] xl:text-[12px] 3xl:text-[18px]">
+                        www.mosanes.com
+                    </div>
+                </a>
             </div>
 
             <div class="flex justify-between items-center self-stretch">
@@ -208,6 +239,7 @@ getAvailableAccounts();
                         </div>
                     </div>
                     <Button
+                    
                         variant="gray-outlined"
                         @click="toggle"
                         size="sm"

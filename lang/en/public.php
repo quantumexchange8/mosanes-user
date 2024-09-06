@@ -446,4 +446,7 @@ return [
     "empty_downline_title" => "No Downline Found",
     "empty_downline_message" => "It looks like you don't have any downline members yet. Start building your team to grow your network!",
     "bonus_wallet" => "Bonus",
+    "banner_maximize_return" => "Maximize Your Returns with",
+    "banner_pamm" => "PAMM Investing", 
+    "banner_message" => "Enjoy hands-free investing with expert management.",
 ];
