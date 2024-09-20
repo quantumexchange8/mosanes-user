@@ -62,7 +62,7 @@ const sorting = ref(sortingDropdownOptions[0].value)
 const search = ref('');
 
 const selectedTags = ref([]);
-const minInvestmentAmountRange = ref([0, 50000]);
+const minInvestmentAmountRange = ref([0, 5000000]);
 const currentPage = ref(1);
 const rowsPerPage = ref(12);
 const totalRecords = ref(0);
@@ -485,7 +485,7 @@ getAvailableAccounts();
                             range
                             class="w-full"
                             :min="0"
-                            :max="50000"
+                            :max="5000000"
                         />
                         <div class="flex justify-between items-center w-full text-xs">
                             <div class="flex flex-col items-start self-stretch">
