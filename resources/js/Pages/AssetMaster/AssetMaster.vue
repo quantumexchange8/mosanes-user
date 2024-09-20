@@ -81,9 +81,9 @@ const getResults = async (page = 1, pagination = rowsPerPage.value) => {
             url += `&tag=${selectedTags.value}`;
         }
 
-        if (minInvestmentAmountRange.value) {
-            url += `&minInvestmentAmountRange=${minInvestmentAmountRange.value}`;
-        }
+        // if (minInvestmentAmountRange.value) {
+        //     url += `&minInvestmentAmountRange=${minInvestmentAmountRange.value}`;
+        // }
 
         if (search.value) {
             url += `&search=${search.value}`;
@@ -223,23 +223,23 @@ getAvailableAccounts();
                 </a>
             </div>
 
-            <div class="flex justify-between items-center self-stretch">
-                <div class="flex items-center gap-3">
-                    <div class="relative w-full md:w-60">
-                        <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-400">
-                            <IconSearch size="20" stroke-width="1.25" />
-                        </div>
-                        <InputText v-model="search" :placeholder="$t('public.keyword_search')" class="font-normal pl-12 w-full md:w-60" />
-                        <div
-                            v-if="search !== ''"
-                            class="absolute top-2/4 -mt-2 right-4 text-gray-300 hover:text-gray-400 select-none cursor-pointer"
-                            @click="clearSearch"
-                        >
-                            <IconCircleXFilled size="16" />
-                        </div>
+            <div class="flex flex-col md:flex-row gap-3 items-center self-stretch">
+                <div class="relative w-full md:w-60">
+                    <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-400">
+                        <IconSearch size="20" stroke-width="1.25" />
                     </div>
+                    <InputText v-model="search" :placeholder="$t('public.keyword_search')" class="font-normal pl-12 w-full md:w-60" />
+                    <div
+                        v-if="search !== ''"
+                        class="absolute top-2/4 -mt-2 right-4 text-gray-300 hover:text-gray-400 select-none cursor-pointer"
+                        @click="clearSearch"
+                    >
+                        <IconCircleXFilled size="16" />
+                    </div>
+                </div>
+
+                <div class="w-full flex md:justify-between items-center self-stretch gap-3">
                     <Button
-                    
                         variant="gray-outlined"
                         @click="toggle"
                         size="sm"
@@ -253,16 +253,15 @@ getAvailableAccounts();
                             {{ filterCount }}
                         </Badge>
                     </Button>
+                    <Dropdown
+                        v-model="sorting"
+                        :options="sortingDropdownOptions"
+                        optionLabel="name"
+                        option-value="value"
+                        class="w-full md:w-40"
+                        scrollHeight="236px"
+                    />
                 </div>
-
-                <Dropdown
-                    v-model="sorting"
-                    :options="sortingDropdownOptions"
-                    optionLabel="name"
-                    option-value="value"
-                    class="w-40"
-                    scrollHeight="236px"
-                />
             </div>
 
             <div
@@ -479,7 +478,7 @@ getAvailableAccounts();
                     </div>
 
                     <!-- Filter Status -->
-                    <div class="flex flex-col items-center gap-2 self-stretch">
+                    <!-- <div class="flex flex-col items-center gap-2 self-stretch">
                         <span class="self-stretch text-gray-950 text-xs font-bold">{{ $t('public.filter_by_min_investment_amount') }}</span>
                         <Slider
                             v-model="minInvestmentAmountRange"
@@ -498,7 +497,7 @@ getAvailableAccounts();
                                 <span class="text-gray-950">$ {{ formatAmount(minInvestmentAmountRange[1], 0) }}</span>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="w-full flex justify-center items-center py-5 px-4 border-t border-gray-200">
                     <Button
