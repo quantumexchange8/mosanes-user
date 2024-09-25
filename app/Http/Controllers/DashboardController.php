@@ -40,12 +40,12 @@ class DashboardController extends Controller
 
         $rebate_wallet = $user->rebate_wallet;
 
-        $group_total_deposit = Transaction::where('transaction_type', 'deposit')
+        $group_total_deposit = Transaction::whereIn('transaction_type', ['deposit', 'balance_in'])
             ->where('status', 'successful')
             ->whereIn('user_id', $groupIds)
             ->sum('transaction_amount');
 
-        $group_total_withdrawal = Transaction::where('transaction_type', 'withdrawal')
+        $group_total_withdrawal = Transaction::whereIn('transaction_type', ['withdrawal', 'balance_out'])
             ->where('status', 'successful')
             ->whereIn('user_id', $groupIds)
             ->sum('amount');

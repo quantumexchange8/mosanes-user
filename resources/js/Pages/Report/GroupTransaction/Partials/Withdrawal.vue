@@ -237,7 +237,9 @@ const clearFilterGlobal = () => {
                     class="hidden md:table-cell"
                 >
                     <template #body="slotProps">
-                        {{ slotProps.data.meta_login }}
+                        <span v-if="slotProps.data.meta_login === 'rebate'">{{ $t('public.rebate') }}</span>
+                        <span v-else-if="slotProps.data.meta_login === 'bonus'">{{ $t('public.bonus') }}</span>
+                        <span v-else>{{ slotProps.data.meta_login }}</span>
                     </template>
                 </Column>
                 <Column

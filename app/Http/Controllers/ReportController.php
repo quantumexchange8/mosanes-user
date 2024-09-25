@@ -89,13 +89,13 @@ class ReportController extends Controller
         // Retrieve query parameters
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
-    
+
         // Fetch all symbol groups from the database, ordered by the primary key (id)
         $allSymbolGroups = SymbolGroup::pluck('display', 'id')->toArray();
-        
+
         $query = TradeRebateSummary::with('user')
             ->where('upline_user_id', Auth::id());
-    
+
         // Apply date filter based on availability of startDate and/or endDate
         if ($startDate && $endDate) {
             $query->whereDate('execute_at', '>=', $startDate)
@@ -103,7 +103,7 @@ class ReportController extends Controller
         } else {
             $query->whereDate('execute_at', '>=', '2024-01-01');
         }
-        
+
         // Fetch rebate listing data
         $data = $query->get()->map(function ($item) {
             return [
@@ -118,25 +118,25 @@ class ReportController extends Controller
                 'rebate' => $item->rebate,
             ];
         });
-    
+
         // Group data by user_id and meta_login
         $rebateListing = $data->groupBy(function ($item) {
             return $item['user_id'] . '-' . $item['meta_login'];
         })->map(function ($group) use ($allSymbolGroups) {
             $group = collect($group);
-    
+
             // Calculate overall volume and rebate for the user
             $volume = $group->sum('volume');
             $rebate = $group->sum('rebate');
-    
+
             // Create summary by execute_at
             $summary = $group->groupBy('execute_at')->map(function ($executeGroup) use ($allSymbolGroups) {
                 $executeGroup = collect($executeGroup);
-                
+
                 // Calculate details for each symbol group
                 $details = $executeGroup->groupBy('symbol_group')->map(function ($symbolGroupItems) use ($allSymbolGroups) {
                     $symbolGroupId = $symbolGroupItems->first()['symbol_group'];
-    
+
                     return [
                         'id' => $symbolGroupId,
                         'name' => $allSymbolGroups[$symbolGroupId] ?? 'Unknown',
@@ -145,7 +145,7 @@ class ReportController extends Controller
                         'rebate' => $symbolGroupItems->sum('rebate'),
                     ];
                 })->values();
-            
+
                 // Add missing symbol groups with volume, net_rebate, and rebate as 0
                 foreach ($allSymbolGroups as $symbolGroupId => $symbolGroupName) {
                     if (!$details->pluck('id')->contains($symbolGroupId)) {
@@ -158,10 +158,10 @@ class ReportController extends Controller
                         ]);
                     }
                 }
-    
+
                 // Sort the symbol group details array to match the order of symbol groups
                 $details = $details->sortBy('id')->values();
-    
+
                 return [
                     'execute_at' => $executeGroup->first()['execute_at'],
                     'volume' => $executeGroup->sum('volume'),
@@ -169,7 +169,7 @@ class ReportController extends Controller
                     'details' => $details,
                 ];
             })->values();
-    
+
             // Return rebateListing item with summaries included
             return [
                 'user_id' => $group->first()['user_id'],
@@ -181,28 +181,34 @@ class ReportController extends Controller
                 'summary' => $summary,
             ];
         })->values();
-    
+
         // Return JSON response with combined rebateListing and details
         return response()->json([
             'rebateListing' => $rebateListing
         ]);
     }
-    
+
     public function getGroupTransaction(Request $request)
     {
         $user = Auth::user();
         $groupIds = $user->getChildrenIds();
         $groupIds[] = $user->id;
-    
+
         $transactionType = $request->query('type');
         $startDate = $request->query('startDate');
         $endDate = $request->query('endDate');
-    
+
+        $transactionTypes = match($transactionType) {
+            'deposit' => ['deposit', 'balance_in'],
+            'withdrawal' => ['withdrawal', 'balance_out'],
+            default => []
+        };
+
         // Initialize the query for transactions
-        $query = Transaction::where('transaction_type', $transactionType)
+        $query = Transaction::whereIn('transaction_type', $transactionTypes)
             ->where('status', 'successful')
             ->whereIn('user_id', $groupIds);
-    
+
         // Apply date filter based on availability of startDate and/or endDate
         if ($startDate && $endDate) {
             $query->whereDate('created_at', '>=', $startDate)
@@ -211,21 +217,39 @@ class ReportController extends Controller
             // Handle cases where startDate or endDate are not provided
             $query->whereDate('created_at', '>=', '2024-01-01'); // Default start date
         }
-    
+
         $transactions = $query->get()
             ->map(function ($transaction) {
+                $metaLogin = $transaction->to_meta_login ?: $transaction->from_meta_login;
+
+                // Check for withdrawal type and modify meta_login based on category
+                if ($transaction->transaction_type === 'withdrawal') {
+                    switch ($transaction->category) {
+                        case 'trading_account':
+                            $metaLogin = $transaction->from_meta_login;
+                            break;
+                        case 'rebate_wallet':
+                            $metaLogin = 'rebate';
+                            break;
+                        case 'bonus_wallet':
+                            $metaLogin = 'bonus';
+                            break;
+                    }
+                }
+
+                // Return the formatted transaction data
                 return [
                     'created_at' => $transaction->created_at,
                     'user_id' => $transaction->user_id,
                     'name' => $transaction->user->name,
                     'email' => $transaction->user->email,
-                    'meta_login' => $transaction->to_meta_login ?: $transaction->from_meta_login,
-                    'transaction_amount' => $transaction->transaction_amount
+                    'meta_login' => $metaLogin,
+                    'transaction_amount' => $transaction->transaction_amount,
                 ];
             });
-    
+
         // Calculate total deposit and withdrawal amounts for the given date range
-        $group_total_deposit = Transaction::where('transaction_type', 'deposit')
+        $group_total_deposit = Transaction::whereIn('transaction_type', ['deposit', 'balance_in'])
             ->where('status', 'successful')
             ->whereIn('user_id', $groupIds)
             ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
@@ -233,8 +257,8 @@ class ReportController extends Controller
                       ->whereDate('created_at', '<=', $endDate);
             })
             ->sum('transaction_amount');
-    
-        $group_total_withdrawal = Transaction::where('transaction_type', 'withdrawal')
+
+        $group_total_withdrawal = Transaction::whereIn('transaction_type', ['withdrawal', 'balance_out'])
             ->where('status', 'successful')
             ->whereIn('user_id', $groupIds)
             ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
@@ -242,7 +266,7 @@ class ReportController extends Controller
                       ->whereDate('created_at', '<=', $endDate);
             })
             ->sum('transaction_amount');
-    
+
         return response()->json([
             'transactions' => $transactions,
             'groupTotalDeposit' => $group_total_deposit,
