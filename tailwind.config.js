@@ -161,11 +161,11 @@ export default {
             typography: ({ theme }) => ({
                 DEFAULT: {
                     css: {
-                        '--tw-prose-paragraphs': theme('colors.gray[700]'),
+                        '--tw-prose-paragraphs': theme('colors.gray[950]'),
                         '--tw-prose-headings': theme('colors.gray[950]'),
-                        '--tw-prose-counters': theme('colors.gray[300]'),
+                        '--tw-prose-counters': theme('colors.gray[950]'),
                         '--tw-prose-bold': theme('colors.gray[950]'),
-                        '--tw-prose-bullets': theme('colors.gray[500]'),
+                        '--tw-prose-bullets': theme('colors.gray[950]'),
                         h1: {
                             fontSize: '30px',
                             lineHeight: '42px'

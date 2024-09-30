@@ -41,6 +41,7 @@ Route::middleware(['auth','verified'])->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/getDashboardData', [DashboardController::class, 'getDashboardData'])->name('getDashboardData');
         Route::get('/getRebateEarnData', [DashboardController::class, 'getRebateEarnData'])->name('getRebateEarnData');
+        Route::get('/getPosts', [DashboardController::class, 'getPosts'])->name('member.getPosts');
 
         Route::post('/applyRebate', [TransactionController::class, 'applyRebate'])->name('dashboard.applyRebate');
         Route::post('/walletTransfer', [TransactionController::class, 'walletTransfer'])->name('dashboard.walletTransfer');

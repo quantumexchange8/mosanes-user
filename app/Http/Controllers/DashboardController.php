@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ForumPost;
 use App\Models\Term;
 use App\Models\Transaction;
 use App\Models\User;
@@ -29,6 +30,7 @@ class DashboardController extends Controller
 
         return Inertia::render('Dashboard/Dashboard', [
             'terms' => $structuredTerms,
+            'postCounts' => ForumPost::count(),
         ]);
     }
 
@@ -104,5 +106,22 @@ class DashboardController extends Controller
             'title' => trans('public.access_denied'),
             'type' => 'error'
         ]);
+    }
+
+    public function getPosts(Request $request)
+    {
+        $posts = ForumPost::with([
+            'user:id,name',
+            'media'
+        ])
+            ->latest()
+            ->get()
+            ->map(function ($post) {
+                $post->display_avatar = $post->getFirstMediaUrl('display_avatar');
+                $post->post_attachment = $post->getFirstMediaUrl('post_attachment');
+                return $post;
+            });
+
+        return response()->json($posts);
     }
 }
