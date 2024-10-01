@@ -270,7 +270,7 @@ return [
     "day_shortform" => "天",
     "copy" => "拷貝",
     "copied" => "已拷貝!",
-    "paginator_caption" => "Showing {first} to {last} of {totalRecords} entries",
+    "paginator_caption" => "顯示 {first} 至 {last} 的 {totalRecords} 條目",
     "standard_account" => "標準交易賬戶",
     "premium_account" => "優投管理帳戶",
     "referral_qr_code" => "推薦二維碼",
