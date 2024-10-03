@@ -76,8 +76,6 @@ class CTraderService
                 'accountType' => CTraderAccountType::HEDGED,
             ])->json();
 
-            Log::debug('account response', $accountResponse);
-
             if (isset($accountResponse['login'])) {
                 $this->linkAccountTOCTID($accountResponse['login'], $mainPassword, $user->ct_user_id);
 
@@ -85,7 +83,10 @@ class CTraderService
                 (new CreateTradingAccount)->execute($user, $accountResponse, $accountType);
                 return $accountResponse;
             } else {
-                Log::error('createUser error', ['accountResponse' => $accountResponse]);
+                Log::error('createUser error', [
+                    'accountResponse' => $accountResponse,
+                    'message' => \Exception::getMessage(),
+                ]);
                 return null;
             }
         } catch (\Exception $e) {
