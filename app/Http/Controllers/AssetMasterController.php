@@ -511,6 +511,7 @@ class AssetMasterController extends Controller
 
         return response()->json([
             'chartData' => $chartData,
+            'selectedMonthProfit' => array_sum($dataset['data']),
         ]);
     }
 

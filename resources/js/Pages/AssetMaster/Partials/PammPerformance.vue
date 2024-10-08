@@ -10,6 +10,7 @@ const props = defineProps({
 })
 
 const selectedMonth = ref('');
+const selectedMonthProfit = ref(0);
 const historyPeriodOptions = ref([]);
 const currentYear = dayjs().year();
 const {formatAmount} = transactionFormat()
@@ -32,11 +33,11 @@ selectedMonth.value = dayjs().format('MM/YYYY');
                  <span
                      class="text-xl font-semibold"
                      :class="{
-                    'text-green': masterDetail && masterDetail.monthly_gain > 0,
-                    'text-pink': masterDetail && masterDetail.monthly_gain < 0,
-                    'text-gray-500': masterDetail && masterDetail.monthly_gain === 0,
+                    'text-green': selectedMonthProfit > 0,
+                    'text-pink': selectedMonthProfit < 0,
+                    'text-gray-500': selectedMonthProfit === 0,
                 }"
-                 >{{ masterDetail ? formatAmount(masterDetail.monthly_gain) : 0 }}%</span>
+                 >{{ masterDetail ? formatAmount(selectedMonthProfit) : 0 }}%</span>
                 <Dropdown
                     v-model="selectedMonth"
                     :options="historyPeriodOptions"
@@ -62,17 +63,18 @@ selectedMonth.value = dayjs().format('MM/YYYY');
             <span
                 class="text-xxl font-semibold"
                 :class="{
-                    'text-green': masterDetail && masterDetail.monthly_gain > 0,
-                    'text-pink': masterDetail && masterDetail.monthly_gain < 0,
-                    'text-gray-500': !masterDetail || masterDetail.monthly_gain === 0,
+                    'text-green': selectedMonthProfit > 0,
+                    'text-pink': selectedMonthProfit < 0,
+                    'text-gray-500': selectedMonthProfit === 0,
                 }"
-            >{{ masterDetail ? formatAmount(masterDetail.monthly_gain) : 0 }}%</span>
+            >{{ masterDetail ? formatAmount(selectedMonthProfit) : 0 }}%</span>
         </div>
 
         <!-- chart -->
         <PammPerformanceChart
             :selectedMonth="selectedMonth"
             :masterDetail="masterDetail"
+            @update:selectedMonthProfit="selectedMonthProfit = $event"
         />
     </div>
 </template>

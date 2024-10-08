@@ -13,6 +13,7 @@ const chartData = ref({
     labels: [],
     datasets: [],
 });
+const emit = defineEmits(["update:selectedMonthProfit"]);
 
 const fetchData = async () => {
     try {
@@ -26,6 +27,7 @@ const fetchData = async () => {
 
         const response = await axios.get('/asset_master/getMasterMonthlyProfit', { params: { master_id: props.masterDetail.id, month: month.value } });
         const { labels, datasets } = response.data.chartData;
+        emit('update:selectedMonthProfit', response.data.selectedMonthProfit);
 
         chartData.value.labels = labels;
         chartData.value.datasets = datasets;
